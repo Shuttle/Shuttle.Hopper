@@ -1,0 +1,14 @@
+﻿namespace Shuttle.Hopper;
+
+public enum SubscribeType
+{
+    Normal = 0,
+    Ensure = 1,
+    Ignore = 2
+}
+
+public class SubscriptionOptions
+{
+    public List<string> MessageTypes { get; set; } = [];
+    public SubscribeType SubscribeType { get; set; } = SubscribeType.Normal;
+}
