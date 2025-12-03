@@ -4,7 +4,7 @@ public static class TransportConfigurationExtensions
 {
     extension(IWorkTransportConfiguration workTransportConfiguration)
     {
-        public async Task TryCreateAsync()
+        public async Task TryCreateAsync(CancellationToken cancellationToken = default)
         {
             if (workTransportConfiguration.WorkTransport != null)
             {

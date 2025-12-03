@@ -6,7 +6,7 @@ public static class ServiceBusExtensions
 {
     extension(IServiceBus serviceBus)
     {
-        public async Task CreatePhysicalTransportsAsync()
+        public async Task CreatePhysicalTransportsAsync(CancellationToken cancellationToken = default)
         {
             if (serviceBus.HasInbox())
             {

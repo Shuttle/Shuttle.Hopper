@@ -147,7 +147,7 @@ public class RegisterMemberHandler : IMessageHandler<RegisterMember>
     {
     }
 
-	public async Task ProcessMessageAsync(IHandlerContext<RegisterMember> context)
+	public async Task ProcessMessageAsync(IHandlerContext<RegisterMember> context, CancellationToken cancellationToken = default)
 	{
         // perform member registration
 
@@ -162,7 +162,7 @@ public class RegisterMemberHandler : IMessageHandler<RegisterMember>
 ``` c#
 public class MemberRegisteredHandler : IMessageHandler<MemberRegistered>
 {
-	public async Task ProcessMessageAsync(IHandlerContext<MemberRegistered> context)
+	public async Task ProcessMessageAsync(IHandlerContext<MemberRegistered> context, CancellationToken cancellationToken = default)
 	{
         // processing
 	}

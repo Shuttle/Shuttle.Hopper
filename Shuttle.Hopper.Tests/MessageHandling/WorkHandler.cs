@@ -2,7 +2,7 @@
 
 public class WorkHandler : IMessageHandler<WorkMessage>
 {
-    public async Task ProcessMessageAsync(IHandlerContext<WorkMessage> context)
+    public async Task ProcessMessageAsync(IHandlerContext<WorkMessage> context, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
 

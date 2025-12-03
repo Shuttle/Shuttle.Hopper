@@ -4,5 +4,5 @@ namespace Shuttle.Hopper;
 
 public interface IMessageHandlerInvoker
 {
-    ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext);
+    ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext, CancellationToken cancellationToken = default);
 }

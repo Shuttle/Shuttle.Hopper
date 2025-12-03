@@ -94,7 +94,7 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
 
                 await AdjustNextProcessingDateTimeAsync(_ignoreTillDate < nextProcessingDateTime
                     ? _ignoreTillDate
-                    : nextProcessingDateTime);
+                    : nextProcessingDateTime, cancellationToken);
 
                 _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
 
@@ -111,7 +111,7 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
         }
     }
 
-    public async Task MessageDeferredAsync(DateTime ignoreTillDate)
+    public async Task MessageDeferredAsync(DateTime ignoreTillDate, CancellationToken cancellationToken = default)
     {
         await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
@@ -119,7 +119,7 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
         {
             if (ignoreTillDate.ToUniversalTime() < _nextProcessingDateTime)
             {
-                await AdjustNextProcessingDateTimeAsync(ignoreTillDate.ToUniversalTime());
+                await AdjustNextProcessingDateTimeAsync(ignoreTillDate.ToUniversalTime(), cancellationToken);
             }
         }
         finally
@@ -128,10 +128,10 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
         }
     }
 
-    private async Task AdjustNextProcessingDateTimeAsync(DateTime dateTime)
+    private async Task AdjustNextProcessingDateTimeAsync(DateTime dateTime, CancellationToken cancellationToken = default)
     {
         _nextProcessingDateTime = dateTime;
 
-        await _serviceBusOptions.DeferredMessageProcessingAdjusted.InvokeAsync(new(_nextProcessingDateTime));
+        await _serviceBusOptions.DeferredMessageProcessingAdjusted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
     }
 }

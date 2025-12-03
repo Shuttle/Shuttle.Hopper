@@ -29,14 +29,14 @@ public sealed class MessageRouteProvider : IMessageRouteProvider
         }
     }
 
-    public async Task<IEnumerable<string>> GetRouteUrisAsync(string messageType)
+    public async Task<IEnumerable<string>> GetRouteUrisAsync(string messageType, CancellationToken cancellationToken = default)
     {
         var uri = _messageRoutes.FindByMessageType(Guard.AgainstEmpty(messageType)).Select(messageRoute => messageRoute.Uri.ToString()).FirstOrDefault();
 
         return await Task.FromResult<IEnumerable<string>>(string.IsNullOrEmpty(uri) ? [] : [uri]);
     }
 
-    public async Task AddAsync(IMessageRoute messageRoute)
+    public async Task AddAsync(IMessageRoute messageRoute, CancellationToken cancellationToken = default)
     {
         var existing = _messageRoutes.FindByUri(Guard.AgainstNull(messageRoute).Uri);
 

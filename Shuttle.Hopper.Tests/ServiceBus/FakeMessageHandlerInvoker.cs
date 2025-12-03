@@ -7,7 +7,7 @@ public class FakeMessageHandlerInvoker : IMessageHandlerInvoker
 {
     private readonly Dictionary<string, int> _invokeCounts = new();
 
-    public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
+    public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var transportMessage = Guard.AgainstNull(pipelineContext.Pipeline.State.GetTransportMessage());
         var messageType = transportMessage.MessageType;

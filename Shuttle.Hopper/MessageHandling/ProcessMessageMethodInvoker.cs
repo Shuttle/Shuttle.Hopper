@@ -11,12 +11,13 @@ internal class ProcessMessageMethodInvoker
 
     public ProcessMessageMethodInvoker(MethodInfo methodInfo)
     {
-        var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), [typeof(object), typeof(object)], HandlerContextType.Module);
+        var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), [typeof(object), typeof(object), typeof(CancellationToken)], HandlerContextType.Module);
 
         var il = dynamicMethod.GetILGenerator();
 
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldarg_1);
+        il.Emit(OpCodes.Ldarg_2);
 
         il.EmitCall(OpCodes.Callvirt, methodInfo, null);
         il.Emit(OpCodes.Ret);
@@ -24,10 +25,10 @@ internal class ProcessMessageMethodInvoker
         _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
     }
 
-    public async Task InvokeAsync(object handler, object handlerContext)
+    public async Task InvokeAsync(object handler, object handlerContext, CancellationToken cancellationToken)
     {
-        await _invoker.Invoke(handler, handlerContext).ConfigureAwait(false);
+        await _invoker.Invoke(handler, handlerContext, cancellationToken).ConfigureAwait(false);
     }
 
-    private delegate Task InvokeHandler(object handler, object handlerContext);
+    private delegate Task InvokeHandler(object handler, object handlerContext, CancellationToken cancellationToken);
 }

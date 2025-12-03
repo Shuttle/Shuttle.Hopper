@@ -7,7 +7,7 @@ public interface IAcknowledgeMessageObserver : IPipelineObserver<OnAcknowledgeMe
 
 public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
 {
-    public async Task ExecuteAsync(IPipelineContext<OnAcknowledgeMessage> pipelineContext, CancellationToken cancellation = default)
+    public async Task ExecuteAsync(IPipelineContext<OnAcknowledgeMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
 
@@ -18,6 +18,6 @@ public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
 
         var acknowledgementToken = Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken;
 
-        await Guard.AgainstNull(state.GetWorkTransport()).AcknowledgeAsync(acknowledgementToken, cancellation).ConfigureAwait(false);
+        await Guard.AgainstNull(state.GetWorkTransport()).AcknowledgeAsync(acknowledgementToken, cancellationToken).ConfigureAwait(false);
     }
 }

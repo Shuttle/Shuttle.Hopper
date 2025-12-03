@@ -20,7 +20,7 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
         _delegates = Guard.AgainstNull(Guard.AgainstNull(messageHandlerDelegateProvider).Delegates).ToDictionary(pair => pair.Key, pair => pair.Value);
     }
 
-    public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext)
+    public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var message = Guard.AgainstNull(state.GetMessage());
@@ -45,7 +45,7 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
             _lock.Release();
         }
 
-        var handlerContext = handlerContextConstructor.CreateHandlerContext(Guard.AgainstNull(_messageSender), Guard.AgainstNull(transportMessage), message, pipelineContext.Pipeline.CancellationToken);
+        var handlerContext = handlerContextConstructor.CreateHandlerContext(Guard.AgainstNull(_messageSender), Guard.AgainstNull(transportMessage), message);
 
         state.SetHandlerContext(handlerContext);
 
@@ -103,7 +103,7 @@ public class MessageHandlerInvoker : IMessageHandlerInvoker
             _lock.Release();
         }
 
-        await processMessageMethodInvoker.InvokeAsync(handler, handlerContext).ConfigureAwait(false);
+        await processMessageMethodInvoker.InvokeAsync(handler, handlerContext, cancellationToken).ConfigureAwait(false);
 
         return true;
     }

@@ -2,5 +2,5 @@ namespace Shuttle.Hopper;
 
 public interface ICreateTransport
 {
-    Task CreateAsync();
+    Task CreateAsync(CancellationToken cancellationToken = default);
 }

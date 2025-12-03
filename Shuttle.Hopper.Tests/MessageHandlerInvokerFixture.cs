@@ -30,16 +30,11 @@ public class MessageHandlerInvokerFixture
         public bool Replied { get; set; }
     }
 
-    public class MessageHandler : IMessageHandler<Message>
+    public class MessageHandler(IMessageHandlerTracker messageHandlerTracker) : IMessageHandler<Message>
     {
-        private readonly IMessageHandlerTracker _messageHandlerTracker;
+        private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
-        public MessageHandler(IMessageHandlerTracker messageHandlerTracker)
-        {
-            _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
-        }
-
-        public async Task ProcessMessageAsync(IHandlerContext<Message> context)
+        public async Task ProcessMessageAsync(IHandlerContext<Message> context, CancellationToken cancellationToken = default)
         {
             Console.WriteLine($@"[handled] : name = {context.Message.Name}");
 
@@ -74,21 +69,18 @@ public class MessageHandlerInvokerFixture
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = "memory://configuration/inbox";
-            builder.Options.Inbox.DurationToSleepWhenIdle = new()
-            {
-                TimeSpan.FromMilliseconds(5)
-            };
+            builder.Options.Inbox.DurationToSleepWhenIdle = [TimeSpan.FromMilliseconds(5)];
             builder.Options.MessageRoutes.Add(new()
             {
                 Uri = "memory://configuration/inbox",
-                Specifications = new()
-                {
+                Specifications =
+                [
                     new()
                     {
                         Name = "StartsWith",
                         Value = "Shuttle"
                     }
-                }
+                ]
             });
         });
 
@@ -137,21 +129,18 @@ public class MessageHandlerInvokerFixture
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = "memory://configuration/inbox";
-            builder.Options.Inbox.DurationToSleepWhenIdle = new()
-            {
-                TimeSpan.FromMilliseconds(5)
-            };
+            builder.Options.Inbox.DurationToSleepWhenIdle = [TimeSpan.FromMilliseconds(5)];
             builder.Options.MessageRoutes.Add(new()
             {
                 Uri = "memory://configuration/inbox",
-                Specifications = new()
-                {
+                Specifications =
+                [
                     new()
                     {
                         Name = "StartsWith",
                         Value = "Shuttle"
                     }
-                }
+                ]
             });
 
             builder.AddMessageHandler(messageHandler);

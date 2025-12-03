@@ -2,5 +2,5 @@ namespace Shuttle.Hopper;
 
 public interface IDropTransport
 {
-    Task DropAsync();
+    Task DropAsync(CancellationToken cancellationToken = default);
 }

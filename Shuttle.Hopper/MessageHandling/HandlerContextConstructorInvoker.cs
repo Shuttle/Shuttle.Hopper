@@ -14,8 +14,7 @@ internal class HandlerContextConstructorInvoker
         [
             typeof(IMessageSender),
             typeof(TransportMessage),
-            typeof(object),
-            typeof(CancellationToken)
+            typeof(object)
         ], HandlerContextType.Module);
 
         var il = dynamicMethod.GetILGenerator();
@@ -23,15 +22,13 @@ internal class HandlerContextConstructorInvoker
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldarg_1);
         il.Emit(OpCodes.Ldarg_2);
-        il.Emit(OpCodes.Ldarg_3);
 
         var contextType = HandlerContextType.MakeGenericType(messageType);
         var constructorInfo = contextType.GetConstructor(
         [
             typeof(IMessageSender),
             typeof(TransportMessage),
-            messageType,
-            typeof(CancellationToken)
+            messageType
         ]);
 
         if (constructorInfo == null)
@@ -45,10 +42,10 @@ internal class HandlerContextConstructorInvoker
         _constructorInvoker = (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
     }
 
-    public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
+    public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message)
     {
-        return _constructorInvoker(messageSender, transportMessage, message, cancellationToken);
+        return _constructorInvoker(messageSender, transportMessage, message);
     }
 
-    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message, CancellationToken cancellationToken);
+    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message);
 }
