@@ -6,18 +6,18 @@ namespace Shuttle.Hopper;
 
 public class OutboxPipeline : Pipeline
 {
-    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
+    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<ServiceBusOptions> serviceBusOptions, IServiceProvider serviceProvider, IServiceBus serviceBus, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
         : base(pipelineOptions, serviceProvider)
     {
         Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-        if (serviceBusConfiguration.Outbox == null)
+        if (serviceBus.Outbox == null)
         {
             return;
         }
 
-        State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Outbox.WorkTransport));
-        State.SetErrorTransport(serviceBusConfiguration.Outbox.ErrorTransport);
+        State.SetWorkTransport(Guard.AgainstNull(serviceBus.Outbox.WorkTransport));
+        State.SetErrorTransport(serviceBus.Outbox.ErrorTransport);
 
         State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.DurationToIgnoreOnFailure);
         State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);

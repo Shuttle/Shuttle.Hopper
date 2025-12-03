@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Options;
-using Shuttle.Core.Contract;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
 using JsonSerializer = Shuttle.Core.Serialization.JsonSerializer;
@@ -10,7 +9,6 @@ namespace Shuttle.Hopper.Tests;
 public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToReturn) : ITransport
 {
     private readonly ISerializer _serializer = new JsonSerializer(Options.Create(new JsonSerializerOptions()));
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(serviceBusOptions);
 
     public int MessageCount { get; private set; }
 

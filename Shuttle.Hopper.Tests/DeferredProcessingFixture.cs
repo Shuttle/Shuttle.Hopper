@@ -18,7 +18,7 @@ public class DeferredProcessingFixture
     {
         var serializer = new JsonSerializer(Options.Create(new JsonSerializerOptions()));
         var pipelineFactory = new Mock<IPipelineFactory>();
-        var configuration = new Mock<IServiceBusConfiguration>();
+        var serviceBus = new Mock<IServiceBus>();
         var serviceScopeFactory = new Mock<IServiceScopeFactory>();
 
         serviceScopeFactory.Setup(m => m.CreateScope()).Returns(new Mock<IServiceScope>().Object);
@@ -58,12 +58,12 @@ public class DeferredProcessingFixture
             ErrorTransport = new MemoryTransport(serviceBusOptions, new("memory://memory/error-transport"))
         };
 
-        configuration.Setup(m => m.Inbox).Returns(inboxConfiguration);
+        serviceBus.Setup(m => m.Inbox).Returns(inboxConfiguration);
 
         var processDeferredMessageObserver = new ProcessDeferredMessageObserver(serviceBusOptionsWrapped);
 
         pipelineFactory.Setup(m => m.GetPipelineAsync<DeferredMessagePipeline>(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new DeferredMessagePipeline(pipelineOptionsWrapped, new Mock<IServiceProvider>().Object, configuration.Object, new GetDeferredMessageObserver(), new DeserializeTransportMessageObserver(serviceBusOptionsWrapped, serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
+            .ReturnsAsync(new DeferredMessagePipeline(pipelineOptionsWrapped, new Mock<IServiceProvider>().Object, serviceBus.Object, new GetDeferredMessageObserver(), new DeserializeTransportMessageObserver(serviceBusOptionsWrapped, serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
 
         var deferredMessageProcessor = new DeferredMessageProcessor(serviceBusOptionsWrapped, pipelineFactory.Object);
 

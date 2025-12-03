@@ -11,7 +11,7 @@ public class DispatchTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_dispatch_message_to_outbox_async()
     {
-        var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
+        var serviceBus = new Mock<IServiceBus>();
         var transportService = new Mock<ITransportService>();
         var outboxConfiguration = new Mock<IOutboxConfiguration>();
         var recipientTransport = new Mock<ITransport>();
@@ -23,10 +23,10 @@ public class DispatchTransportMessageObserverFixture
         var transportMessageStream = Stream.Null;
 
         outboxConfiguration.Setup(m => m.WorkTransport).Returns(outboxTransport.Object);
-        serviceBusConfiguration.Setup(m => m.Outbox).Returns(outboxConfiguration.Object);
+        serviceBus.Setup(m => m.Outbox).Returns(outboxConfiguration.Object);
         transportService.Setup(m => m.GetAsync(new(transportMessage.RecipientInboxWorkTransportUri), CancellationToken.None)).ReturnsAsync(recipientTransport.Object);
 
-        var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, transportService.Object);
+        var observer = new DispatchTransportMessageObserver(serviceBus.Object, transportService.Object);
 
         var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
             .AddObserver(observer);
@@ -42,7 +42,7 @@ public class DispatchTransportMessageObserverFixture
 
         outboxTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
 
-        serviceBusConfiguration.VerifyNoOtherCalls();
+        serviceBus.VerifyNoOtherCalls();
         transportService.VerifyNoOtherCalls();
         outboxConfiguration.VerifyNoOtherCalls();
         recipientTransport.VerifyNoOtherCalls();
@@ -52,7 +52,7 @@ public class DispatchTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_dispatch_message_to_recipient_async()
     {
-        var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
+        var serviceBus = new Mock<IServiceBus>();
         var transportService = new Mock<ITransportService>();
         var recipientTransport = new Mock<ITransport>();
         var outboxTransport = new Mock<ITransport>();
@@ -64,7 +64,7 @@ public class DispatchTransportMessageObserverFixture
 
         transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), CancellationToken.None)).ReturnsAsync(() => recipientTransport.Object);
 
-        var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, transportService.Object);
+        var observer = new DispatchTransportMessageObserver(serviceBus.Object, transportService.Object);
 
         var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
             .AddObserver(observer);

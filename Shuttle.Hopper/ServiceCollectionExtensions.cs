@@ -76,7 +76,6 @@ public static class ServiceCollectionExtensions
                 options.Threading = serviceBusBuilder.Options.Threading;
             });
 
-            services.AddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
             services.AddSingleton<IMessageHandlerDelegateProvider>(_ => new MessageHandlerDelegateProvider(serviceBusBuilder.GetDelegates()));
 
             if (serviceBusBuilder.Options.AddMessageHandlers)
