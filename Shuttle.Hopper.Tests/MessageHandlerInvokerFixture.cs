@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shuttle.Core.Contract;
+using System;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -55,6 +56,28 @@ public class MessageHandlerInvokerFixture
             {
                 builder.Reply();
             }, cancellationToken);
+        }
+    }
+    public class MessageHandler(IServiceBus serviceBus, IMessageHandlerTracker messageHandlerTracker) : IMessageHandler<Message>
+    {
+        private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
+
+        public async Task ProcessMessageAsync(Message message, CancellationToken cancellationToken = default)
+        {
+            Console.WriteLine($@"[handled] : name = {message.Name}");
+
+            _messageHandlerTracker.Handled();
+
+            if (message.Replied)
+            {
+                return;
+            }
+
+            await serviceBus.SendAsync(new Message
+            {
+                Replied = true,
+                Name = $"replied-{message.Count}"
+            }, cancellationToken: cancellationToken);
         }
     }
 
@@ -116,14 +139,14 @@ public class MessageHandlerInvokerFixture
     }
 
     [Test]
-    public async Task Should_be_able_to_invoke_handler_instance_async()
+    public async Task Should_be_able_to_invoke_context_handler_instance_async()
     {
         const int count = 5;
 
         var services = new ServiceCollection();
 
         var messageHandlerTracker = new MessageHandlerTracker();
-        var messageHandler = new ContextHandler(messageHandlerTracker);
+        var contextHandler = new ContextHandler(messageHandlerTracker);
 
         services.AddServiceBus(builder =>
         {
@@ -143,7 +166,9 @@ public class MessageHandlerInvokerFixture
                 ]
             });
 
-            builder.AddMessageHandler(messageHandler);
+            builder.Options.AddMessageHandlers = false;
+
+            builder.AddMessageHandler(contextHandler);
         });
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
@@ -165,6 +190,66 @@ public class MessageHandlerInvokerFixture
             }
 
             timeout = DateTime.Now.AddSeconds(5);
+
+            while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
+            {
+                Thread.Sleep(25);
+            }
+        }
+
+        Assert.That(timeout > DateTime.Now, "Timed out before all messages were handled.");
+    }
+
+    [Test]
+    public async Task Should_be_able_to_invoke_message_handler_instance_async()
+    {
+        const int count = 5;
+
+        var services = new ServiceCollection()
+            .AddSingleton<IMessageHandlerTracker, MessageHandlerTracker>()
+            .AddSingleton<IMessageHandler<Message>, MessageHandler>();
+
+        services.AddServiceBus(builder =>
+        {
+            builder.Options.Inbox.ThreadCount = 1;
+            builder.Options.Inbox.WorkTransportUri = "memory://configuration/inbox";
+            builder.Options.Inbox.DurationToSleepWhenIdle = [TimeSpan.FromMilliseconds(5)];
+            builder.Options.MessageRoutes.Add(new()
+            {
+                Uri = "memory://configuration/inbox",
+                Specifications =
+                [
+                    new()
+                    {
+                        Name = "StartsWith",
+                        Value = "Shuttle"
+                    }
+                ]
+            });
+
+            builder.Options.AddMessageHandlers = false;
+        });
+
+        services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
+
+        DateTime timeout;
+
+        await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+        {
+            for (var i = 0; i < count; i++)
+            {
+                await serviceBus.SendAsync(new Message
+                {
+                    Count = i + 1,
+                    Name = $"message - {i + 1}"
+                });
+            }
+
+            timeout = DateTime.Now.AddSeconds(500);
 
             while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
             {

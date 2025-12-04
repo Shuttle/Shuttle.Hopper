@@ -74,7 +74,8 @@ public static class ServiceCollectionExtensions
                 options.Threading = serviceBusBuilder.Options.Threading;
             });
 
-            services.AddSingleton<IContextHandlerRegistry>(_ => new ContextHandlerRegistry(serviceBusBuilder.GetDelegates()));
+            services.AddSingleton<IContextHandlerDelegateRegistry>(_ => new ContextHandlerDelegateRegistry(serviceBusBuilder.GetContextHandlerDelegates()));
+            services.AddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(serviceBusBuilder.GetMessageHandlerDelegates()));
 
             if (serviceBusBuilder.Options.AddMessageHandlers)
             {

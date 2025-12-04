@@ -1,6 +1,6 @@
 ﻿namespace Shuttle.Hopper;
 
-public interface IContextHandlerRegistry
+public interface IContextHandlerDelegateRegistry
 {
     bool TryGetValue(Type messageType, out ContextHandlerDelegate? handler);
 }

@@ -3,15 +3,15 @@ using System.Reflection.Emit;
 
 namespace Shuttle.Hopper;
 
-internal class ProcessMessageMethodInvoker
+internal class ContextHandlerMethodInvoker
 {
     private static readonly Type HandlerContextType = typeof(HandlerContext<>);
 
     private readonly InvokeHandler _invoker;
 
-    public ProcessMessageMethodInvoker(MethodInfo methodInfo)
+    public ContextHandlerMethodInvoker(MethodInfo methodInfo)
     {
-        var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), [typeof(object), typeof(object), typeof(CancellationToken)], HandlerContextType.Module);
+        var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), [typeof(object), typeof(object), typeof(CancellationToken)], GetType().Module);
 
         var il = dynamicMethod.GetILGenerator();
 
