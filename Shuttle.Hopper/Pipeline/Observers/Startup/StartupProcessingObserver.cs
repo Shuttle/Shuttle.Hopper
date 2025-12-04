@@ -29,7 +29,7 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
         Guard.Against<InvalidOperationException>(_serviceBus.HasInbox() && _serviceBus.Inbox!.WorkTransport == null && string.IsNullOrEmpty(_serviceBusOptions.Inbox.WorkTransportUri), string.Format(Resources.RequiredTransportUriMissingException, "Inbox.WorkTransportUri"));
         Guard.Against<InvalidOperationException>(_serviceBus.HasOutbox() && _serviceBus.Outbox!.WorkTransport == null && string.IsNullOrEmpty(_serviceBusOptions.Outbox.WorkTransportUri), string.Format(Resources.RequiredTransportUriMissingException, "Outbox.WorkTransportUri"));
 
-        await _serviceBus.CreatePhysicalTransportsAsync().ConfigureAwait(false);
+        await _serviceBus.CreatePhysicalTransportsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ExecuteAsync(IPipelineContext<OnConfigureThreadPools> pipelineContext, CancellationToken cancellationToken = default)

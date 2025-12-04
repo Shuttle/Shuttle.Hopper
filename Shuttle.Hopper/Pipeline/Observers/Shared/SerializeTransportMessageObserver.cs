@@ -14,6 +14,6 @@ public class SerializeTransportMessageObserver(ISerializer serializer) : ISerial
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
 
-        state.SetTransportMessageStream(await _serializer.SerializeAsync(Guard.AgainstNull(state.GetTransportMessage())).ConfigureAwait(false));
+        state.SetTransportMessageStream(await _serializer.SerializeAsync(Guard.AgainstNull(state.GetTransportMessage()), cancellationToken).ConfigureAwait(false));
     }
 }

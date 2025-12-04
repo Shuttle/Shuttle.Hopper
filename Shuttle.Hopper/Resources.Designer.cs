@@ -19,7 +19,7 @@ namespace Shuttle.Hopper {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -178,7 +178,7 @@ namespace Shuttle.Hopper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The delegate must contain a parameter of type `IHandlerContext&lt;TMessage&gt;`..
+        ///   Looks up a localized string similar to The first parameter of the delegate must be a message type or be of type `IHandlerContext&lt;TMessage&gt;`..
         /// </summary>
         public static string MessageHandlerTypeException {
             get {
@@ -255,42 +255,6 @@ namespace Shuttle.Hopper {
         public static string NotImplementedOnTransport {
             get {
                 return ResourceManager.GetString("NotImplementedOnTransport", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transport configuration with name &apos;{0}&apos; requires a value for &apos;{1}&apos;..
-        /// </summary>
-        public static string TransportConfigurationItemException {
-            get {
-                return ResourceManager.GetString("TransportConfigurationItemException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The configuration name is empty..
-        /// </summary>
-        public static string TransportConfigurationNameException {
-            get {
-                return ResourceManager.GetString("TransportConfigurationNameException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transport factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
-        /// </summary>
-        public static string TransportFactoryCreatedNullTransport {
-            get {
-                return ResourceManager.GetString("TransportFactoryCreatedNullTransport", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No transport factory has been registered for scheme &apos;{0}&apos;..
-        /// </summary>
-        public static string TransportFactoryNotFoundException {
-            get {
-                return ResourceManager.GetString("TransportFactoryNotFoundException", resourceCulture);
             }
         }
         
@@ -381,6 +345,42 @@ namespace Shuttle.Hopper {
         public static string TraceTransportMessageDeferred {
             get {
                 return ResourceManager.GetString("TraceTransportMessageDeferred", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transport configuration with name &apos;{0}&apos; requires a value for &apos;{1}&apos;..
+        /// </summary>
+        public static string TransportConfigurationItemException {
+            get {
+                return ResourceManager.GetString("TransportConfigurationItemException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The configuration name is empty..
+        /// </summary>
+        public static string TransportConfigurationNameException {
+            get {
+                return ResourceManager.GetString("TransportConfigurationNameException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transport factory with type &apos;{0}&apos; create returned (null) for uri &apos;{1}&apos;..
+        /// </summary>
+        public static string TransportFactoryCreatedNullTransport {
+            get {
+                return ResourceManager.GetString("TransportFactoryCreatedNullTransport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No transport factory has been registered for scheme &apos;{0}&apos;..
+        /// </summary>
+        public static string TransportFactoryNotFoundException {
+            get {
+                return ResourceManager.GetString("TransportFactoryNotFoundException", resourceCulture);
             }
         }
         

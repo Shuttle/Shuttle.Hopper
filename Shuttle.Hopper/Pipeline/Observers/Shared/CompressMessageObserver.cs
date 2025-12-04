@@ -19,6 +19,6 @@ public class CompressMessageObserver(ICompressionService compressionService) : I
             return;
         }
 
-        transportMessage.Message = await _compressionService.CompressAsync(transportMessage.CompressionAlgorithm, transportMessage.Message).ConfigureAwait(false);
+        transportMessage.Message = await _compressionService.CompressAsync(transportMessage.CompressionAlgorithm, transportMessage.Message, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 }

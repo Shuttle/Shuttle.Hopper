@@ -49,12 +49,12 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
             ExpiryDate = expired ? DateTime.Now.AddMilliseconds(-1) : DateTime.MaxValue,
             PrincipalIdentityName = "Identity",
             AssemblyQualifiedName = command.GetType().AssemblyQualifiedName!,
-            Message = await (await _serializer.SerializeAsync(command)).ToBytesAsync().ConfigureAwait(false)
+            Message = await (await _serializer.SerializeAsync(command, cancellationToken)).ToBytesAsync().ConfigureAwait(false)
         };
 
         MessageCount += 1;
 
-        var result = new ReceivedMessage(await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), string.Empty);
+        var result = new ReceivedMessage(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), string.Empty);
 
         await serviceBusOptions.MessageReceived.InvokeAsync(new(result), cancellationToken).ConfigureAwait(false);
 

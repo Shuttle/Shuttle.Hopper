@@ -31,7 +31,7 @@ public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions
 
         try
         {
-            var messageHandlerInvoked = await _messageHandlerInvoker.InvokeAsync(pipelineContext).ConfigureAwait(false);
+            var messageHandlerInvoked = await _messageHandlerInvoker.InvokeAsync(pipelineContext, cancellation).ConfigureAwait(false);
 
             state.SetMessageHandlerInvoked(messageHandlerInvoked);
 
@@ -54,10 +54,9 @@ public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions
 
             transportMessage.RegisterFailure(string.Format(Resources.MessageNotHandledFailure, message.GetType().FullName, transportMessage.MessageId, errorTransport.Uri));
 
-            await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
-            {
-                await errorTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
-            }
+            await using var stream = await _serializer.SerializeAsync(transportMessage, cancellation).ConfigureAwait(false);
+
+            await errorTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

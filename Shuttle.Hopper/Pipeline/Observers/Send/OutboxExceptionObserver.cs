@@ -39,7 +39,7 @@ public class OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer seria
                         return;
                     }
 
-                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
 
                     return;
                 }
@@ -54,18 +54,18 @@ public class OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer seria
 
                     if (action.Retry || errorTransport == null)
                     {
-                        await workTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                        await workTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        await errorTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                        await errorTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
                     }
 
                     await workTransport.AcknowledgeAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally

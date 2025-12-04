@@ -10,17 +10,17 @@ public static class ServiceBusExtensions
         {
             if (serviceBus.HasInbox())
             {
-                await serviceBus.Inbox!.TryCreateAsync().ConfigureAwait(false);
+                await serviceBus.Inbox!.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 if (serviceBus.Inbox!.HasDeferredTransport())
                 {
-                    await serviceBus.Inbox!.DeferredTransport!.TryCreateAsync().ConfigureAwait(false);
+                    await serviceBus.Inbox!.DeferredTransport!.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
             }
 
             if (serviceBus.HasOutbox())
             {
-                await serviceBus.Outbox!.TryCreateAsync().ConfigureAwait(false);
+                await serviceBus.Outbox!.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 

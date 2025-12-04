@@ -19,6 +19,6 @@ public class EncryptMessageObserver(IEncryptionService encryptionService) : IEnc
             return;
         }
 
-        transportMessage.Message = await _encryptionService.EncryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message).ConfigureAwait(false);
+        transportMessage.Message = await _encryptionService.EncryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 }

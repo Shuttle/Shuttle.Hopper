@@ -43,8 +43,6 @@ public static class ServiceCollectionExtensions
                 services.AddPipelineProcessing(pipelineProcessingBuilder =>
                 {
                     pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
-
-                    serviceBusBuilder.OnAddPipelineProcessing(pipelineProcessingBuilder);
                 });
             }
 
@@ -76,7 +74,7 @@ public static class ServiceCollectionExtensions
                 options.Threading = serviceBusBuilder.Options.Threading;
             });
 
-            services.AddSingleton<IMessageHandlerDelegateProvider>(_ => new MessageHandlerDelegateProvider(serviceBusBuilder.GetDelegates()));
+            services.AddSingleton<IContextHandlerRegistry>(_ => new ContextHandlerRegistry(serviceBusBuilder.GetDelegates()));
 
             if (serviceBusBuilder.Options.AddMessageHandlers)
             {

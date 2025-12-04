@@ -26,7 +26,7 @@ public class DeserializeMessageObserver(IOptions<ServiceBusOptions> serviceBusOp
             var data = transportMessage.Message;
 
             using var stream = new MemoryStream(data, 0, data.Length, false, true);
-            message = await _serializer.DeserializeAsync(Guard.AgainstNull(Type.GetType(Guard.AgainstNull(transportMessage.AssemblyQualifiedName), true, true)), stream).ConfigureAwait(false);
+            message = await _serializer.DeserializeAsync(Guard.AgainstNull(Type.GetType(Guard.AgainstNull(transportMessage.AssemblyQualifiedName), true, true)), stream, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -43,7 +43,7 @@ public class DeserializeMessageObserver(IOptions<ServiceBusOptions> serviceBusOp
 
             transportMessage.RegisterFailure(ex.AllMessages(), TimeSpan.Zero);
 
-            await errorTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+            await errorTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
             await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
 
             pipelineContext.Pipeline.Abort();

@@ -43,7 +43,7 @@ public class ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer seri
                         return;
                     }
 
-                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
 
                     return;
                 }
@@ -83,7 +83,7 @@ public class ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer seri
 
                 if (retry || poison)
                 {
-                    await using (var stream = await _serializer.SerializeAsync(transportMessage).ConfigureAwait(false))
+                    await using (var stream = await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false))
                     {
                         if (retry)
                         {
@@ -100,7 +100,7 @@ public class ReceiveExceptionObserver(IServiceBusPolicy policy, ISerializer seri
                 }
                 else
                 {
-                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally

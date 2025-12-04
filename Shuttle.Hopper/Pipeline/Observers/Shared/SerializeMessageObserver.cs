@@ -17,7 +17,7 @@ public class SerializeMessageObserver(ISerializer serializer) : ISerializeMessag
         var message = Guard.AgainstNull(state.GetMessage());
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
-        await using (var stream = await _serializer.SerializeAsync(message).ConfigureAwait(false))
+        await using (var stream = await _serializer.SerializeAsync(message, cancellationToken).ConfigureAwait(false))
         {
             transportMessage.Message = await stream.ToBytesAsync().ConfigureAwait(false);
         }

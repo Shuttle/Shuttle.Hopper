@@ -33,6 +33,6 @@ public class ResolvedTransport : ITransport
 
     public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
-        await _transport.ReleaseAsync(acknowledgementToken).ConfigureAwait(false);
+        await _transport.ReleaseAsync(acknowledgementToken, cancellationToken).ConfigureAwait(false);
     }
 }

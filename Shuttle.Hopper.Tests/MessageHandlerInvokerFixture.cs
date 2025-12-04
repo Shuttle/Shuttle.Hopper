@@ -30,7 +30,7 @@ public class MessageHandlerInvokerFixture
         public bool Replied { get; set; }
     }
 
-    public class MessageHandler(IMessageHandlerTracker messageHandlerTracker) : IMessageHandler<Message>
+    public class ContextHandler(IMessageHandlerTracker messageHandlerTracker) : IContextHandler<Message>
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
@@ -54,7 +54,7 @@ public class MessageHandlerInvokerFixture
             }, builder =>
             {
                 builder.Reply();
-            });
+            }, cancellationToken);
         }
     }
 
@@ -123,7 +123,7 @@ public class MessageHandlerInvokerFixture
         var services = new ServiceCollection();
 
         var messageHandlerTracker = new MessageHandlerTracker();
-        var messageHandler = new MessageHandler(messageHandlerTracker);
+        var messageHandler = new ContextHandler(messageHandlerTracker);
 
         services.AddServiceBus(builder =>
         {

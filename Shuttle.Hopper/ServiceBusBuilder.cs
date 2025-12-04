@@ -1,24 +1,21 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
 using Shuttle.Core.Reflection;
+using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace Shuttle.Hopper;
 
 public class ServiceBusBuilder(IServiceCollection services)
 {
-    private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-    private readonly Dictionary<Type, MessageHandlerDelegate> _delegates = new();
-
-    private ServiceBusOptions _serviceBusOptions = new();
+    private static readonly Type MessageHandlerType = typeof(IContextHandler<>);
+    private readonly Dictionary<Type, ContextHandlerDelegate> _delegates = new();
 
     public ServiceBusOptions Options
     {
-        get => _serviceBusOptions;
-        set => _serviceBusOptions = value ?? throw new ArgumentNullException(nameof(value));
-    }
+        get;
+        set => field = value ?? throw new ArgumentNullException(nameof(value));
+    } = new();
 
     public IServiceCollection Services { get; } = Guard.AgainstNull(services);
 
@@ -34,29 +31,32 @@ public class ServiceBusBuilder(IServiceCollection services)
 
         var parameters = handler.Method.GetParameters();
 
-        Type? messageType = null;
-
-        foreach (var parameter in parameters)
-        {
-            var parameterType = parameter.ParameterType;
-
-            if (parameterType.IsCastableTo(typeof(IHandlerContext<>)))
-            {
-                messageType = parameterType.GetGenericArguments()[0];
-            }
-        }
-
-        if (messageType == null)
+        if (parameters.Length < 1)
         {
             throw new ApplicationException(Resources.MessageHandlerTypeException);
         }
 
-        if (!_delegates.TryAdd(messageType, new(handler, handler.Method.GetParameters().Select(item => item.ParameterType))))
+        var parameterType = parameters[0].ParameterType;
+
+        Type messageType;
+
+        if (parameterType.IsCastableTo(typeof(IHandlerContext<>)))
         {
-            throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyRegisteredException, messageType.FullName));
+            messageType = parameterType.GetGenericArguments()[0];
+        }
+        else
+        {
+            messageType = parameterType;
+
+            if (messageType.IsInterface)
+            {
+                throw new ApplicationException(Resources.MessageHandlerTypeException);
+            }
         }
 
-        return this;
+        return !_delegates.TryAdd(messageType, new(handler, parameters.Select(item => item.ParameterType))) 
+            ? throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyRegisteredException, messageType.FullName)) 
+            : this;
     }
 
     public ServiceBusBuilder AddMessageHandler(object messageHandler)
@@ -81,7 +81,7 @@ public class ServiceBusBuilder(IServiceCollection services)
 
     public ServiceBusBuilder AddMessageHandlers(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
     {
-        getServiceLifetime ??= _ => ServiceLifetime.Singleton;
+        getServiceLifetime ??= _ => ServiceLifetime.Scoped;
 
         foreach (var type in Guard.AgainstNull(assembly).GetTypesCastableToAsync(MessageHandlerType).GetAwaiter().GetResult())
         foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
@@ -118,7 +118,7 @@ public class ServiceBusBuilder(IServiceCollection services)
     {
         Guard.AgainstEmpty(messageType);
 
-        var messageTypes = _serviceBusOptions.Subscription.MessageTypes;
+        var messageTypes = Options.Subscription.MessageTypes;
 
         if (messageTypes == null)
         {
@@ -133,14 +133,9 @@ public class ServiceBusBuilder(IServiceCollection services)
         return this;
     }
 
-    public IDictionary<Type, MessageHandlerDelegate> GetDelegates()
+    public IDictionary<Type, ContextHandlerDelegate> GetDelegates()
     {
-        return new ReadOnlyDictionary<Type, MessageHandlerDelegate>(_delegates);
-    }
-
-    public void OnAddPipelineProcessing(PipelineProcessingBuilder pipelineProcessingBuilder)
-    {
-        //TODO: AddPipelineProcessing?.Invoke(this, new(pipelineProcessingBuilder));
+        return new ReadOnlyDictionary<Type, ContextHandlerDelegate>(_delegates);
     }
 
     public ServiceBusBuilder SuppressHostedService()

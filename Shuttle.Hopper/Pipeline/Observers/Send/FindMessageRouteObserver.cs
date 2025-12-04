@@ -19,7 +19,7 @@ public class FindMessageRouteObserver(IMessageRouteProvider messageRouteProvider
             return;
         }
 
-        var routeUris = (await _messageRouteProvider.GetRouteUrisAsync(transportMessage.MessageType)).ToList();
+        var routeUris = (await _messageRouteProvider.GetRouteUrisAsync(transportMessage.MessageType, cancellationToken)).ToList();
 
         if (!routeUris.Any())
         {

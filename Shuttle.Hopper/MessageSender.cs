@@ -29,7 +29,7 @@ public class MessageSender(IPipelineFactory pipelineFactory, ISubscriptionServic
     {
         Guard.AgainstNull(message);
 
-        var subscribers = (await _subscriptionService.GetSubscribedUrisAsync(message).ConfigureAwait(false)).ToList();
+        var subscribers = (await _subscriptionService.GetSubscribedUrisAsync(message, cancellationToken: cancellationToken).ConfigureAwait(false)).ToList();
 
         if (subscribers.Count > 0)
         {

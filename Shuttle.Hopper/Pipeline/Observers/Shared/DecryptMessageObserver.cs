@@ -19,6 +19,6 @@ public class DecryptMessageObserver(IEncryptionService encryptionService) : IDec
             return;
         }
 
-        transportMessage.Message = await _encryptionService.DecryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message).ConfigureAwait(false);
+        transportMessage.Message = await _encryptionService.DecryptAsync(transportMessage.EncryptionAlgorithm, transportMessage.Message, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 }

@@ -15,11 +15,11 @@ public class MessageHandlerInvokerFixture
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton(typeof(IMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
+        services.AddSingleton(typeof(IContextHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateProvider(new Dictionary<Type, MessageHandlerDelegate>()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new ContextHandlerRegistry(new Dictionary<Type, ContextHandlerDelegate>()));
 
         var transportMessage = new TransportMessage
         {
@@ -49,7 +49,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateProvider(builder.GetDelegates()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new ContextHandlerRegistry(builder.GetDelegates()));
 
         var transportMessage = new TransportMessage
         {

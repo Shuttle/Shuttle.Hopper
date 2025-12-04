@@ -8,12 +8,12 @@ public static class TransportConfigurationExtensions
         {
             if (workTransportConfiguration.WorkTransport != null)
             {
-                await workTransportConfiguration.WorkTransport.TryCreateAsync().ConfigureAwait(false);
+                await workTransportConfiguration.WorkTransport.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
 
             if (workTransportConfiguration is IErrorTransportConfiguration { ErrorTransport: not null } errorTransportConfiguration)
             {
-                await errorTransportConfiguration.ErrorTransport.TryCreateAsync().ConfigureAwait(false);
+                await errorTransportConfiguration.ErrorTransport.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
     }
