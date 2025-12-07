@@ -40,7 +40,14 @@ public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions
                 return;
             }
 
-            await _serviceBusOptions.MessageNotHandled.InvokeAsync(new(pipelineContext, transportMessage, message), cancellation);
+            var workTransport = state.GetWorkTransport();
+
+            if (workTransport == null)
+            {
+                throw new InvalidOperationException(string.Format(Resources.MessageNotHandledMissingWorkTransportFailure, message.GetType().FullName, transportMessage.MessageId));
+            }
+
+            await _serviceBusOptions.MessageNotHandled.InvokeAsync(new(workTransport, pipelineContext, transportMessage, message), cancellation);
 
             if (_serviceBusOptions.RemoveMessagesNotHandled)
             {
