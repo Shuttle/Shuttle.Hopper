@@ -40,14 +40,14 @@ public class ServiceBusOptions
     public InboxOptions Inbox { get; set; } = new();
     public AsyncEvent<MessageAcknowledgedEventArgs> MessageAcknowledged { get; set; } = new();
     public AsyncEvent<DeserializationExceptionEventArgs> MessageDeserializationException { get; set; } = new();
-    public AsyncEvent<MessageEntransportdEventArgs> MessageEntransportd { get; set; } = new();
+    public AsyncEvent<MessageSentEventArgs> MessageSent { get; set; } = new();
     public AsyncEvent<MessageNotHandledEventArgs> MessageNotHandled { get; set; } = new();
     public AsyncEvent<MessageReceivedEventArgs> MessageReceived { get; set; } = new();
     public AsyncEvent<MessageReleasedEventArgs> MessageReleased { get; set; } = new();
 
     public AsyncEvent<MessageReturnedEventArgs> MessageReturned { get; set; } = new();
     public List<MessageRouteOptions> MessageRoutes { get; set; } = [];
-    public AsyncEvent<OperationEventArgs> Operation { get; set; } = new();
+    public AsyncEvent<TransportOperationEventArgs> TransportOperation { get; set; } = new();
     public OutboxOptions Outbox { get; set; } = new();
     public AsyncEvent<TransportEventArgs> TransportCreated { get; set; } = new();
     public AsyncEvent<TransportEventArgs> TransportDisposed { get; set; } = new();
@@ -55,7 +55,6 @@ public class ServiceBusOptions
     public bool RemoveCorruptMessages { get; set; } = false;
     public bool RemoveMessagesNotHandled { get; set; } = false;
     public SubscriptionOptions Subscription { get; set; } = new();
-    public ThreadingOptions Threading { get; set; } = new();
     public AsyncEvent<ThreadStateEventArgs> ThreadWaiting { get; set; } = new();
     public AsyncEvent<ThreadStateEventArgs> ThreadWorking { get; set; } = new();
     public AsyncEvent<TransportMessageDeferredEventArgs> TransportMessageDeferred { get; set; } = new();
