@@ -3,10 +3,10 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class MessageNotHandledEventArgs(IPipelineContext pipelineContext, TransportMessage transportMessage, object message)
+public class MessageNotHandledEventArgs(ITransport transport, IPipelineContext pipelineContext, TransportMessage transportMessage, object message)
     : PipelineContextEventArgs(pipelineContext)
 {
+    public ITransport Transport { get; } = Guard.AgainstNull(transport);
     public object Message { get; } = Guard.AgainstNull(message);
-
     public TransportMessage TransportMessage { get; } = Guard.AgainstNull(transportMessage);
 }
