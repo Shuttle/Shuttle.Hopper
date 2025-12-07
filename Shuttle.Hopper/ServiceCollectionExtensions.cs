@@ -71,7 +71,6 @@ public static class ServiceCollectionExtensions
                 options.UriMappings = serviceBusBuilder.Options.UriMappings;
                 options.MessageRoutes = serviceBusBuilder.Options.MessageRoutes;
                 options.Subscription = serviceBusBuilder.Options.Subscription;
-                options.Threading = serviceBusBuilder.Options.Threading;
             });
 
             services.AddSingleton<IContextHandlerDelegateRegistry>(_ => new ContextHandlerDelegateRegistry(serviceBusBuilder.GetContextHandlerDelegates()));
