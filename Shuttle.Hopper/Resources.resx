@@ -266,4 +266,7 @@
     <value>Message handler with type '{0}' has already been registered.</value>
     <comment>0 = message handler type name</comment>
   </data>
+  <data name="MessageNotHandledMissingWorkTransportFailure" xml:space="preserve">
+    <value>No handler has been registered for message type '{0}'.  Cannot find the work transport in the pipeline state.</value>
+  </data>
 </root>

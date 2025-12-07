@@ -214,6 +214,15 @@ namespace Shuttle.Hopper {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No handler has been registered for message type &apos;{0}&apos;.  Cannot find the work transport in the pipeline state..
+        /// </summary>
+        public static string MessageNotHandledMissingWorkTransportFailure {
+            get {
+                return ResourceManager.GetString("MessageNotHandledMissingWorkTransportFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message of type &apos;{0}&apos; has been routed to more than one endpoint: {1}.
         /// </summary>
         public static string MessageRoutedToMoreThanOneEndpoint {
