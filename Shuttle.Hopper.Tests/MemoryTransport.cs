@@ -60,6 +60,11 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
         return result;
     }
 
+    public ValueTask<bool> HasPendingAsync(CancellationToken cancellationToken = default)
+    {
+        return new(_queue.Count > 0);
+    }
+
     public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
         await _lock.WaitAsync(cancellationToken);

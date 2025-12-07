@@ -84,7 +84,7 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
                     throw new KeyNotFoundException(string.Format(Resources.UriNameNotFoundException, _uriResolver.GetType().FullName, uri));
                 }
 
-                transport = new ResolvedTransport(_serviceBusOptions, await CreateAsync(_transportFactoryService.Get(resolvedTransportUri.Scheme), resolvedTransportUri, cancellationToken), transportUri);
+                transport = new ResolvedTransport(await CreateAsync(_transportFactoryService.Get(resolvedTransportUri.Scheme), resolvedTransportUri, cancellationToken), transportUri);
             }
             else
             {

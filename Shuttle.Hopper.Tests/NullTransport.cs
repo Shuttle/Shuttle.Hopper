@@ -21,6 +21,13 @@ public class NullTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITran
         return null;
     }
 
+    public async ValueTask<bool> HasPendingAsync(CancellationToken cancellationToken = default)
+    {
+        await _serviceBusOptions.TransportOperation.InvokeAsync(new(this, "HasPendingAsync"), cancellationToken).ConfigureAwait(false);
+
+        return false;
+    }
+
     public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
         await _serviceBusOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);

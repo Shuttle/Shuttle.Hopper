@@ -22,6 +22,11 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
         await serviceBusOptions.MessageSent.InvokeAsync(new(this, transportMessage, stream), cancellationToken).ConfigureAwait(false);
     }
 
+    public ValueTask<bool> HasPendingAsync(CancellationToken cancellationToken = default)
+    {
+        return new(false);
+    }
+
     public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
         await serviceBusOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
