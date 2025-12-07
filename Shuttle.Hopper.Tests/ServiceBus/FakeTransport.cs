@@ -19,17 +19,17 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
 
     public async Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default)
     {
-        await serviceBusOptions.MessageEntransportd.InvokeAsync(new(transportMessage, stream), cancellationToken).ConfigureAwait(false);
+        await serviceBusOptions.MessageSent.InvokeAsync(new(this, transportMessage, stream), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
-        await serviceBusOptions.MessageAcknowledged.InvokeAsync(new(acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await serviceBusOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
-        await serviceBusOptions.MessageReleased.InvokeAsync(new(acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await serviceBusOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
@@ -56,7 +56,7 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
 
         var result = new ReceivedMessage(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), string.Empty);
 
-        await serviceBusOptions.MessageReceived.InvokeAsync(new(result), cancellationToken).ConfigureAwait(false);
+        await serviceBusOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
 
         return result;
     }

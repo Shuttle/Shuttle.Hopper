@@ -28,7 +28,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
             _lock.Release();
         }
 
-        await _serviceBusOptions.MessageEntransportd.InvokeAsync(new(transportMessage, copy), cancellationToken).ConfigureAwait(false);
+        await _serviceBusOptions.MessageSent.InvokeAsync(new(this, transportMessage, copy), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
@@ -55,7 +55,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
 
         var result = new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
 
-        await _serviceBusOptions.MessageReceived.InvokeAsync(new(result), cancellationToken).ConfigureAwait(false);
+        await _serviceBusOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
 
         return result;
     }
@@ -73,7 +73,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
             _lock.Release();
         }
 
-        await _serviceBusOptions.MessageAcknowledged.InvokeAsync(new(acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await _serviceBusOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
@@ -92,7 +92,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
             _lock.Release();
         }
 
-        await _serviceBusOptions.MessageReleased.InvokeAsync(new(acknowledgementToken), cancellationToken);
+        await _serviceBusOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken);
     }
 
     private class Message(TransportMessage transportMessage, Stream stream)
