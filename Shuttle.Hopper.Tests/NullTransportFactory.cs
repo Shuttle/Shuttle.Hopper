@@ -7,8 +7,8 @@ public class NullTransportFactory(IOptions<ServiceBusOptions> serviceBusOptions)
 {
     public string Scheme => "null-transport";
 
-    public ITransport Create(Uri uri)
+    public Task<ITransport> CreateAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        return new NullTransport(Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value), Guard.AgainstNull(uri));
+        return Task.FromResult<ITransport>(new NullTransport(Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value), Guard.AgainstNull(uri)));
     }
 }

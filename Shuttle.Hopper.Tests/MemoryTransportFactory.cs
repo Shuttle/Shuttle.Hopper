@@ -7,8 +7,8 @@ public class MemoryTransportFactory(IOptions<ServiceBusOptions> serviceBusOption
 {
     public string Scheme => "memory";
 
-    public ITransport Create(Uri uri)
+    public Task<ITransport> CreateAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        return new MemoryTransport(Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value), uri);
+        return Task.FromResult<ITransport>(new MemoryTransport(Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value), uri));
     }
 }

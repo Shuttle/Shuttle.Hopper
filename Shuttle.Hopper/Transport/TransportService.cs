@@ -103,7 +103,7 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
     private async Task<ITransport> CreateAsync(ITransportFactory transportFactory, Uri transportUri, CancellationToken cancellationToken)
     {
-        var result = transportFactory.Create(transportUri);
+        var result = await transportFactory.CreateAsync(transportUri, cancellationToken);
 
         Guard.AgainstNull(result, string.Format(Resources.TransportFactoryCreatedNullTransport, transportFactory.GetType().FullName, transportUri));
 
