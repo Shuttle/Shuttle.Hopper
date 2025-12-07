@@ -8,27 +8,27 @@ public static class TransportExtensions
         {
             if (transport is not ICreateTransport operation)
             {
-                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnTransport, transport.GetType().FullName, "ICreateTransport"));
+                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnTransport, transport.GetType().FullName, nameof(ICreateTransport)));
             }
 
             await operation.CreateAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task DropAsync(CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(CancellationToken cancellationToken = default)
         {
-            if (transport is not IDropTransport operation)
+            if (transport is not IDeleteTransport operation)
             {
-                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnTransport, transport.GetType().FullName, "IDropTransport"));
+                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnTransport, transport.GetType().FullName, nameof(IDeleteTransport)));
             }
 
-            await operation.DropAsync(cancellationToken);
+            await operation.DeleteAsync(cancellationToken);
         }
 
         public async Task PurgeAsync(CancellationToken cancellationToken = default)
         {
             if (transport is not IPurgeTransport operation)
             {
-                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnTransport, transport.GetType().FullName, "IPurgeTransport"));
+                throw new InvalidOperationException(string.Format(Resources.NotImplementedOnTransport, transport.GetType().FullName, nameof(IPurgeTransport)));
             }
 
             await operation.PurgeAsync(cancellationToken);
@@ -46,14 +46,14 @@ public static class TransportExtensions
             return true;
         }
 
-        public async ValueTask<bool> TryDropAsync(CancellationToken cancellationToken = default)
+        public async ValueTask<bool> TryDeleteAsync(CancellationToken cancellationToken = default)
         {
-            if (transport is not IDropTransport operation)
+            if (transport is not IDeleteTransport operation)
             {
                 return false;
             }
 
-            await operation.DropAsync(cancellationToken).ConfigureAwait(false);
+            await operation.DeleteAsync(cancellationToken).ConfigureAwait(false);
 
             return true;
         }
