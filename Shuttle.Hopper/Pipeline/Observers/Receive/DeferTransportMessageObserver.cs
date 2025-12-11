@@ -5,13 +5,13 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Hopper;
 
-public interface IDeferTransportMessageObserver : IPipelineObserver<OnAfterDeserializeTransportMessage>;
+public interface IDeferTransportMessageObserver : IPipelineObserver<TransportMessageDeserialized>;
 
 public class DeferTransportMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IDeferredMessageProcessor deferredMessageProcessor) : IDeferTransportMessageObserver
 {
     private readonly IDeferredMessageProcessor _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor);
 
-    public async Task ExecuteAsync(IPipelineContext<OnAfterDeserializeTransportMessage> pipelineContext, CancellationToken cancellation = default)
+    public async Task ExecuteAsync(IPipelineContext<TransportMessageDeserialized> pipelineContext, CancellationToken cancellation = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

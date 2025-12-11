@@ -16,12 +16,12 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(Options.Create(new ServiceBusOptions()), serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDeserializeMessage>();
+            .WithEvent<DeserializeMessage>();
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
@@ -38,12 +38,12 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(Options.Create(new ServiceBusOptions()), serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDeserializeMessage>();
+            .WithEvent<DeserializeMessage>();
 
         pipeline.State.SetTransportMessage(new()
         {
@@ -53,7 +53,7 @@ public class DeserializeMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), CancellationToken.None), Times.Once);
 
         serializer.VerifyNoOtherCalls();
     }
@@ -77,12 +77,12 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(Options.Create(serviceBusOptions), serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDeserializeMessage>();
+            .WithEvent<DeserializeMessage>();
 
         var transportMessageType = typeof(TransportMessage);
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
@@ -98,14 +98,14 @@ public class DeserializeMessageObserverFixture
         pipeline.State.SetErrorTransport(errorTransport.Object);
         pipeline.State.SetReceivedMessage(receivedMessage);
 
-        serializer.Setup(m => m.DeserializeAsync(transportMessageType, It.IsAny<Stream>())).Throws<Exception>();
+        serializer.Setup(m => m.DeserializeAsync(transportMessageType, It.IsAny<Stream>(), CancellationToken.None)).Throws<Exception>();
 
         workTransport.Setup(m => m.Type).Returns(TransportType.Queue);
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>()), Times.Once);
-        serializer.Verify(m => m.SerializeAsync(It.IsAny<object>()), Times.Once);
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(It.IsAny<object>(), CancellationToken.None), Times.Once);
         errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
@@ -21,7 +20,7 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
     {
         var policy = new Mock<IServiceBusPolicy>();
 
-        policy.Setup(m => m.EvaluateMessageHandlingFailure(It.IsAny<IPipelineContext<OnPipelineException>>()))
+        policy.Setup(m => m.EvaluateMessageHandlingFailure(It.IsAny<IPipelineContext<PipelineFailed>>()))
             .Returns(new MessageFailureAction(true, TimeSpan.Zero));
 
         var workTransport = new Mock<ITransport>();
@@ -29,10 +28,10 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
 
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/some-transport"));
 
-        var observer = new ReceiveExceptionObserver(policy.Object,
+        var observer = new ReceivePipelineFailedObserver(policy.Object,
             new Mock<ISerializer>().Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(this)
             .AddObserver(observer);
 

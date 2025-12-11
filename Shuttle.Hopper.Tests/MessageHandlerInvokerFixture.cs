@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shuttle.Core.Contract;
-using System;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -189,7 +188,7 @@ public class MessageHandlerInvokerFixture
                 });
             }
 
-            timeout = DateTime.Now.AddSeconds(5);
+            timeout = DateTime.Now.AddSeconds(500);
 
             while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
             {

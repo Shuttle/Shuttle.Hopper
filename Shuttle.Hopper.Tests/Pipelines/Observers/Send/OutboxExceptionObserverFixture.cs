@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
@@ -19,7 +18,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(new HandleExceptionObserver()) // marks exception as handled
             .AddObserver(observer);
@@ -51,7 +50,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -82,7 +81,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -118,7 +117,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -159,7 +158,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -168,7 +167,7 @@ public class OutboxExceptionObserverFixture
             .WithEvent<OnException>();
 
         workTransport.Setup(m => m.Type).Returns(TransportType.Queue);
-        serviceBusPolicy.Setup(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<OnPipelineException>>()))
+        serviceBusPolicy.Setup(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()))
             .Returns(new MessageFailureAction(true, TimeSpan.Zero));
 
         var transportMessage = new TransportMessage();
@@ -181,11 +180,11 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(transportMessage));
+        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
         workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
 
-        serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<OnPipelineException>>()), Times.Once);
+        serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
         workTransport.Verify(m => m.Type, Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);
@@ -206,7 +205,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -215,7 +214,7 @@ public class OutboxExceptionObserverFixture
             .WithEvent<OnException>();
 
         workTransport.Setup(m => m.Type).Returns(TransportType.Queue);
-        serviceBusPolicy.Setup(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<OnPipelineException>>())).Returns(new MessageFailureAction(false, TimeSpan.Zero));
+        serviceBusPolicy.Setup(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>())).Returns(new MessageFailureAction(false, TimeSpan.Zero));
 
         var transportMessage = new TransportMessage();
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
@@ -227,11 +226,11 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(transportMessage));
+        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
         errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
 
-        serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<OnPipelineException>>()), Times.Once);
+        serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
         workTransport.Verify(m => m.Type, Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);
@@ -251,7 +250,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -260,7 +259,7 @@ public class OutboxExceptionObserverFixture
             .WithEvent<OnException>();
 
         workTransport.Setup(m => m.Type).Returns(TransportType.Queue);
-        serviceBusPolicy.Setup(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<OnPipelineException>>())).Returns(new MessageFailureAction(false, TimeSpan.Zero));
+        serviceBusPolicy.Setup(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>())).Returns(new MessageFailureAction(false, TimeSpan.Zero));
 
         var transportMessage = new TransportMessage();
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
@@ -271,11 +270,11 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(transportMessage));
+        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
         workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
 
-        serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<OnPipelineException>>()), Times.Once);
+        serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
         workTransport.Verify(m => m.Type, Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
@@ -16,7 +15,7 @@ public class EncryptMessageObserverFixture
 
         var observer = new EncryptMessageObserver(encryptionService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -38,7 +37,7 @@ public class EncryptMessageObserverFixture
 
         var observer = new EncryptMessageObserver(encryptionService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -53,7 +52,7 @@ public class EncryptMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        encryptionAlgorithm.Verify(m => m.EncryptAsync(It.IsAny<byte[]>()), Times.Once);
+        encryptionAlgorithm.Verify(m => m.EncryptAsync(It.IsAny<byte[]>(), CancellationToken.None), Times.Once);
 
         encryptionService.Verify(m => m.Get(transportMessage.EncryptionAlgorithm), Times.Once);
 

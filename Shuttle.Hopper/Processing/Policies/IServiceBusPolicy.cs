@@ -4,6 +4,6 @@ namespace Shuttle.Hopper;
 
 public interface IServiceBusPolicy
 {
-    MessageFailureAction EvaluateMessageHandlingFailure(IPipelineContext<OnPipelineException> pipelineContext);
-    MessageFailureAction EvaluateOutboxFailure(IPipelineContext<OnPipelineException> pipelineContext);
+    MessageFailureAction EvaluateMessageHandlingFailure(IPipelineContext<PipelineFailed> pipelineContext);
+    MessageFailureAction EvaluateOutboxFailure(IPipelineContext<PipelineFailed> pipelineContext);
 }

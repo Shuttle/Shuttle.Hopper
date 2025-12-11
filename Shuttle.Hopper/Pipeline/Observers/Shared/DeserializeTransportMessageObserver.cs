@@ -7,7 +7,7 @@ using Shuttle.Core.System;
 
 namespace Shuttle.Hopper;
 
-public interface IDeserializeTransportMessageObserver : IPipelineObserver<OnDeserializeTransportMessage>;
+public interface IDeserializeTransportMessageObserver : IPipelineObserver<DeserializeTransportMessage>;
 
 public class DeserializeTransportMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
     : IDeserializeTransportMessageObserver
@@ -17,7 +17,7 @@ public class DeserializeTransportMessageObserver(IOptions<ServiceBusOptions> ser
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-    public async Task ExecuteAsync(IPipelineContext<OnDeserializeTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<DeserializeTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage());

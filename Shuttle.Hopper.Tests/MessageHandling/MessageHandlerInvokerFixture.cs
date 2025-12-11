@@ -27,7 +27,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object));
+        var pipelineContext = new PipelineContext<HandleMessage>(new Pipeline(PipelineDependencies.Empty()));
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
@@ -57,7 +57,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object));
+        var pipelineContext = new PipelineContext<HandleMessage>(new Pipeline(PipelineDependencies.Empty()));
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
@@ -87,7 +87,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<OnHandleMessage>(new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object));
+        var pipelineContext = new PipelineContext<HandleMessage>(new Pipeline(PipelineDependencies.Empty()));
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);

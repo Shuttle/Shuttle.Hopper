@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
   <Project Path="Shuttle.Hopper.Tests/Shuttle.Hopper.Tests.csproj" />
   <Project Path="Shuttle.Hopper/Shuttle.Hopper.csproj" />
 </Solution>

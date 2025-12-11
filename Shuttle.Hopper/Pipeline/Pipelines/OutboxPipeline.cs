@@ -6,8 +6,8 @@ namespace Shuttle.Hopper;
 
 public class OutboxPipeline : Pipeline
 {
-    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<ServiceBusOptions> serviceBusOptions, IServiceProvider serviceProvider, IServiceBus serviceBus, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
-        : base(pipelineOptions, serviceProvider)
+    public OutboxPipeline(IPipelineDependencies pipelineDependencies, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
+        : base(pipelineDependencies)
     {
         Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
@@ -23,18 +23,18 @@ public class OutboxPipeline : Pipeline
         State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);
 
         AddStage("Read")
-            .WithEvent<OnGetMessage>()
-            .WithEvent<OnAfterGetMessage>()
-            .WithEvent<OnDeserializeTransportMessage>()
-            .WithEvent<OnAfterDeserializeTransportMessage>();
+            .WithEvent<ReceiveMessage>()
+            .WithEvent<MessageReceived>()
+            .WithEvent<DeserializeTransportMessage>()
+            .WithEvent<TransportMessageDeserialized>();
 
         AddStage("Send")
             .WithEvent<OnDispatchTransportMessage>()
             .WithEvent<OnAfterDispatchTransportMessage>()
-            .WithEvent<OnAcknowledgeMessage>()
-            .WithEvent<OnAfterAcknowledgeMessage>();
+            .WithEvent<MessageAcknowledged>()
+            .WithEvent<MessageAcknowledged>();
 
-        AddObserver(Guard.AgainstNull(getWorkMessageObserver));
+        AddObserver(Guard.AgainstNull(receiveWorkMessageObserver));
         AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
         AddObserver(Guard.AgainstNull(sendOutboxMessageObserver));
         AddObserver(Guard.AgainstNull(acknowledgeMessageObserver));

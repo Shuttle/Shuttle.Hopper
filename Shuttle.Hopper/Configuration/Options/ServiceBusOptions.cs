@@ -1,7 +1,4 @@
-﻿using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Threading;
-using Shuttle.Extensions.Options;
+﻿using Shuttle.Extensions.Options;
 
 namespace Shuttle.Hopper;
 
@@ -29,7 +26,6 @@ public class ServiceBusOptions
     }.AsReadOnly();
 
     public bool AddMessageHandlers { get; set; } = true;
-    public AsyncEvent<AddPipelineProcessingEventArgs> AddPipelineProcessing { get; set; } = new();
     public bool CacheIdentity { get; set; } = true;
     public string CompressionAlgorithm { get; set; } = string.Empty;
     public bool CreatePhysicalTransports { get; set; } = true;

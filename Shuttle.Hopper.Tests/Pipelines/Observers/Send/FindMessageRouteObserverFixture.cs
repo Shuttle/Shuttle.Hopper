@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 
@@ -15,7 +14,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -35,11 +34,11 @@ public class FindMessageRouteObserverFixture
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
 
-        messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType)).Returns(Task.FromResult(Enumerable.Empty<string>()));
+        messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType, CancellationToken.None)).Returns(Task.FromResult(Enumerable.Empty<string>()));
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -52,7 +51,7 @@ public class FindMessageRouteObserverFixture
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
-        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
+        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, CancellationToken.None), Times.Once);
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring("No route could be found"));
@@ -67,11 +66,11 @@ public class FindMessageRouteObserverFixture
         const string messageType = "message-type";
         var routes = new List<string> { "route-a", "route-b" };
 
-        messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType)).Returns(Task.FromResult(routes.AsEnumerable()));
+        messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType, CancellationToken.None)).Returns(Task.FromResult(routes.AsEnumerable()));
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -84,7 +83,7 @@ public class FindMessageRouteObserverFixture
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
-        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
+        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, CancellationToken.None), Times.Once);
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception!.InnerException?.Message, Contains.Substring("has been routed to more than one endpoint"));
@@ -99,11 +98,11 @@ public class FindMessageRouteObserverFixture
         const string messageType = "message-type";
         var routes = new List<string> { "route-a" };
 
-        messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType)).Returns(Task.FromResult(routes.AsEnumerable()));
+        messageRouteProvider.Setup(m => m.GetRouteUrisAsync(messageType, CancellationToken.None)).Returns(Task.FromResult(routes.AsEnumerable()));
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -116,7 +115,7 @@ public class FindMessageRouteObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType), Times.Once);
+        messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, CancellationToken.None), Times.Once);
 
         Assert.That(transportMessage.RecipientInboxWorkTransportUri, Is.EqualTo("route-a"));
 

@@ -3,13 +3,13 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IGetDeferredMessageObserver : IPipelineObserver<OnGetMessage>
+public interface IReceiveDeferredMessageObserver : IPipelineObserver<ReceiveMessage>
 {
 }
 
-public class GetDeferredMessageObserver : IGetDeferredMessageObserver
+public class ReceiveDeferredMessageObserver : IReceiveDeferredMessageObserver
 {
-    public async Task ExecuteAsync(IPipelineContext<OnGetMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<ReceiveMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transport = Guard.AgainstNull(state.GetDeferredTransport());

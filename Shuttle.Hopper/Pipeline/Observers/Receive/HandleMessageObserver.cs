@@ -7,7 +7,7 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Hopper;
 
-public interface IHandleMessageObserver : IPipelineObserver<OnHandleMessage>;
+public interface IHandleMessageObserver : IPipelineObserver<HandleMessage>;
 
 public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
     : IHandleMessageObserver
@@ -16,7 +16,7 @@ public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-    public async Task ExecuteAsync(IPipelineContext<OnHandleMessage> pipelineContext, CancellationToken cancellation = default)
+    public async Task ExecuteAsync(IPipelineContext<HandleMessage> pipelineContext, CancellationToken cancellation = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

@@ -6,8 +6,8 @@ namespace Shuttle.Hopper;
 
 public class TransportMessagePipeline : Pipeline
 {
-    public TransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
-        : base(pipelineOptions, serviceProvider)
+    public TransportMessagePipeline(IPipelineDependencies pipelineDependencies, IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
+        : base(pipelineDependencies)
     {
         AddStage("Create")
             .WithEvent<OnAssembleMessage>()

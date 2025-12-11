@@ -3,11 +3,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IGetWorkMessageObserver : IPipelineObserver<OnGetMessage>;
+public interface IReceiveWorkMessageObserver : IPipelineObserver<ReceiveMessage>;
 
-public class GetWorkMessageObserver : IGetWorkMessageObserver
+public class ReceiveWorkMessageObserver : IReceiveWorkMessageObserver
 {
-    public async Task ExecuteAsync(IPipelineContext<OnGetMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<ReceiveMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transport = Guard.AgainstNull(state.GetWorkTransport());

@@ -3,11 +3,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IAcknowledgeMessageObserver : IPipelineObserver<OnAcknowledgeMessage>;
+public interface IAcknowledgeMessageObserver : IPipelineObserver<MessageAcknowledged>;
 
 public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
 {
-    public async Task ExecuteAsync(IPipelineContext<OnAcknowledgeMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<MessageAcknowledged> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
 

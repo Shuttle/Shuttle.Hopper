@@ -32,7 +32,6 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<ITransportService, TransportService>();
             services.TryAddSingleton<ITransportFactoryService, TransportFactoryService>();
             services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
-            services.TryAddSingleton<ICancellationTokenSource, DefaultCancellationTokenSource>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
             services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
@@ -40,7 +39,7 @@ public static class ServiceCollectionExtensions
 
             if (!serviceBusBuilder.ShouldSuppressPipelineProcessing)
             {
-                services.AddPipelineProcessing(pipelineProcessingBuilder =>
+                services.AddPipelines(pipelineProcessingBuilder =>
                 {
                     pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
                 });

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Compression;
 using Shuttle.Core.Pipelines;
@@ -16,12 +15,12 @@ public class DecompressMessageObserverFixture
 
         var observer = new DecompressMessageObserver(compressionService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDecompressMessage>();
+            .WithEvent<DecompressMessage>();
 
         pipeline.State.SetTransportMessage(new());
 
@@ -38,12 +37,12 @@ public class DecompressMessageObserverFixture
 
         var observer = new DecompressMessageObserver(compressionService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDecompressMessage>();
+            .WithEvent<DecompressMessage>();
 
         var transportMessage = new TransportMessage { CompressionAlgorithm = "gzip" };
 
@@ -53,7 +52,7 @@ public class DecompressMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        compressionAlgorithm.Verify(m => m.DecompressAsync(It.IsAny<byte[]>()), Times.Once);
+        compressionAlgorithm.Verify(m => m.DecompressAsync(It.IsAny<byte[]>(), CancellationToken.None), Times.Once);
 
         compressionService.Verify(m => m.Get(transportMessage.CompressionAlgorithm), Times.Once);
 

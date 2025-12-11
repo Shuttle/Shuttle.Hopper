@@ -17,7 +17,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
     private readonly Dictionary<Type, MessageHandlerMethodInvoker> _messageHandlerMethodInvokers = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public async ValueTask<bool> InvokeAsync(IPipelineContext<OnHandleMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async ValueTask<bool> InvokeAsync(IPipelineContext<HandleMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var message = Guard.AgainstNull(state.GetMessage());

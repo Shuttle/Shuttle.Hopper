@@ -1,13 +1,13 @@
 # Documentation
 
-Please visit the [Shuttle.Hopper documentation](https://www.pendel.co.za/shuttle-Hopper/home.html) for more information.
+Please visit the [Shuttle.Hopper documentation](https://www.pendel.co.za/shuttle-hopper/home.html) for more information.
 
 # Getting Started
 
-Start a new **Console Application** project.  We'll need to install one of the support transport implementations.  For this example we'll use `Shuttle.Hopper.AzureStorageTransports` which can be hosted locally using [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage):
+Start a new **Console Application** project.  We'll need to install one of the support transport implementations.  For this example we'll use `Shuttle.Hopper.AzureStorageQueues` which can be hosted locally using [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage):
 
 ```
-PM> Install-Package Shuttle.Hopper.AzureStorageTransports
+PM> Install-Package Shuttle.Hopper.AzureStorageQueues
 ```
 
 We'll also make use of the [.NET generic host](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host):
@@ -39,7 +39,7 @@ internal class Program
                             await Task.CompletedTask;
                         });
                     })
-                    .AddAzureStorageTransports(builder =>
+                    .AddAzureStorageQueues(builder =>
                     {
                         builder.AddOptions("azure", new AzureStorageTransportOptions
                         {
@@ -76,7 +76,7 @@ internal class Program
                             .GetSection(ServiceBusOptions.SectionName)
                             .Bind(builder.Options);
                     })
-                    .AddAzureStorageTransports(builder =>
+                    .AddAzureStorageQueues(builder =>
                     {
                         builder.AddOptions("azure", new AzureStorageTransportOptions
                         {

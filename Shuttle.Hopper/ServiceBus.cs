@@ -1,19 +1,18 @@
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Reflection;
 using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITransportService transportService, IPipelineFactory pipelineFactory, IMessageSender messageSender, ICancellationTokenSource? cancellationTokenSource = null)
+public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITransportService transportService, IPipelineFactory pipelineFactory, IMessageSender messageSender)
     : IServiceBus
 {
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private readonly IMessageSender _messageSender = Guard.AgainstNull(messageSender);
     private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
-    private readonly ICancellationTokenSource _cancellationTokenSource = cancellationTokenSource ?? new DefaultCancellationTokenSource();
+    private CancellationTokenSource _cancellationTokenSource = new();
 
     private IProcessorThreadPool? _controlInboxThreadPool;
     private IProcessorThreadPool? _deferredMessageThreadPool;
@@ -28,6 +27,8 @@ public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITranspor
         {
             throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
         }
+
+        _cancellationTokenSource = new();
 
         if (!string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.WorkTransportUri))
         {
@@ -63,7 +64,7 @@ public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITranspor
 
         try
         {
-            await startupPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+            await startupPipeline.ExecuteAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
             _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
             _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
@@ -86,7 +87,7 @@ public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITranspor
             return;
         }
 
-        _cancellationTokenSource.Renew();
+        await _cancellationTokenSource.CancelAsync();
 
         _deferredMessageThreadPool?.Dispose();
         _inboxThreadPool?.Dispose();
@@ -95,9 +96,9 @@ public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITranspor
 
         try
         {
-            var shutdownPipeline = await _pipelineFactory.GetPipelineAsync<ShutdownPipeline>(cancellationToken);
+            var shutdownPipeline = await _pipelineFactory.GetPipelineAsync<ShutdownPipeline>(CancellationToken.None);
 
-            await shutdownPipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            await shutdownPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
         }
         catch (ObjectDisposedException)
         {
@@ -140,8 +141,6 @@ public class ServiceBus(IOptions<ServiceBusOptions> serviceBusOptions, ITranspor
         }
 
         await StopAsync().ConfigureAwait(false);
-
-        await _cancellationTokenSource.TryDisposeAsync();
 
         _disposed = true;
     }

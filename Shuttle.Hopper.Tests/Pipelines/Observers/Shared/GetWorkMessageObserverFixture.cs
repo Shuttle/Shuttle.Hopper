@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 
@@ -11,14 +10,14 @@ public class GetWorkMessageObserverFixture
     [Test]
     public void Should_throw_exception_when_required_state_is_missing_async()
     {
-        var observer = new GetWorkMessageObserver();
+        var observer = new ReceiveWorkMessageObserver();
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnGetMessage>();
+            .WithEvent<ReceiveMessage>();
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
@@ -30,14 +29,14 @@ public class GetWorkMessageObserverFixture
     public async Task Should_be_able_to_abort_pipeline_when_no_message_is_available_async()
     {
         var workTransport = new Mock<ITransport>();
-        var observer = new GetWorkMessageObserver();
+        var observer = new ReceiveWorkMessageObserver();
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnGetMessage>();
+            .WithEvent<ReceiveMessage>();
 
         workTransport.Setup(m => m.ReceiveAsync(CancellationToken.None)).Returns(Task.FromResult(null as ReceivedMessage));
 
@@ -57,14 +56,14 @@ public class GetWorkMessageObserverFixture
     public async Task Should_be_able_to_return_received_message_async()
     {
         var workTransport = new Mock<ITransport>();
-        var observer = new GetWorkMessageObserver();
+        var observer = new ReceiveWorkMessageObserver();
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnGetMessage>();
+            .WithEvent<ReceiveMessage>();
 
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
 

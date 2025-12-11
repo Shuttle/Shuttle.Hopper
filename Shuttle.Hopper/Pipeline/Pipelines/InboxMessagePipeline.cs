@@ -6,28 +6,30 @@ namespace Shuttle.Hopper;
 
 public class InboxMessagePipeline : Pipeline
 {
-    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IGetWorkMessageObserver getWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceiveExceptionObserver receiveExceptionObserver)
-        : base(pipelineOptions, serviceProvider)
+    public InboxMessagePipeline(IPipelineDependencies pipelineDependencies, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceivePipelineFailedObserver receivePipelineFailedObserver)
+        : base(pipelineDependencies)
     {
         AddStage("Read")
-            .WithEvent<OnGetMessage>()
-            .WithEvent<OnAfterGetMessage>()
-            .WithEvent<OnDeserializeTransportMessage>()
-            .WithEvent<OnAfterDeserializeTransportMessage>()
-            .WithEvent<OnDecompressMessage>()
-            .WithEvent<OnAfterDecompressMessage>()
-            .WithEvent<OnDecryptMessage>()
-            .WithEvent<OnAfterDecryptMessage>()
-            .WithEvent<OnDeserializeMessage>()
-            .WithEvent<OnAfterDeserializeMessage>();
+            .WithEvent<ReceiveMessage>()
+            .WithEvent<MessageReceived>()
+            .WithEvent<DeserializeTransportMessage>()
+            .WithEvent<TransportMessageDeserialized>()
+            .WithEvent<DecompressMessage>()
+            .WithEvent<MessageDecompressed>()
+            .WithEvent<DecryptMessage>()
+            .WithEvent<MessageDecrypted>()
+            .WithEvent<DeserializeMessage>()
+            .WithEvent<MessageDeserialized>();
 
         AddStage("Handle")
-            .WithEvent<OnHandleMessage>()
-            .WithEvent<OnAfterHandleMessage>()
-            .WithEvent<OnAcknowledgeMessage>()
-            .WithEvent<OnAfterAcknowledgeMessage>();
+            .WithEvent<HandleMessage>()
+            .WithEvent<MessageHandled>()
+            .WithEvent<CompleteTransactionScope>()
+            .WithEvent<DisposeTransactionScope>()
+            .WithEvent<AcknowledgeMessage>()
+            .WithEvent<MessageAcknowledged>();
 
-        AddObserver(Guard.AgainstNull(getWorkMessageObserver));
+        AddObserver(Guard.AgainstNull(receiveWorkMessageObserver));
         AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
         AddObserver(Guard.AgainstNull(deferTransportMessageObserver));
         AddObserver(Guard.AgainstNull(deserializeMessageObserver));
@@ -36,7 +38,7 @@ public class InboxMessagePipeline : Pipeline
         AddObserver(Guard.AgainstNull(handleMessageObserver));
         AddObserver(Guard.AgainstNull(acknowledgeMessageObserver));
 
-        AddObserver(Guard.AgainstNull(receiveExceptionObserver)); // must be last
+        AddObserver(Guard.AgainstNull(receivePipelineFailedObserver)); // must be last
 
         Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
         Guard.AgainstNull(serviceBus);

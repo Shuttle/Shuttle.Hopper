@@ -1,33 +1,33 @@
 ﻿namespace Shuttle.Hopper;
 
-public class OnGetMessage;
+public class ReceiveMessage;
 
-public class OnAfterGetMessage;
+public class MessageReceived;
 
-public class OnDeserializeTransportMessage;
+public class DeserializeTransportMessage;
 
-public class OnAfterDeserializeTransportMessage;
+public class TransportMessageDeserialized;
 
-public class OnDecryptMessage;
+public class DecryptMessage;
 
-public class OnAfterDecryptMessage;
+public class MessageDecrypted;
 
-public class OnDeserializeMessage;
+public class DeserializeMessage;
 
-public class OnAfterDeserializeMessage;
+public class MessageDeserialized;
 
-public class OnHandleMessage;
+public class HandleMessage;
 
-public class OnAfterHandleMessage;
+public class MessageHandled;
 
-public class OnAcknowledgeMessage;
+public class AcknowledgeMessage;
 
-public class OnAfterAcknowledgeMessage;
+public class MessageAcknowledged;
 
-public class OnProcessDeferredMessage;
+public class ProcessDeferredMessage;
 
-public class OnAfterProcessDeferredMessage;
+public class DeferredMessageProcessed;
 
-public class OnDecompressMessage;
+public class DecompressMessage;
 
-public class OnAfterDecompressMessage;
+public class MessageDecompressed;

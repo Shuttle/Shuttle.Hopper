@@ -5,17 +5,17 @@ namespace Shuttle.Hopper;
 
 public class DefaultServiceBusPolicy : IServiceBusPolicy
 {
-    public MessageFailureAction EvaluateMessageHandlingFailure(IPipelineContext<OnPipelineException> pipelineContext)
+    public MessageFailureAction EvaluateMessageHandlingFailure(IPipelineContext<PipelineFailed> pipelineContext)
     {
         return DefaultEvaluation(pipelineContext);
     }
 
-    public MessageFailureAction EvaluateOutboxFailure(IPipelineContext<OnPipelineException> pipelineContext)
+    public MessageFailureAction EvaluateOutboxFailure(IPipelineContext<PipelineFailed> pipelineContext)
     {
         return DefaultEvaluation(pipelineContext);
     }
 
-    private MessageFailureAction DefaultEvaluation(IPipelineContext<OnPipelineException> pipelineContext)
+    private MessageFailureAction DefaultEvaluation(IPipelineContext<PipelineFailed> pipelineContext)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

@@ -1,13 +1,12 @@
-﻿using Microsoft.Extensions.Options;
-using Shuttle.Core.Contract;
+﻿using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
 public class DispatchTransportMessagePipeline : Pipeline
 {
-    public DispatchTransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IFindMessageRouteObserver findMessageRouteObserver, ISerializeTransportMessageObserver serializeTransportMessageObserver, IDispatchTransportMessageObserver dispatchTransportMessageObserver)
-        : base(pipelineOptions, serviceProvider)
+    public DispatchTransportMessagePipeline(IPipelineDependencies pipelineDependencies, IFindMessageRouteObserver findMessageRouteObserver, ISerializeTransportMessageObserver serializeTransportMessageObserver, IDispatchTransportMessageObserver dispatchTransportMessageObserver)
+        : base(pipelineDependencies)
     {
         AddStage("Send")
             .WithEvent<OnFindRouteForMessage>()

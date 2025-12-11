@@ -2,12 +2,12 @@
 
 namespace Shuttle.Hopper.Tests;
 
-public class HandleExceptionObserver : IPipelineObserver<OnPipelineException>
+public class HandleExceptionObserver : IPipelineObserver<PipelineFailed>
 {
-    public async Task ExecuteAsync(IPipelineContext<OnPipelineException> pipelineContext, CancellationToken cancellationToken = default)
+    public Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)
     {
         pipelineContext.Pipeline.MarkExceptionHandled();
 
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 }

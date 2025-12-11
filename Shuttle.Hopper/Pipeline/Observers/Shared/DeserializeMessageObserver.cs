@@ -6,14 +6,14 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Hopper;
 
-public interface IDeserializeMessageObserver : IPipelineObserver<OnDeserializeMessage>;
+public interface IDeserializeMessageObserver : IPipelineObserver<DeserializeMessage>;
 
 public class DeserializeMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, ISerializer serializer) : IDeserializeMessageObserver
 {
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-    public async Task ExecuteAsync(IPipelineContext<OnDeserializeMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<DeserializeMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
 

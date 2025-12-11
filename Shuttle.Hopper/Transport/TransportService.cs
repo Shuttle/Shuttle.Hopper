@@ -22,14 +22,14 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
     public async ValueTask<bool> ContainsAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        return await FindAsync(uri, cancellationToken) != null;
+        return await FindAsync(uri, cancellationToken).ConfigureAwait(false) != null;
     }
 
-    public async Task<ITransport?> FindAsync(Uri uri, CancellationToken cancellationToken = default)
+    public Task<ITransport?> FindAsync(Uri uri, CancellationToken cancellationToken = default)
     {
         Guard.AgainstNull(uri);
 
-        return await Task.FromResult(_transports.Find(candidate => candidate.Uri.Uri.Equals(uri)));
+        return Task.FromResult(_transports.Find(candidate => candidate.Uri.Uri.Equals(uri)));
     }
 
     public async ValueTask DisposeAsync()
@@ -41,11 +41,11 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
         foreach (var transport in _transports)
         {
-            await _serviceBusOptions.TransportDisposing.InvokeAsync(new(transport));
+            await _serviceBusOptions.TransportDisposing.InvokeAsync(new(transport)).ConfigureAwait(false);
 
             await transport.TryDisposeAsync();
 
-            await _serviceBusOptions.TransportDisposed.InvokeAsync(new(transport));
+            await _serviceBusOptions.TransportDisposed.InvokeAsync(new(transport)).ConfigureAwait(false);
         }
 
         _transports.Clear();
@@ -55,14 +55,14 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
     public async Task<ITransport> GetAsync(Uri uri, CancellationToken cancellationToken = default)
     {
-        var transport = await FindAsync(Guard.AgainstNull(uri), cancellationToken);
+        var transport = await FindAsync(Guard.AgainstNull(uri), cancellationToken).ConfigureAwait(false);
 
         if (transport != null)
         {
             return transport;
         }
 
-        await Lock.WaitAsync(cancellationToken);
+        await Lock.WaitAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -84,11 +84,11 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
                     throw new KeyNotFoundException(string.Format(Resources.UriNameNotFoundException, _uriResolver.GetType().FullName, uri));
                 }
 
-                transport = new ResolvedTransport(await CreateAsync(_transportFactoryService.Get(resolvedTransportUri.Scheme), resolvedTransportUri, cancellationToken), transportUri);
+                transport = new ResolvedTransport(await CreateAsync(_transportFactoryService.Get(resolvedTransportUri.Scheme), resolvedTransportUri, cancellationToken).ConfigureAwait(false), transportUri);
             }
             else
             {
-                transport = await CreateAsync(_transportFactoryService.Get(transportUri.Scheme), transportUri, cancellationToken);
+                transport = await CreateAsync(_transportFactoryService.Get(transportUri.Scheme), transportUri, cancellationToken).ConfigureAwait(false); 
             }
 
             _transports.Add(transport);
@@ -103,11 +103,11 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
     private async Task<ITransport> CreateAsync(ITransportFactory transportFactory, Uri transportUri, CancellationToken cancellationToken)
     {
-        var result = await transportFactory.CreateAsync(transportUri, cancellationToken);
+        var result = await transportFactory.CreateAsync(transportUri, cancellationToken).ConfigureAwait(false); 
 
         Guard.AgainstNull(result, string.Format(Resources.TransportFactoryCreatedNullTransport, transportFactory.GetType().FullName, transportUri));
 
-        await _serviceBusOptions.TransportCreated.InvokeAsync(new(result), cancellationToken);
+        await _serviceBusOptions.TransportCreated.InvokeAsync(new(result), cancellationToken).ConfigureAwait(false); 
 
         return result;
     }

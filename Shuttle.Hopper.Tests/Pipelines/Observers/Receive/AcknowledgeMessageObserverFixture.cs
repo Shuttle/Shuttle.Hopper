@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 
@@ -13,7 +12,7 @@ public class AcknowledgeMessageObserverFixture
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(new HandleExceptionObserver())
             .AddObserver(observer);
@@ -21,7 +20,7 @@ public class AcknowledgeMessageObserverFixture
         pipeline
             .AddStage(".")
             .WithEvent<OnException>()
-            .WithEvent<OnAcknowledgeMessage>();
+            .WithEvent<MessageAcknowledged>();
 
         var workTransport = new Mock<ITransport>();
 
@@ -37,12 +36,12 @@ public class AcknowledgeMessageObserverFixture
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnAcknowledgeMessage>();
+            .WithEvent<MessageAcknowledged>();
 
         var workTransport = new Mock<ITransport>();
         var receivedMessage = new ReceivedMessage(new Mock<Stream>().Object, Guid.NewGuid());

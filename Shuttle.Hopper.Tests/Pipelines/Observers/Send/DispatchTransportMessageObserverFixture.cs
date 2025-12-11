@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 
@@ -28,7 +27,7 @@ public class DispatchTransportMessageObserverFixture
 
         var observer = new DispatchTransportMessageObserver(serviceBus.Object, transportService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -66,7 +65,7 @@ public class DispatchTransportMessageObserverFixture
 
         var observer = new DispatchTransportMessageObserver(serviceBus.Object, transportService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline

@@ -6,8 +6,8 @@ namespace Shuttle.Hopper;
 
 public class StartupPipeline : Pipeline
 {
-    public StartupPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IStartupProcessingObserver startupProcessingObserver)
-        : base(pipelineOptions, serviceProvider)
+    public StartupPipeline(IPipelineDependencies pipelineDependencies, IStartupProcessingObserver startupProcessingObserver)
+        : base(pipelineDependencies)
     {
         AddStage("Start")
             .WithEvent<OnStarting>()

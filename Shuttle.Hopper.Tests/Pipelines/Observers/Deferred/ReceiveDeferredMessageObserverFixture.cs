@@ -6,18 +6,18 @@ using Shuttle.Core.Pipelines;
 namespace Shuttle.Hopper.Tests;
 
 [TestFixture]
-public class GetDeferredMessageObserverFixture
+public class ReceiveDeferredMessageObserverFixture
 {
     [Test]
     public async Task Should_be_able_to_get_a_message_from_the_deferred_transport_when_available_async()
     {
-        var observer = new GetDeferredMessageObserver();
+        var observer = new ReceiveDeferredMessageObserver();
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object).AddObserver(observer);
+        var pipeline = new Pipeline(PipelineDependencies.Empty()).AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnGetMessage>();
+            .WithEvent<ReceiveMessage>();
 
         var deferredTransport = new Mock<ITransport>();
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
@@ -16,7 +15,7 @@ public class SerializeMessageObserverFixture
 
         var observer = new SerializeMessageObserver(serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -30,11 +29,11 @@ public class SerializeMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(simpleCommand);
 
-        serializer.Setup(m => m.SerializeAsync(simpleCommand)).Returns(Task.FromResult((Stream)stream));
+        serializer.Setup(m => m.SerializeAsync(simpleCommand, CancellationToken.None)).Returns(Task.FromResult((Stream)stream));
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(simpleCommand), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(simpleCommand, CancellationToken.None), Times.Once);
 
         Assert.That(transportMessage.Message, Is.Not.Null);
         Assert.That(pipeline.State.GetMessageBytes(), Is.SameAs(transportMessage.Message));

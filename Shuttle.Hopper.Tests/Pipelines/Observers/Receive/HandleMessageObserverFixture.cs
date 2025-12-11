@@ -17,12 +17,12 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnHandleMessage>();
+            .WithEvent<HandleMessage>();
 
         pipeline.State.SetTransportMessage(new() { ExpiryDate = DateTime.Now.AddDays(-1) });
 
@@ -40,12 +40,12 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnHandleMessage>();
+            .WithEvent<HandleMessage>();
 
         var transportMessage = new TransportMessage();
         var message = new object();
@@ -53,11 +53,11 @@ public class HandleMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(true));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None)).Returns(ValueTask.FromResult(true));
 
         await pipeline.ExecuteAsync();
 
-        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()), Times.Once);
+        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.True);
 
@@ -68,6 +68,7 @@ public class HandleMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_execute_missing_handler_async()
     {
+        var workTransport = new Mock<ITransport>();
         var errorTransport = new Mock<ITransport>();
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
@@ -95,28 +96,29 @@ public class HandleMessageObserverFixture
 
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/name"));
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnHandleMessage>();
+            .WithEvent<HandleMessage>();
 
         var transportMessage = new TransportMessage();
         var message = new object();
 
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
+        pipeline.State.SetWorkTransport(workTransport.Object);
         pipeline.State.SetErrorTransport(errorTransport.Object);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(false));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None)).Returns(ValueTask.FromResult(false));
 
         await pipeline.ExecuteAsync();
 
-        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()));
+        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None));
 
         errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        serializer.Verify(m => m.SerializeAsync(transportMessage));
+        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
 
         Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);
         Assert.That(messageNotHandledCount, Is.EqualTo(1));
@@ -129,6 +131,7 @@ public class HandleMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_remove_messages_not_handled_async()
     {
+        var workTransport = new Mock<ITransport>();
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
         var messageNotHandledCount = 0;
@@ -155,24 +158,25 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnHandleMessage>();
+            .WithEvent<HandleMessage>();
 
         var transportMessage = new TransportMessage();
         var message = new object();
 
+        pipeline.State.SetWorkTransport(workTransport.Object);
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(false));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None)).Returns(ValueTask.FromResult(false));
 
         await pipeline.ExecuteAsync();
 
-        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()), Times.Once);
+        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);
         Assert.That(messageNotHandledCount, Is.EqualTo(1));
@@ -185,6 +189,7 @@ public class HandleMessageObserverFixture
     [Test]
     public async Task Should_fail_on_missing_error_transport_async()
     {
+        var workTransport = new Mock<ITransport>();
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
         var messageNotHandledCount = 0;
@@ -208,24 +213,25 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnHandleMessage>();
+            .WithEvent<HandleMessage>();
 
         var transportMessage = new TransportMessage();
         var message = new object();
 
+        pipeline.State.SetWorkTransport(workTransport.Object);
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(message);
 
-        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>())).Returns(ValueTask.FromResult(false));
+        messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None)).Returns(ValueTask.FromResult(false));
 
         Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
-        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<OnHandleMessage>>()), Times.Once);
+        messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);
         Assert.That(messageNotHandledCount, Is.EqualTo(1));

@@ -5,14 +5,14 @@ using Shuttle.Core.Serialization;
 
 namespace Shuttle.Hopper;
 
-public interface IOutboxExceptionObserver : IPipelineObserver<OnPipelineException>;
+public interface IOutboxExceptionObserver : IPipelineObserver<PipelineFailed>;
 
 public class OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer serializer) : IOutboxExceptionObserver
 {
     private readonly IServiceBusPolicy _policy = Guard.AgainstNull(policy);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
 
-    public async Task ExecuteAsync(IPipelineContext<OnPipelineException> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = pipelineContext.Pipeline.State;
 

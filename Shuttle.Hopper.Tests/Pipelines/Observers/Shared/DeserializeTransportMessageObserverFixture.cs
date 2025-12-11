@@ -33,12 +33,12 @@ public class DeserializeTransportMessageObserverFixture
             new Mock<IEnvironmentService>().Object,
             processService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDeserializeTransportMessage>();
+            .WithEvent<DeserializeTransportMessage>();
 
         var transportMessage = new TransportMessage();
 
@@ -77,12 +77,12 @@ public class DeserializeTransportMessageObserverFixture
             new Mock<IEnvironmentService>().Object,
             processService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDeserializeTransportMessage>();
+            .WithEvent<DeserializeTransportMessage>();
 
         var transportMessage = new TransportMessage();
 

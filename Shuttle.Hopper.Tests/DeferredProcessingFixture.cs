@@ -49,7 +49,7 @@ public class DeferredProcessingFixture
         };
         
         var serviceBusOptionsWrapped = Options.Create(serviceBusOptions);
-        var pipelineOptionsWrapped = Options.Create(new PipelineOptions());
+        var pipelineDependencies = PipelineDependencies.Empty();
 
         var inboxConfiguration = new InboxConfiguration
         {
@@ -63,7 +63,7 @@ public class DeferredProcessingFixture
         var processDeferredMessageObserver = new ProcessDeferredMessageObserver(serviceBusOptionsWrapped);
 
         pipelineFactory.Setup(m => m.GetPipelineAsync<DeferredMessagePipeline>(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new DeferredMessagePipeline(pipelineOptionsWrapped, new Mock<IServiceProvider>().Object, serviceBus.Object, new GetDeferredMessageObserver(), new DeserializeTransportMessageObserver(serviceBusOptionsWrapped, serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
+            .ReturnsAsync(new DeferredMessagePipeline(pipelineDependencies, serviceBus.Object, new ReceiveDeferredMessageObserver(), new DeserializeTransportMessageObserver(serviceBusOptionsWrapped, serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
 
         var deferredMessageProcessor = new DeferredMessageProcessor(serviceBusOptionsWrapped, pipelineFactory.Object);
 

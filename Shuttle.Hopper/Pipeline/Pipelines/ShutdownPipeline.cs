@@ -6,8 +6,8 @@ namespace Shuttle.Hopper;
 
 public class ShutdownPipeline : Pipeline
 {
-    public ShutdownPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IShutdownProcessingObserver shutdownProcessingObserver)
-        : base(pipelineOptions, serviceProvider)
+    public ShutdownPipeline(IPipelineDependencies pipelineDependencies, IShutdownProcessingObserver shutdownProcessingObserver)
+        : base(pipelineDependencies)
     {
         AddStage("Shutdown")
             .WithEvent<OnStopping>();

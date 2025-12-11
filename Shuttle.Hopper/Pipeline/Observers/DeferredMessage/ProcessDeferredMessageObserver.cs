@@ -4,11 +4,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IProcessDeferredMessageObserver : IPipelineObserver<OnProcessDeferredMessage>;
+public interface IProcessDeferredMessageObserver : IPipelineObserver<ProcessDeferredMessage>;
 
 public class ProcessDeferredMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions) : IProcessDeferredMessageObserver
 {
-    public async Task ExecuteAsync(IPipelineContext<OnProcessDeferredMessage> pipelineContext, CancellationToken cancellation = default)
+    public async Task ExecuteAsync(IPipelineContext<ProcessDeferredMessage> pipelineContext, CancellationToken cancellation = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

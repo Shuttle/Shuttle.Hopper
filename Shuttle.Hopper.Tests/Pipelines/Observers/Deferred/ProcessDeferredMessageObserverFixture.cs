@@ -13,11 +13,11 @@ public class ProcessDeferredMessageObserverFixture
     {
         var observer = new ProcessDeferredMessageObserver(Options.Create(new ServiceBusOptions()));
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object).AddObserver(observer);
+        var pipeline = new Pipeline(PipelineDependencies.Empty()).AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnProcessDeferredMessage>();
+            .WithEvent<ProcessDeferredMessage>();
 
         var workTransport = new Mock<ITransport>();
         var deferredTransport = new Mock<ITransport>();

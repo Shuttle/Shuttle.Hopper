@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 
@@ -15,7 +14,7 @@ public class SendOutboxMessageObserverFixture
 
         var observer = new SendOutboxMessageObserver(transportService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
@@ -45,14 +44,14 @@ public class SendOutboxMessageObserverFixture
     }
 
     [Test]
-    public async Task Should_be_able_to_entransport_into_recipient_transport_async()
+    public async Task Should_be_able_to_enqueue_into_recipient_transport_async()
     {
         var transportService = new Mock<ITransportService>();
         var recipientTransport = new Mock<ITransport>();
 
         var observer = new SendOutboxMessageObserver(transportService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline

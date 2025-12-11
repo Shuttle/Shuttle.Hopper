@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
@@ -16,12 +15,12 @@ public class DecryptMessageObserverFixture
 
         var observer = new DecryptMessageObserver(encryptionService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDecryptMessage>();
+            .WithEvent<DecryptMessage>();
 
         pipeline.State.SetTransportMessage(new());
 
@@ -38,12 +37,12 @@ public class DecryptMessageObserverFixture
 
         var observer = new DecryptMessageObserver(encryptionService.Object);
 
-        var pipeline = new Pipeline(Options.Create(new PipelineOptions()), new Mock<IServiceProvider>().Object)
+        var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDecryptMessage>();
+            .WithEvent<DecryptMessage>();
 
         var transportMessage = new TransportMessage { EncryptionAlgorithm = "3des" };
 
@@ -53,7 +52,7 @@ public class DecryptMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        encryptionAlgorithm.Verify(m => m.DecryptAsync(It.IsAny<byte[]>()), Times.Once);
+        encryptionAlgorithm.Verify(m => m.DecryptAsync(It.IsAny<byte[]>(), CancellationToken.None), Times.Once);
 
         encryptionService.Verify(m => m.Get(transportMessage.EncryptionAlgorithm), Times.Once);
 
