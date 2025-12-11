@@ -10,10 +10,10 @@ public class ShutdownPipeline : Pipeline
         : base(pipelineDependencies)
     {
         AddStage("Shutdown")
-            .WithEvent<OnStopping>();
+            .WithEvent<Stopping>();
 
         AddStage("Final")
-            .WithEvent<OnStopped>();
+            .WithEvent<Stopped>();
 
         AddObserver(Guard.AgainstNull(shutdownProcessingObserver));
     }

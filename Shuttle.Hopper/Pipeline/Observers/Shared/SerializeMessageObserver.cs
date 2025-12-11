@@ -5,13 +5,13 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Hopper;
 
-public interface ISerializeMessageObserver : IPipelineObserver<OnSerializeMessage>;
+public interface ISerializeMessageObserver : IPipelineObserver<SerializeMessage>;
 
 public class SerializeMessageObserver(ISerializer serializer) : ISerializeMessageObserver
 {
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
 
-    public async Task ExecuteAsync(IPipelineContext<OnSerializeMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<SerializeMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var message = Guard.AgainstNull(state.GetMessage());

@@ -1,9 +1,5 @@
 ﻿namespace Shuttle.Hopper;
 
-public class OnStopping
-{
-}
+public class Stopping;
 
-public class OnStopped
-{
-}
+public class Stopped;

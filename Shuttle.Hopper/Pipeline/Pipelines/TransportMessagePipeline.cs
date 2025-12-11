@@ -10,14 +10,14 @@ public class TransportMessagePipeline : Pipeline
         : base(pipelineDependencies)
     {
         AddStage("Create")
-            .WithEvent<OnAssembleMessage>()
-            .WithEvent<OnAfterAssembleMessage>()
-            .WithEvent<OnSerializeMessage>()
-            .WithEvent<OnAfterSerializeMessage>()
-            .WithEvent<OnEncryptMessage>()
-            .WithEvent<OnAfterEncryptMessage>()
-            .WithEvent<OnCompressMessage>()
-            .WithEvent<OnAfterCompressMessage>();
+            .WithEvent<AssembleMessage>()
+            .WithEvent<MessageAssembled>()
+            .WithEvent<SerializeMessage>()
+            .WithEvent<MessageSerialized>()
+            .WithEvent<EncryptMessage>()
+            .WithEvent<MessageEncrypted>()
+            .WithEvent<CompressMessage>()
+            .WithEvent<MessageCompressed>();
 
         AddObserver(Guard.AgainstNull(assembleMessageObserver));
         AddObserver(Guard.AgainstNull(serializeMessageObserver));

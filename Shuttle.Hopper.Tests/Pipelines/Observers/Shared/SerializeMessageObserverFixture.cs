@@ -20,7 +20,7 @@ public class SerializeMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnSerializeMessage>();
+            .WithEvent<SerializeMessage>();
 
         var simpleCommand = new SimpleCommand();
         var transportMessage = new TransportMessage();

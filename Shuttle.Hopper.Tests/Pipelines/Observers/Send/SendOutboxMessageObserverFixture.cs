@@ -19,7 +19,7 @@ public class SendOutboxMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDispatchTransportMessage>();
+            .WithEvent<DispatchTransportMessage>();
 
         var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(async () => await pipeline.ExecuteAsync())!;
 
@@ -56,7 +56,7 @@ public class SendOutboxMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDispatchTransportMessage>();
+            .WithEvent<DispatchTransportMessage>();
 
         var transportMessage = new TransportMessage { RecipientInboxWorkTransportUri = "transport://host/somewhere" };
 

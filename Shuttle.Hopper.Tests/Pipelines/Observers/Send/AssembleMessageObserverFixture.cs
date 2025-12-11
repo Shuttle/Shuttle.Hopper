@@ -43,7 +43,7 @@ public class AssembleMessageObserverFixture
             });
         });
 
-        var pipelineContext = new PipelineContext<OnAssembleMessage>(pipeline);
+        var pipelineContext = new PipelineContext<AssembleMessage>(pipeline);
 
         await observer.ExecuteAsync(pipelineContext);
 

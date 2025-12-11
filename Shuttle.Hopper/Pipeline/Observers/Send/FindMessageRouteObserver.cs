@@ -3,13 +3,13 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IFindMessageRouteObserver : IPipelineObserver<OnFindRouteForMessage>;
+public interface IFindMessageRouteObserver : IPipelineObserver<FindMessageRoute>;
 
 public class FindMessageRouteObserver(IMessageRouteProvider messageRouteProvider) : IFindMessageRouteObserver
 {
     private readonly IMessageRouteProvider _messageRouteProvider = Guard.AgainstNull(messageRouteProvider);
 
-    public async Task ExecuteAsync(IPipelineContext<OnFindRouteForMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<FindMessageRoute> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

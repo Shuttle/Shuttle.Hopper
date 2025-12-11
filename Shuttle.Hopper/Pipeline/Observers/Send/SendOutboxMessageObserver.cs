@@ -4,13 +4,13 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Hopper;
 
-public interface ISendOutboxMessageObserver : IPipelineObserver<OnDispatchTransportMessage>;
+public interface ISendOutboxMessageObserver : IPipelineObserver<DispatchTransportMessage>;
 
 public class SendOutboxMessageObserver(ITransportService transportService) : ISendOutboxMessageObserver
 {
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
-    public async Task ExecuteAsync(IPipelineContext<OnDispatchTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<DispatchTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

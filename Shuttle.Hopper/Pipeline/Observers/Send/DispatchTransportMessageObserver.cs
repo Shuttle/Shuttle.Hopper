@@ -4,7 +4,7 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Hopper;
 
-public interface IDispatchTransportMessageObserver : IPipelineObserver<OnDispatchTransportMessage>;
+public interface IDispatchTransportMessageObserver : IPipelineObserver<DispatchTransportMessage>;
 
 public class DispatchTransportMessageObserver(IServiceBus serviceBus, ITransportService transportService)
     : IDispatchTransportMessageObserver
@@ -12,7 +12,7 @@ public class DispatchTransportMessageObserver(IServiceBus serviceBus, ITransport
     private readonly IServiceBus _serviceBus = Guard.AgainstNull(serviceBus);
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
-    public async Task ExecuteAsync(IPipelineContext<OnDispatchTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<DispatchTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());

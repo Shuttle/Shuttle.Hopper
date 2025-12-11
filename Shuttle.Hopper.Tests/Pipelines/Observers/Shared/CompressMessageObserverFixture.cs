@@ -20,7 +20,7 @@ public class CompressMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnCompressMessage>();
+            .WithEvent<CompressMessage>();
 
         pipeline.State.SetTransportMessage(new());
 
@@ -42,7 +42,7 @@ public class CompressMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnCompressMessage>();
+            .WithEvent<CompressMessage>();
 
         var transportMessage = new TransportMessage { CompressionAlgorithm = "gzip" };
 

@@ -1,57 +1,29 @@
 ﻿namespace Shuttle.Hopper;
 
-public class OnAssembleMessage
-{
-}
+public class AssembleMessage;
 
-public class OnAfterAssembleMessage
-{
-}
+public class MessageAssembled;
 
-public class OnFindRouteForMessage
-{
-}
+public class FindMessageRoute;
 
-public class OnAfterFindRouteForMessage
-{
-}
+public class MessageRouteFound;
 
-public class OnSerializeMessage
-{
-}
+public class SerializeMessage;
 
-public class OnAfterSerializeMessage
-{
-}
+public class MessageSerialized;
 
-public class OnSerializeTransportMessage
-{
-}
+public class SerializeTransportMessage;
 
-public class OnAfterSerializeTransportMessage
-{
-}
+public class TransportMessageSerialized;
 
-public class OnCompressMessage
-{
-}
+public class CompressMessage;
 
-public class OnAfterCompressMessage
-{
-}
+public class MessageCompressed;
 
-public class OnEncryptMessage
-{
-}
+public class EncryptMessage;
 
-public class OnAfterEncryptMessage
-{
-}
+public class MessageEncrypted;
 
-public class OnDispatchTransportMessage
-{
-}
+public class DispatchTransportMessage;
 
-public class OnAfterDispatchTransportMessage
-{
-}
+public class TransportMessageDispatched;

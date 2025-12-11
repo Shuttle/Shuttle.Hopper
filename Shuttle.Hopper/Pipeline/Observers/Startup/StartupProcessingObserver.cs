@@ -6,9 +6,9 @@ using Shuttle.Core.Threading;
 namespace Shuttle.Hopper;
 
 public interface IStartupProcessingObserver :
-    IPipelineObserver<OnCreatePhysicalTransports>,
-    IPipelineObserver<OnConfigureThreadPools>,
-    IPipelineObserver<OnStartThreadPools>;
+    IPipelineObserver<CreatePhysicalTransports>,
+    IPipelineObserver<ConfigureThreadPools>,
+    IPipelineObserver<StartThreadPools>;
 
 public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IDeferredMessageProcessor deferredMessageProcessor, IPipelineFactory pipelineFactory, IProcessorThreadPoolFactory processorThreadPoolFactory)
     : IStartupProcessingObserver
@@ -19,7 +19,7 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
     private readonly IServiceBus _serviceBus = Guard.AgainstNull(serviceBus);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-    public async Task ExecuteAsync(IPipelineContext<OnCreatePhysicalTransports> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<CreatePhysicalTransports> pipelineContext, CancellationToken cancellationToken = default)
     {
         if (!_serviceBusOptions.CreatePhysicalTransports)
         {
@@ -32,7 +32,7 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
         await _serviceBus.CreatePhysicalTransportsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ExecuteAsync(IPipelineContext<OnConfigureThreadPools> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<ConfigureThreadPools> pipelineContext, CancellationToken cancellationToken = default)
     {
         if (_serviceBus.HasInbox() && _serviceBus.Inbox!.HasDeferredTransport())
         {
@@ -61,7 +61,7 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
         await Task.CompletedTask;
     }
 
-    public async Task ExecuteAsync(IPipelineContext<OnStartThreadPools> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<StartThreadPools> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext.Pipeline.State);
 

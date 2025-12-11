@@ -20,7 +20,7 @@ public class EncryptMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnEncryptMessage>();
+            .WithEvent<EncryptMessage>();
 
         pipeline.State.SetTransportMessage(new());
 
@@ -42,7 +42,7 @@ public class EncryptMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnEncryptMessage>();
+            .WithEvent<EncryptMessage>();
 
         var transportMessage = new TransportMessage { EncryptionAlgorithm = "3des" };
 

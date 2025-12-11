@@ -4,13 +4,13 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IEncryptMessageObserver : IPipelineObserver<OnEncryptMessage>;
+public interface IEncryptMessageObserver : IPipelineObserver<EncryptMessage>;
 
 public class EncryptMessageObserver(IEncryptionService encryptionService) : IEncryptMessageObserver
 {
     private readonly IEncryptionService _encryptionService = Guard.AgainstNull(encryptionService);
 
-    public async Task ExecuteAsync(IPipelineContext<OnEncryptMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<EncryptMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var transportMessage = Guard.AgainstNull(Guard.AgainstNull(pipelineContext).Pipeline.State.GetTransportMessage());
 

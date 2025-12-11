@@ -4,7 +4,7 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public interface IAssembleMessageObserver : IPipelineObserver<OnAssembleMessage>;
+public interface IAssembleMessageObserver : IPipelineObserver<AssembleMessage>;
 
 public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IIdentityProvider identityProvider)
     : IAssembleMessageObserver
@@ -13,7 +13,7 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
     private readonly IIdentityProvider _identityProvider = Guard.AgainstNull(identityProvider);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-    public async Task ExecuteAsync(IPipelineContext<OnAssembleMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(IPipelineContext<AssembleMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var builder = state.GetTransportMessageBuilder();

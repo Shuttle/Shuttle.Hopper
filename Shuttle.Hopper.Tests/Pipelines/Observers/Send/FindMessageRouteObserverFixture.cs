@@ -19,7 +19,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnFindRouteForMessage>();
+            .WithEvent<FindMessageRoute>();
 
         pipeline.State.SetTransportMessage(new() { RecipientInboxWorkTransportUri = "recipient-uri" });
 
@@ -43,7 +43,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnFindRouteForMessage>();
+            .WithEvent<FindMessageRoute>();
 
         var transportMessage = new TransportMessage { MessageType = messageType };
 
@@ -75,7 +75,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnFindRouteForMessage>();
+            .WithEvent<FindMessageRoute>();
 
         var transportMessage = new TransportMessage { MessageType = messageType };
 
@@ -107,7 +107,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnFindRouteForMessage>();
+            .WithEvent<FindMessageRoute>();
 
         var transportMessage = new TransportMessage { MessageType = messageType };
 

@@ -29,8 +29,8 @@ public class OutboxPipeline : Pipeline
             .WithEvent<TransportMessageDeserialized>();
 
         AddStage("Send")
-            .WithEvent<OnDispatchTransportMessage>()
-            .WithEvent<OnAfterDispatchTransportMessage>()
+            .WithEvent<DispatchTransportMessage>()
+            .WithEvent<TransportMessageDispatched>()
             .WithEvent<MessageAcknowledged>()
             .WithEvent<MessageAcknowledged>();
 

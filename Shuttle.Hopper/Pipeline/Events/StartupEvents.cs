@@ -1,37 +1,19 @@
 ﻿namespace Shuttle.Hopper;
 
-public class OnInitializing
-{
-}
+public class Initializing;
 
-public class OnCreatePhysicalTransports
-{
-}
+public class CreatePhysicalTransports;
 
-public class OnAfterCreatePhysicalTransports
-{
-}
+public class PhysicalTransportsCreated;
 
-public class OnConfigureThreadPools
-{
-}
+public class ConfigureThreadPools;
 
-public class OnAfterConfigureThreadPools
-{
-}
+public class ThreadPoolsConfigured;
 
-public class OnStartThreadPools
-{
-}
+public class StartThreadPools;
 
-public class OnAfterStartThreadPools
-{
-}
+public class ThreadPoolsStarted;
 
-public class OnStarting
-{
-}
+public class Starting;
 
-public class OnStarted
-{
-}
+public class Started;

@@ -10,16 +10,16 @@ public class StartupPipeline : Pipeline
         : base(pipelineDependencies)
     {
         AddStage("Start")
-            .WithEvent<OnStarting>()
-            .WithEvent<OnCreatePhysicalTransports>()
-            .WithEvent<OnAfterCreatePhysicalTransports>()
-            .WithEvent<OnConfigureThreadPools>()
-            .WithEvent<OnAfterConfigureThreadPools>()
-            .WithEvent<OnStartThreadPools>()
-            .WithEvent<OnAfterStartThreadPools>();
+            .WithEvent<Starting>()
+            .WithEvent<CreatePhysicalTransports>()
+            .WithEvent<PhysicalTransportsCreated>()
+            .WithEvent<ConfigureThreadPools>()
+            .WithEvent<ThreadPoolsConfigured>()
+            .WithEvent<StartThreadPools>()
+            .WithEvent<ThreadPoolsStarted>();
 
         AddStage("Final")
-            .WithEvent<OnStarted>();
+            .WithEvent<Started>();
 
         AddObserver(Guard.AgainstNull(startupProcessingObserver));
     }

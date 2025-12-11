@@ -32,7 +32,7 @@ public class DispatchTransportMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDispatchTransportMessage>();
+            .WithEvent<DispatchTransportMessage>();
 
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetTransportMessageStream(transportMessageStream);
@@ -70,7 +70,7 @@ public class DispatchTransportMessageObserverFixture
 
         pipeline
             .AddStage(".")
-            .WithEvent<OnDispatchTransportMessage>();
+            .WithEvent<DispatchTransportMessage>();
 
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetTransportMessageStream(transportMessageStream);

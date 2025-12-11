@@ -9,12 +9,12 @@ public class DispatchTransportMessagePipeline : Pipeline
         : base(pipelineDependencies)
     {
         AddStage("Send")
-            .WithEvent<OnFindRouteForMessage>()
-            .WithEvent<OnAfterFindRouteForMessage>()
-            .WithEvent<OnSerializeTransportMessage>()
-            .WithEvent<OnAfterSerializeTransportMessage>()
-            .WithEvent<OnDispatchTransportMessage>()
-            .WithEvent<OnAfterDispatchTransportMessage>();
+            .WithEvent<FindMessageRoute>()
+            .WithEvent<MessageRouteFound>()
+            .WithEvent<SerializeTransportMessage>()
+            .WithEvent<TransportMessageSerialized>()
+            .WithEvent<DispatchTransportMessage>()
+            .WithEvent<TransportMessageDispatched>();
 
         AddObserver(Guard.AgainstNull(findMessageRouteObserver));
         AddObserver(Guard.AgainstNull(serializeTransportMessageObserver));
