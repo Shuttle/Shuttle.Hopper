@@ -13,7 +13,7 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
     private readonly IIdentityProvider _identityProvider = Guard.AgainstNull(identityProvider);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-    public async Task ExecuteAsync(IPipelineContext<AssembleMessage> pipelineContext, CancellationToken cancellationToken = default)
+    public Task ExecuteAsync(IPipelineContext<AssembleMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var builder = state.GetTransportMessageBuilder();
@@ -75,6 +75,6 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
 
         state.SetTransportMessage(transportMessage);
 
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 }

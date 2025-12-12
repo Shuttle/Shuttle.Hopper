@@ -57,8 +57,6 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
                 _serviceBusOptions.Outbox.ThreadCount,
                 new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory), cancellationToken));
         }
-
-        await Task.CompletedTask;
     }
 
     public async Task ExecuteAsync(IPipelineContext<StartThreadPools> pipelineContext, CancellationToken cancellationToken = default)

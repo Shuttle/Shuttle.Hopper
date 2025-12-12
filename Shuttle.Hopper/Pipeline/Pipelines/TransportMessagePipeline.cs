@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Shuttle.Core.Contract;
+﻿using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
