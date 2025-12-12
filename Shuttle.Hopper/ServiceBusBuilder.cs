@@ -122,6 +122,20 @@ public class ServiceBusBuilder(IServiceCollection services)
             Services.Add(serviceDescriptor);
         }
 
+        foreach (var type in Guard.AgainstNull(assembly).GetTypesCastableToAsync(MessageHandlerType).GetAwaiter().GetResult())
+        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
+        {
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var serviceDescriptor = new ServiceDescriptor(genericType, type, getServiceLifetime(genericType));
+
+            if (Services.Contains(serviceDescriptor))
+            {
+                throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
+            }
+
+            Services.Add(serviceDescriptor);
+        }
+
         return this;
     }
 

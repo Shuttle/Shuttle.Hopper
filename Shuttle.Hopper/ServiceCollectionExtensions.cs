@@ -42,6 +42,8 @@ public static class ServiceCollectionExtensions
                 services.AddPipelines(pipelineProcessingBuilder =>
                 {
                     pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
+
+                    pipelineProcessingBuilder.Options.UseTransactionScope<InboxMessagePipeline>("Handle");
                 });
             }
 
