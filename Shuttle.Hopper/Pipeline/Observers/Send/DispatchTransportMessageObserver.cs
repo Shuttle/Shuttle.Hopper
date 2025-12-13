@@ -6,10 +6,10 @@ namespace Shuttle.Hopper;
 
 public interface IDispatchTransportMessageObserver : IPipelineObserver<DispatchTransportMessage>;
 
-public class DispatchTransportMessageObserver(IServiceBus serviceBus, ITransportService transportService)
+public class DispatchTransportMessageObserver(IServiceBusConfiguration serviceBusConfiguration, ITransportService transportService)
     : IDispatchTransportMessageObserver
 {
-    private readonly IServiceBus _serviceBus = Guard.AgainstNull(serviceBus);
+    private readonly IServiceBusConfiguration _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
     public async Task ExecuteAsync(IPipelineContext<DispatchTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
@@ -19,9 +19,9 @@ public class DispatchTransportMessageObserver(IServiceBus serviceBus, ITransport
 
         Guard.AgainstEmpty(transportMessage.RecipientInboxWorkTransportUri);
 
-        var transport = !_serviceBus.HasOutbox()
+        var transport = !_serviceBusConfiguration.HasOutbox()
             ? await _transportService.GetAsync(transportMessage.RecipientInboxWorkTransportUri, cancellationToken)
-            : Guard.AgainstNull(_serviceBus.Outbox!.WorkTransport);
+            : Guard.AgainstNull(_serviceBusConfiguration.Outbox!.WorkTransport);
 
         await using var stream = await Guard.AgainstNull(state.GetTransportMessageStream()).CopyAsync().ConfigureAwait(false);
 

@@ -17,28 +17,31 @@ public class TransportMessagePipelineFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
+        var serviceBus = serviceProvider.GetRequiredService<IServiceBus>();
         var pipelineFactory = serviceProvider.GetRequiredService<IPipelineFactory>();
 
         var sw = new Stopwatch();
-
-        sw.Start();
-
         var count = 0;
 
-        while (sw.ElapsedMilliseconds < 1000)
+        await using (await serviceBus.StartAsync())
         {
-            var pipeline = await pipelineFactory.GetPipelineAsync<TransportMessagePipeline>();
+            sw.Start();
 
-            pipeline.State.Replace(StateKeys.Message, new());
+            while (sw.ElapsedMilliseconds < 1000)
+            {
+                var pipeline = await pipelineFactory.GetPipelineAsync<TransportMessagePipeline>();
 
-            await pipeline.ExecuteAsync().ConfigureAwait(false);
+                pipeline.State.Replace(StateKeys.Message, new());
 
-            await pipelineFactory.ReleasePipelineAsync(pipeline);
+                await pipeline.ExecuteAsync().ConfigureAwait(false);
 
-            count++;
+                await pipelineFactory.ReleasePipelineAsync(pipeline);
+
+                count++;
+            }
+
+            sw.Stop();
         }
-
-        sw.Stop();
 
         Console.WriteLine($@"[transport-message-assembly] : count = {count} / ms = {sw.ElapsedMilliseconds}");
 

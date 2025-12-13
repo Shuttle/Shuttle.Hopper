@@ -24,7 +24,7 @@ public class DeserializeTransportMessageObserverFixture
 
         workTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/work-transport"));
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/error-transport"));
-        serializer.Setup(m => m.DeserializeAsync(It.IsAny<Type>(), It.IsAny<Stream>(), CancellationToken.None)).Throws<Exception>();
+        serializer.Setup(m => m.DeserializeAsync(It.IsAny<Type>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).Throws<Exception>();
         processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
         var observer = new DeserializeTransportMessageObserver(
@@ -51,7 +51,7 @@ public class DeserializeTransportMessageObserverFixture
 
         process.Verify(m => m.Kill(), Times.Never);
 
-        workTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class DeserializeTransportMessageObserverFixture
         var process = new Mock<IProcess>();
 
         workTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/work-transport"));
-        serializer.Setup(m => m.DeserializeAsync(It.IsAny<Type>(), It.IsAny<Stream>(), CancellationToken.None)).Throws<Exception>();
+        serializer.Setup(m => m.DeserializeAsync(It.IsAny<Type>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>())).Throws<Exception>();
         processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
         var observer = new DeserializeTransportMessageObserver(
@@ -93,7 +93,7 @@ public class DeserializeTransportMessageObserverFixture
 
         await pipeline.ExecuteAsync(CancellationToken.None);
 
-        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
 
         process.Verify(m => m.Kill(), Times.Once);
 

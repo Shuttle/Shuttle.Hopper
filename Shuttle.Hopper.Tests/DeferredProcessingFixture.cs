@@ -18,7 +18,7 @@ public class DeferredProcessingFixture
     {
         var serializer = new JsonSerializer(Options.Create(new JsonSerializerOptions()));
         var pipelineFactory = new Mock<IPipelineFactory>();
-        var serviceBus = new Mock<IServiceBus>();
+        var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
         var serviceScopeFactory = new Mock<IServiceScopeFactory>();
 
         serviceScopeFactory.Setup(m => m.CreateScope()).Returns(new Mock<IServiceScope>().Object);
@@ -27,7 +27,7 @@ public class DeferredProcessingFixture
         {
             Inbox = new()
             {
-                DeferredTransportUri = "memory://memory/deferred-transport",
+                DeferredTransportUri = new("memory://memory/deferred-transport"),
                 DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(500)
             }
         };
@@ -58,12 +58,12 @@ public class DeferredProcessingFixture
             ErrorTransport = new MemoryTransport(serviceBusOptions, new("memory://memory/error-transport"))
         };
 
-        serviceBus.Setup(m => m.Inbox).Returns(inboxConfiguration);
+        serviceBusConfiguration.Setup(m => m.Inbox).Returns(inboxConfiguration);
 
         var processDeferredMessageObserver = new ProcessDeferredMessageObserver(serviceBusOptionsWrapped);
 
         pipelineFactory.Setup(m => m.GetPipelineAsync<DeferredMessagePipeline>(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new DeferredMessagePipeline(pipelineDependencies, serviceBus.Object, new ReceiveDeferredMessageObserver(), new DeserializeTransportMessageObserver(serviceBusOptionsWrapped, serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
+            .ReturnsAsync(new DeferredMessagePipeline(pipelineDependencies, serviceBusConfiguration.Object, new ReceiveDeferredMessageObserver(), new DeserializeTransportMessageObserver(serviceBusOptionsWrapped, serializer, new EnvironmentService(), new ProcessService()), processDeferredMessageObserver));
 
         var deferredMessageProcessor = new DeferredMessageProcessor(serviceBusOptionsWrapped, pipelineFactory.Object);
 

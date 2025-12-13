@@ -6,18 +6,18 @@ namespace Shuttle.Hopper;
 
 public class OutboxPipeline : Pipeline
 {
-    public OutboxPipeline(IPipelineDependencies pipelineDependencies, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
+    public OutboxPipeline(IPipelineDependencies pipelineDependencies, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
         : base(pipelineDependencies)
     {
         Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
-        if (serviceBus.Outbox == null)
+        if (serviceBusConfiguration.Outbox == null)
         {
             return;
         }
 
-        State.SetWorkTransport(Guard.AgainstNull(serviceBus.Outbox.WorkTransport));
-        State.SetErrorTransport(serviceBus.Outbox.ErrorTransport);
+        State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Outbox.WorkTransport));
+        State.SetErrorTransport(serviceBusConfiguration.Outbox.ErrorTransport);
 
         State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.DurationToIgnoreOnFailure);
         State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);
@@ -31,7 +31,6 @@ public class OutboxPipeline : Pipeline
         AddStage("Send")
             .WithEvent<DispatchTransportMessage>()
             .WithEvent<TransportMessageDispatched>()
-            .WithEvent<MessageAcknowledged>()
             .WithEvent<MessageAcknowledged>();
 
         AddObserver(Guard.AgainstNull(receiveWorkMessageObserver));

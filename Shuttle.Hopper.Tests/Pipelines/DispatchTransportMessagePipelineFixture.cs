@@ -16,7 +16,7 @@ public class DispatchTransportMessagePipelineFixture
 
         var transportService = new Mock<ITransportService>();
 
-        transportService.Setup(m => m.GetAsync(recipientInboxWorkTransportUri, CancellationToken.None)).ReturnsAsync(new Mock<ITransport>().Object);
+        transportService.Setup(m => m.GetAsync(recipientInboxWorkTransportUri, It.IsAny<CancellationToken>())).ReturnsAsync(new Mock<ITransport>().Object);
 
         var services = new ServiceCollection();
 
@@ -26,6 +26,7 @@ public class DispatchTransportMessagePipelineFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
+        var serviceBus = serviceProvider.GetRequiredService<IServiceBus>();
         var pipelineFactory = serviceProvider.GetRequiredService<IPipelineFactory>();
 
         var transportMessage = new TransportMessage
@@ -35,25 +36,27 @@ public class DispatchTransportMessagePipelineFixture
         };
 
         var sw = new Stopwatch();
-
-        sw.Start();
-
         var count = 0;
 
-        while (sw.ElapsedMilliseconds < 1000)
+        await using (await serviceBus.StartAsync())
         {
-            var pipeline = await pipelineFactory.GetPipelineAsync<DispatchTransportMessagePipeline>();
+            sw.Start();
 
-            pipeline.State.Replace(StateKeys.TransportMessage, transportMessage);
+            while (sw.ElapsedMilliseconds < 1000)
+            {
+                var pipeline = await pipelineFactory.GetPipelineAsync<DispatchTransportMessagePipeline>();
 
-            await pipeline.ExecuteAsync().ConfigureAwait(false);
+                pipeline.State.Replace(StateKeys.TransportMessage, transportMessage);
 
-            await pipelineFactory.ReleasePipelineAsync(pipeline);
+                await pipeline.ExecuteAsync().ConfigureAwait(false);
 
-            count++;
+                await pipelineFactory.ReleasePipelineAsync(pipeline);
+
+                count++;
+            }
+
+            sw.Stop();
         }
-
-        sw.Stop();
 
         Console.WriteLine($@"[message-dispatch] : count = {count} / ms = {sw.ElapsedMilliseconds}");
 

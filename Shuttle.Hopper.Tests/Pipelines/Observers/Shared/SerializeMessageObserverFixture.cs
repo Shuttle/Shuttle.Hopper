@@ -29,11 +29,11 @@ public class SerializeMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetMessage(simpleCommand);
 
-        serializer.Setup(m => m.SerializeAsync(simpleCommand, CancellationToken.None)).Returns(Task.FromResult((Stream)stream));
+        serializer.Setup(m => m.SerializeAsync(simpleCommand, It.IsAny<CancellationToken>())).Returns(Task.FromResult((Stream)stream));
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(simpleCommand, CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(simpleCommand, It.IsAny<CancellationToken>()), Times.Once);
 
         Assert.That(transportMessage.Message, Is.Not.Null);
         Assert.That(pipeline.State.GetMessageBytes(), Is.SameAs(transportMessage.Message));

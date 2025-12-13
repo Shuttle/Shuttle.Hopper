@@ -18,7 +18,7 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
 
     public async Task ExecuteAsync(IProcessorThreadContext _, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(_serviceBusOptions.Inbox.DeferredTransportUri))
+        if (_serviceBusOptions.Inbox.DeferredTransportUri == null)
         {
             return;
         }

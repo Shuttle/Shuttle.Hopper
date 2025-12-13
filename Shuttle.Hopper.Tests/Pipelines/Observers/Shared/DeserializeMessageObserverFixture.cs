@@ -53,7 +53,7 @@ public class DeserializeMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
 
         serializer.VerifyNoOtherCalls();
     }
@@ -98,16 +98,16 @@ public class DeserializeMessageObserverFixture
         pipeline.State.SetErrorTransport(errorTransport.Object);
         pipeline.State.SetReceivedMessage(receivedMessage);
 
-        serializer.Setup(m => m.DeserializeAsync(transportMessageType, It.IsAny<Stream>(), CancellationToken.None)).Throws<Exception>();
+        serializer.Setup(m => m.DeserializeAsync(transportMessageType, It.IsAny<Stream>(), It.IsAny<CancellationToken>())).Throws<Exception>();
 
         workTransport.Setup(m => m.Type).Returns(TransportType.Queue);
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        serializer.Verify(m => m.SerializeAsync(It.IsAny<object>(), CancellationToken.None), Times.Once);
-        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.Verify(m => m.Type, Times.Once);
 

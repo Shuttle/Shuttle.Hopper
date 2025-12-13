@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<ICompressionService, CompressionService>();
             services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
             services.TryAddSingleton<IProcessorThreadPoolFactory, ProcessorThreadPoolFactory>();
+            services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
 
             if (!serviceBusBuilder.ShouldSuppressPipelineProcessing)
             {

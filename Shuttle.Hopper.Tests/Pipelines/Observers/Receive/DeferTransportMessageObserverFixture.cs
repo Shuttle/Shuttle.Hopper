@@ -75,8 +75,8 @@ public class DeferTransportMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.Verify(m => m.Type, Times.Once);
 
@@ -112,9 +112,9 @@ public class DeferTransportMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        deferredTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
-        deferredMessageProcessor.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTime>(), CancellationToken.None), Times.Once);
+        deferredTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
+        deferredMessageProcessor.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.Verify(m => m.Type, Times.Once);
 

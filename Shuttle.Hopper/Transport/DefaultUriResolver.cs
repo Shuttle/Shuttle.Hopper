@@ -11,7 +11,7 @@ public class UriResolver : IUriResolver
     {
         foreach (var configuration in Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value).UriMappings)
         {
-            Add(new(configuration.SourceUri), new(configuration.TargetUri));
+            Add(configuration.SourceUri, configuration.TargetUri);
         }
     }
 

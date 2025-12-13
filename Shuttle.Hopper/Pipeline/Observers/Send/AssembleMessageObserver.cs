@@ -6,10 +6,10 @@ namespace Shuttle.Hopper;
 
 public interface IAssembleMessageObserver : IPipelineObserver<AssembleMessage>;
 
-public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IIdentityProvider identityProvider)
+public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IIdentityProvider identityProvider)
     : IAssembleMessageObserver
 {
-    private readonly IServiceBus _serviceBus = Guard.AgainstNull(serviceBus);
+    private readonly IServiceBusConfiguration _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
     private readonly IIdentityProvider _identityProvider = Guard.AgainstNull(identityProvider);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
@@ -24,8 +24,8 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
 
         var transportMessage = new TransportMessage
         {
-            SenderInboxWorkTransportUri = _serviceBus.HasInbox()
-                ? Guard.AgainstNull(_serviceBus.Inbox!.WorkTransport).Uri.ToString()
+            SenderInboxWorkTransportUri = _serviceBusConfiguration.HasInbox()
+                ? Guard.AgainstNull(_serviceBusConfiguration.Inbox!.WorkTransport).Uri.ToString()
                 : string.Empty,
             PrincipalIdentityName = Guard.AgainstNull(Guard.AgainstNull(identity).Name),
             MessageType = Guard.AgainstEmpty(message.GetType().FullName),
@@ -48,12 +48,12 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
 
         if (transportMessageBuilder.ShouldSendLocal)
         {
-            if (!_serviceBus.HasInbox())
+            if (!_serviceBusConfiguration.HasInbox())
             {
                 throw new InvalidOperationException(Resources.SendToSelfException);
             }
 
-            transportMessage.RecipientInboxWorkTransportUri = Guard.AgainstNull(_serviceBus.Inbox!.WorkTransport).Uri.ToString();
+            transportMessage.RecipientInboxWorkTransportUri = Guard.AgainstNull(_serviceBusConfiguration.Inbox!.WorkTransport).Uri.ToString();
         }
 
         if (transportMessageBuilder.ShouldReply)
@@ -67,8 +67,8 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
         }
 
         if (transportMessage.IgnoreTillDate > DateTime.UtcNow &&
-            _serviceBus.HasInbox() &&
-            Guard.AgainstNull(_serviceBus.Inbox!.WorkTransport).Type == TransportType.Stream)
+            _serviceBusConfiguration.HasInbox() &&
+            Guard.AgainstNull(_serviceBusConfiguration.Inbox!.WorkTransport).Type == TransportType.Stream)
         {
             throw new InvalidOperationException(Resources.DeferStreamException);
         }

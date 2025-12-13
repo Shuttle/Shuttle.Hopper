@@ -6,7 +6,7 @@ namespace Shuttle.Hopper;
 
 public class InboxMessagePipeline : Pipeline
 {
-    public InboxMessagePipeline(IPipelineDependencies pipelineDependencies, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceivePipelineFailedObserver receivePipelineFailedObserver)
+    public InboxMessagePipeline(IPipelineDependencies pipelineDependencies, IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceivePipelineFailedObserver receivePipelineFailedObserver)
         : base(pipelineDependencies)
     {
         AddStage("Read")
@@ -41,11 +41,11 @@ public class InboxMessagePipeline : Pipeline
         AddObserver(Guard.AgainstNull(receivePipelineFailedObserver)); // must be last
 
         Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
-        Guard.AgainstNull(serviceBus);
+        Guard.AgainstNull(serviceBusConfiguration);
 
-        State.SetWorkTransport(Guard.AgainstNull(serviceBus.Inbox!.WorkTransport));
-        State.SetDeferredTransport(serviceBus.Inbox.DeferredTransport);
-        State.SetErrorTransport(serviceBus.Inbox.ErrorTransport);
+        State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox!.WorkTransport));
+        State.SetDeferredTransport(serviceBusConfiguration.Inbox.DeferredTransport);
+        State.SetErrorTransport(serviceBusConfiguration.Inbox.ErrorTransport);
 
         State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Inbox!.DurationToIgnoreOnFailure);
         State.SetMaximumFailureCount(serviceBusOptions.Value.Inbox.MaximumFailureCount);

@@ -97,7 +97,7 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        workTransport.Verify(m => m.ReleaseAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.ReleaseAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);
 
@@ -136,7 +136,7 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        workTransport.Verify(m => m.ReleaseAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.ReleaseAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.Verify(m => m.Type, Times.Once);
 
@@ -180,9 +180,9 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
-        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
+        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
         workTransport.Verify(m => m.Type, Times.Once);
@@ -226,9 +226,9 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
-        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
+        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
         workTransport.Verify(m => m.Type, Times.Once);
@@ -270,9 +270,9 @@ public class OutboxExceptionObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        serializer.Verify(m => m.SerializeAsync(transportMessage, CancellationToken.None));
-        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
+        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         serviceBusPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
         workTransport.Verify(m => m.Type, Times.Once);

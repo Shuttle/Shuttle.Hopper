@@ -17,7 +17,7 @@ public class ServiceBusFixture
 
         var transportService = new Mock<ITransportService>();
 
-        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), CancellationToken.None)).ReturnsAsync(fakeTransport);
+        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync(fakeTransport);
 
         var services = new ServiceCollection();
 
@@ -32,8 +32,8 @@ public class ServiceBusFixture
         {
             builder.Options.Inbox = new()
             {
-                WorkTransportUri = "fake://work",
-                ErrorTransportUri = "fake://error",
+                WorkTransportUri = new ("fake://work"),
+                ErrorTransportUri = new("fake://error"),
                 ThreadCount = 1
             };
         });

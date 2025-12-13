@@ -52,7 +52,7 @@ public class CompressMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        compressionAlgorithm.Verify(m => m.CompressAsync(It.IsAny<byte[]>(), CancellationToken.None), Times.Once);
+        compressionAlgorithm.Verify(m => m.CompressAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Once);
 
         compressionService.Verify(m => m.Get(transportMessage.CompressionAlgorithm), Times.Once);
 

@@ -6,17 +6,18 @@ using Shuttle.Core.Threading;
 namespace Shuttle.Hopper;
 
 public interface IStartupProcessingObserver :
+    IPipelineObserver<Starting>,
     IPipelineObserver<CreatePhysicalTransports>,
     IPipelineObserver<ConfigureThreadPools>,
     IPipelineObserver<StartThreadPools>;
 
-public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBus serviceBus, IDeferredMessageProcessor deferredMessageProcessor, IPipelineFactory pipelineFactory, IProcessorThreadPoolFactory processorThreadPoolFactory)
+public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IDeferredMessageProcessor deferredMessageProcessor, IPipelineFactory pipelineFactory, IProcessorThreadPoolFactory processorThreadPoolFactory)
     : IStartupProcessingObserver
 {
     private readonly IDeferredMessageProcessor _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor);
     private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
     private readonly IProcessorThreadPoolFactory _processorThreadPoolFactory = Guard.AgainstNull(processorThreadPoolFactory);
-    private readonly IServiceBus _serviceBus = Guard.AgainstNull(serviceBus);
+    private readonly IServiceBusConfiguration _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<CreatePhysicalTransports> pipelineContext, CancellationToken cancellationToken = default)
@@ -26,15 +27,15 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
             return;
         }
 
-        Guard.Against<InvalidOperationException>(_serviceBus.HasInbox() && _serviceBus.Inbox!.WorkTransport == null && string.IsNullOrEmpty(_serviceBusOptions.Inbox.WorkTransportUri), string.Format(Resources.RequiredTransportUriMissingException, "Inbox.WorkTransportUri"));
-        Guard.Against<InvalidOperationException>(_serviceBus.HasOutbox() && _serviceBus.Outbox!.WorkTransport == null && string.IsNullOrEmpty(_serviceBusOptions.Outbox.WorkTransportUri), string.Format(Resources.RequiredTransportUriMissingException, "Outbox.WorkTransportUri"));
+        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.WorkTransport == null && _serviceBusOptions.Inbox.WorkTransportUri == null, string.Format(Resources.RequiredTransportUriMissingException, "Inbox.WorkTransportUri"));
+        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasOutbox() && _serviceBusConfiguration.Outbox!.WorkTransport == null && _serviceBusOptions.Outbox.WorkTransportUri == null, string.Format(Resources.RequiredTransportUriMissingException, "Outbox.WorkTransportUri"));
 
-        await _serviceBus.CreatePhysicalTransportsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        await _serviceBusConfiguration.CreatePhysicalTransportsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ExecuteAsync(IPipelineContext<ConfigureThreadPools> pipelineContext, CancellationToken cancellationToken = default)
     {
-        if (_serviceBus.HasInbox() && _serviceBus.Inbox!.HasDeferredTransport())
+        if (_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.HasDeferredTransport())
         {
             pipelineContext.Pipeline.State.Add("DeferredMessageThreadPool", await _processorThreadPoolFactory.CreateAsync(
                 "DeferredMessageProcessor",
@@ -42,7 +43,7 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
                 new DeferredMessageProcessorFactory(_deferredMessageProcessor), cancellationToken));
         }
 
-        if (_serviceBus.HasInbox())
+        if (_serviceBusConfiguration.HasInbox())
         {
             pipelineContext.Pipeline.State.Add("InboxThreadPool", await _processorThreadPoolFactory.CreateAsync(
                 "InboxProcessor",
@@ -50,7 +51,7 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
                 new InboxProcessorFactory(_serviceBusOptions, _pipelineFactory), cancellationToken));
         }
 
-        if (_serviceBus.HasOutbox())
+        if (_serviceBusConfiguration.HasOutbox())
         {
             pipelineContext.Pipeline.State.Add("OutboxThreadPool", await _processorThreadPoolFactory.CreateAsync(
                 "OutboxProcessor",
@@ -87,5 +88,10 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
         {
             await deferredMessageThreadPool.StartAsync(cancellationToken);
         }
+    }
+
+    public async Task ExecuteAsync(IPipelineContext<Starting> pipelineContext, CancellationToken cancellationToken = default)
+    {
+        await _serviceBusConfiguration.ConfigureAsync(cancellationToken);
     }
 }

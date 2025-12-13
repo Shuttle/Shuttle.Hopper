@@ -5,15 +5,15 @@ namespace Shuttle.Hopper;
 
 public class DeferredMessagePipeline : Pipeline
 {
-    public DeferredMessagePipeline(IPipelineDependencies pipelineDependencies, IServiceBus serviceBus, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
+    public DeferredMessagePipeline(IPipelineDependencies pipelineDependencies, IServiceBusConfiguration serviceBusConfiguration, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
         : base(pipelineDependencies)
     {
-        Guard.AgainstNull(serviceBus);
-        Guard.AgainstNull(serviceBus.Inbox);
+        Guard.AgainstNull(serviceBusConfiguration);
+        Guard.AgainstNull(serviceBusConfiguration.Inbox);
 
-        State.SetWorkTransport(Guard.AgainstNull(serviceBus.Inbox!.WorkTransport));
-        State.SetErrorTransport(Guard.AgainstNull(serviceBus.Inbox.ErrorTransport));
-        State.SetDeferredTransport(Guard.AgainstNull(serviceBus.Inbox.DeferredTransport));
+        State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox!.WorkTransport));
+        State.SetErrorTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox.ErrorTransport));
+        State.SetDeferredTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox.DeferredTransport));
 
         AddStage("Process")
             .WithEvent<ReceiveMessage>()

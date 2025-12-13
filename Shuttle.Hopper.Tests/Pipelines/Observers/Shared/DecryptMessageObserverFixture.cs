@@ -52,7 +52,7 @@ public class DecryptMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        encryptionAlgorithm.Verify(m => m.DecryptAsync(It.IsAny<byte[]>(), CancellationToken.None), Times.Once);
+        encryptionAlgorithm.Verify(m => m.DecryptAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Once);
 
         encryptionService.Verify(m => m.Get(transportMessage.EncryptionAlgorithm), Times.Once);
 

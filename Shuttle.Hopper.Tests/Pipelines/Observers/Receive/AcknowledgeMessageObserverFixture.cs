@@ -51,7 +51,7 @@ public class AcknowledgeMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.VerifyNoOtherCalls();
     }

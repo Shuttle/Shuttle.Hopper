@@ -20,7 +20,7 @@ public class TransportMessageBuilderFixture
 
         var transportService = new Mock<ITransportService>();
 
-        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), CancellationToken.None)).ReturnsAsync((Uri uri, CancellationToken _) => new NullTransport(serviceBusOptions, uri));
+        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((Uri uri, CancellationToken _) => new NullTransport(serviceBusOptions, uri));
 
         identityProvider.Setup(m => m.Get()).Returns(new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous"));
 

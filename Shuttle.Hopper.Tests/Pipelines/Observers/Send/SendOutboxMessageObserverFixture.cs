@@ -63,13 +63,13 @@ public class SendOutboxMessageObserverFixture
         pipeline.State.SetTransportMessage(transportMessage);
         pipeline.State.SetReceivedMessage(new(Stream.Null, Guid.NewGuid()));
 
-        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), CancellationToken.None)).ReturnsAsync(recipientTransport.Object);
+        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync(recipientTransport.Object);
 
         await pipeline.ExecuteAsync();
 
-        recipientTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), CancellationToken.None));
+        recipientTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()));
 
-        transportService.Verify(m => m.GetAsync(It.IsAny<Uri>(), CancellationToken.None), Times.Once);
+        transportService.Verify(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
 
         transportService.VerifyNoOtherCalls();
         recipientTransport.VerifyNoOtherCalls();
