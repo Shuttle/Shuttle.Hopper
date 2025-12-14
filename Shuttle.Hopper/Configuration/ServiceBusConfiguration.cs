@@ -8,37 +8,56 @@ public class ServiceBusConfiguration(IOptions<ServiceBusOptions> serviceBusOptio
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
+    private readonly SemaphoreSlim _lock = new(1, 1);
+    private bool _configured;
+
     public IInboxConfiguration? Inbox { get; private set; }
     public IOutboxConfiguration? Outbox { get; private set; }
 
     public async Task ConfigureAsync(CancellationToken cancellationToken = default)
     {
-        if (_serviceBusOptions.Inbox.WorkTransportUri != null)
-        {
-            Inbox = new InboxConfiguration
-            {
-                WorkTransport = await _transportService.GetAsync(_serviceBusOptions.Inbox.WorkTransportUri, cancellationToken).ConfigureAwait(false),
-                DeferredTransport =
-                    _serviceBusOptions.Inbox.DeferredTransportUri == null
-                        ? null
-                        : await _transportService.GetAsync(_serviceBusOptions.Inbox.DeferredTransportUri, cancellationToken).ConfigureAwait(false),
-                ErrorTransport =
-                    _serviceBusOptions.Inbox.ErrorTransportUri == null
-                        ? null
-                        : await _transportService.GetAsync(_serviceBusOptions.Inbox.ErrorTransportUri, cancellationToken).ConfigureAwait(false)
-            };
-        }
+        await _lock.WaitAsync(cancellationToken);
 
-        if (_serviceBusOptions.Outbox.WorkTransportUri != null)
+        try
         {
-            Outbox = new OutboxConfiguration
+            if (_configured)
             {
-                WorkTransport = await _transportService.GetAsync(_serviceBusOptions.Outbox.WorkTransportUri, cancellationToken).ConfigureAwait(false),
-                ErrorTransport =
-                    _serviceBusOptions.Outbox.ErrorTransportUri == null
-                        ? null
-                        : await _transportService.GetAsync(_serviceBusOptions.Outbox.ErrorTransportUri, cancellationToken).ConfigureAwait(false)
-            };
+                return;
+            }
+
+            if (_serviceBusOptions.Inbox.WorkTransportUri != null)
+            {
+                Inbox = new InboxConfiguration
+                {
+                    WorkTransport = await _transportService.GetAsync(_serviceBusOptions.Inbox.WorkTransportUri, cancellationToken).ConfigureAwait(false),
+                    DeferredTransport =
+                        _serviceBusOptions.Inbox.DeferredTransportUri == null
+                            ? null
+                            : await _transportService.GetAsync(_serviceBusOptions.Inbox.DeferredTransportUri, cancellationToken).ConfigureAwait(false),
+                    ErrorTransport =
+                        _serviceBusOptions.Inbox.ErrorTransportUri == null
+                            ? null
+                            : await _transportService.GetAsync(_serviceBusOptions.Inbox.ErrorTransportUri, cancellationToken).ConfigureAwait(false)
+                };
+            }
+
+            if (_serviceBusOptions.Outbox.WorkTransportUri != null)
+            {
+                Outbox = new OutboxConfiguration
+                {
+                    WorkTransport = await _transportService.GetAsync(_serviceBusOptions.Outbox.WorkTransportUri, cancellationToken).ConfigureAwait(false),
+                    ErrorTransport =
+                        _serviceBusOptions.Outbox.ErrorTransportUri == null
+                            ? null
+                            : await _transportService.GetAsync(_serviceBusOptions.Outbox.ErrorTransportUri, cancellationToken).ConfigureAwait(false)
+                };
+            }
+
+            _configured = true;
+        }
+        finally
+        {
+            _lock.Release();
         }
     }
 }
