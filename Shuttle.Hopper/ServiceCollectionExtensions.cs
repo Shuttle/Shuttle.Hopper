@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
@@ -31,12 +32,14 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IUriResolver, UriResolver>();
             services.TryAddSingleton<ITransportService, TransportService>();
             services.TryAddSingleton<ITransportFactoryService, TransportFactoryService>();
-            services.TryAddSingleton<ISubscriptionService, NullSubscriptionService>();
+            services.TryAddSingleton<ISubscriptionService, SubscriptionService>();
+            services.TryAddSingleton<ISubscriptionQuery, NullSubscriptionQuery>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
             services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
             services.TryAddSingleton<IProcessorThreadPoolFactory, ProcessorThreadPoolFactory>();
             services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
+            services.TryAddSingleton<IMemoryCache, MemoryCache>();
 
             if (!serviceBusBuilder.ShouldSuppressPipelineProcessing)
             {

@@ -12,7 +12,7 @@ public class SubscriptionOptionsFixture : OptionsFixture
 
         Assert.That(options, Is.Not.Null);
 
-        Assert.That(options.Subscription.SubscribeType, Is.EqualTo(SubscribeType.Normal));
+        Assert.That(options.Subscription.Mode, Is.EqualTo(SubscriptionMode.Standard));
         Assert.That(options.Subscription.MessageTypes[0], Is.EqualTo("message-type-a"));
         Assert.That(options.Subscription.MessageTypes[1], Is.EqualTo("message-type-b"));
     }
