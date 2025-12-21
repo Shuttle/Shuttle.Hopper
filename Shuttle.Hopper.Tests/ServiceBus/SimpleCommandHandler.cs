@@ -1,6 +1,6 @@
 ﻿namespace Shuttle.Hopper.Tests;
 
-public class SimpleCommandHandler : IContextHandler<SimpleCommand>
+public class SimpleCommandHandler : IMessageHandler<SimpleCommand>
 {
     public async Task ProcessMessageAsync(IHandlerContext<SimpleCommand> context, CancellationToken cancellationToken = default)
     {

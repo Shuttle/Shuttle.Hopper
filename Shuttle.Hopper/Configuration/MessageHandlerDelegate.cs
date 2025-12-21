@@ -8,12 +8,12 @@ public class MessageHandlerDelegate(Delegate handler, IEnumerable<Type> paramete
 
     public Delegate Handler { get; } = handler;
 
-    public object[] GetParameters(IServiceProvider serviceProvider, object message, CancellationToken cancellationToken)
+    public object[] GetParameters(IServiceProvider serviceProvider, object handlerContext, CancellationToken cancellationToken)
     {
         return parameterTypes
             .Select((type, index) =>
                 index == 0
-                    ? message
+                    ? handlerContext
                     : type == CancellationTokenType
                         ? cancellationToken
                         : serviceProvider.GetRequiredService(type))

@@ -2,5 +2,5 @@ namespace Shuttle.Hopper;
 
 public interface IMessageHandler<in T> where T : class
 {
-    Task ProcessMessageAsync(T message, CancellationToken cancellationToken = default);
+    Task ProcessMessageAsync(IHandlerContext<T> context, CancellationToken cancellationToken = default);
 }

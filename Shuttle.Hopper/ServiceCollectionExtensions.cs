@@ -78,8 +78,8 @@ public static class ServiceCollectionExtensions
                 options.Subscription = serviceBusBuilder.Options.Subscription;
             });
 
-            services.AddSingleton<IContextHandlerDelegateRegistry>(_ => new ContextHandlerDelegateRegistry(serviceBusBuilder.GetContextHandlerDelegates()));
             services.AddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(serviceBusBuilder.GetMessageHandlerDelegates()));
+            services.AddSingleton<IDirectMessageHandlerDelegateRegistry>(_ => new DirectMessageHandlerDelegateRegistry(serviceBusBuilder.GetDirectMessageHandlerDelegates()));
 
             if (serviceBusBuilder.Options.AddMessageHandlers)
             {

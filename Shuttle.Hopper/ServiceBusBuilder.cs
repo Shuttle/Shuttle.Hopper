@@ -8,10 +8,10 @@ namespace Shuttle.Hopper;
 
 public class ServiceBusBuilder(IServiceCollection services)
 {
-    private static readonly Type ContextHandlerType = typeof(IContextHandler<>);
     private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-    private readonly Dictionary<Type, ContextHandlerDelegate> _contextHandlerDelegates = new();
+    private static readonly Type DirectMessageHandlerType = typeof(IDirectMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
+    private readonly Dictionary<Type, DirectMessageHandlerDelegate> _directMessageHandlerDelegates = new();
 
     public ServiceBusOptions Options
     {
@@ -48,7 +48,7 @@ public class ServiceBusBuilder(IServiceCollection services)
         {
             messageType = parameterType.GetGenericArguments()[0];
 
-            if (!_contextHandlerDelegates.TryAdd(messageType, new(handler, parameters.Select(item => item.ParameterType))))
+            if (!_messageHandlerDelegates.TryAdd(messageType, new(handler, parameters.Select(item => item.ParameterType))))
             {
                 throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyRegisteredException, messageType.FullName));
             }
@@ -62,7 +62,7 @@ public class ServiceBusBuilder(IServiceCollection services)
                 throw new ApplicationException(Resources.MessageHandlerTypeException);
             }
 
-            if (!_messageHandlerDelegates.TryAdd(messageType, new(handler, parameters.Select(item => item.ParameterType))))
+            if (!_directMessageHandlerDelegates.TryAdd(messageType, new(handler, parameters.Select(item => item.ParameterType))))
             {
                 throw new InvalidOperationException(string.Format(Resources.DelegateAlreadyRegisteredException, messageType.FullName));
             }
@@ -75,9 +75,9 @@ public class ServiceBusBuilder(IServiceCollection services)
     {
         var type = Guard.AgainstNull(messageHandler).GetType();
 
-        foreach (var @interface in type.InterfacesCastableTo(ContextHandlerType))
+        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
         {
-            var genericType = ContextHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
 
             if (Services.Contains(serviceDescriptor))
@@ -88,10 +88,48 @@ public class ServiceBusBuilder(IServiceCollection services)
             Services.Add(serviceDescriptor);
         }
 
+        foreach (var @interface in type.InterfacesCastableTo(DirectMessageHandlerType))
+        {
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
+
+            if (Services.Contains(serviceDescriptor))
+            {
+                throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
+            }
+
+            Services.Add(serviceDescriptor);
+        }
+
+        return this;
+    }
+
+    public ServiceBusBuilder AddMessageHandler<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+    {
+        return AddMessageHandler(typeof(T), serviceLifetime);
+    }
+
+    public ServiceBusBuilder AddMessageHandler(Type type, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+    {
+        Guard.AgainstNull(type);
+
         foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
         {
-            var genericType = ContextHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
-            var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var serviceDescriptor = new ServiceDescriptor(genericType, type, serviceLifetime);
+
+            if (Services.Contains(serviceDescriptor))
+            {
+                throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
+            }
+
+            Services.Add(serviceDescriptor);
+        }
+
+        foreach (var @interface in type.InterfacesCastableTo(DirectMessageHandlerType))
+        {
+            var genericType = DirectMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var serviceDescriptor = new ServiceDescriptor(genericType, type, serviceLifetime);
 
             if (Services.Contains(serviceDescriptor))
             {
@@ -106,12 +144,14 @@ public class ServiceBusBuilder(IServiceCollection services)
 
     public ServiceBusBuilder AddMessageHandlers(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
     {
+        Guard.AgainstNull(assembly);
+
         getServiceLifetime ??= _ => ServiceLifetime.Scoped;
 
-        foreach (var type in Guard.AgainstNull(assembly).GetTypesCastableToAsync(ContextHandlerType).GetAwaiter().GetResult())
-        foreach (var @interface in type.InterfacesCastableTo(ContextHandlerType))
+        foreach (var type in assembly.GetTypesCastableToAsync(MessageHandlerType).GetAwaiter().GetResult())
+        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
         {
-            var genericType = ContextHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, getServiceLifetime(genericType));
 
             if (Services.Contains(serviceDescriptor))
@@ -122,10 +162,10 @@ public class ServiceBusBuilder(IServiceCollection services)
             Services.Add(serviceDescriptor);
         }
 
-        foreach (var type in Guard.AgainstNull(assembly).GetTypesCastableToAsync(MessageHandlerType).GetAwaiter().GetResult())
-        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
+        foreach (var type in assembly.GetTypesCastableToAsync(DirectMessageHandlerType).GetAwaiter().GetResult())
+        foreach (var @interface in type.InterfacesCastableTo(DirectMessageHandlerType))
         {
-            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = DirectMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, getServiceLifetime(genericType));
 
             if (Services.Contains(serviceDescriptor))
@@ -172,14 +212,14 @@ public class ServiceBusBuilder(IServiceCollection services)
         return this;
     }
 
-    public IDictionary<Type, ContextHandlerDelegate> GetContextHandlerDelegates()
-    {
-        return new ReadOnlyDictionary<Type, ContextHandlerDelegate>(_contextHandlerDelegates);
-    }
-
     public IDictionary<Type, MessageHandlerDelegate> GetMessageHandlerDelegates()
     {
         return new ReadOnlyDictionary<Type, MessageHandlerDelegate>(_messageHandlerDelegates);
+    }
+
+    public IDictionary<Type, DirectMessageHandlerDelegate> GetDirectMessageHandlerDelegates()
+    {
+        return new ReadOnlyDictionary<Type, DirectMessageHandlerDelegate>(_directMessageHandlerDelegates);
     }
 
     public ServiceBusBuilder SuppressHostedService()

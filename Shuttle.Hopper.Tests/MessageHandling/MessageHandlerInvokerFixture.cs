@@ -16,11 +16,11 @@ public class MessageHandlerInvokerFixture
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton(typeof(IContextHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
+        services.AddSingleton(typeof(IMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new ContextHandlerDelegateRegistry(new Dictionary<Type, ContextHandlerDelegate>()), new MessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, MessageHandlerDelegate>()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, DirectMessageHandlerDelegate>()));
 
         var transportMessage = new TransportMessage
         {
@@ -50,7 +50,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new ContextHandlerDelegateRegistry(builder.GetContextHandlerDelegates()), new MessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
 
         var transportMessage = new TransportMessage
         {
@@ -80,7 +80,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new ContextHandlerDelegateRegistry(builder.GetContextHandlerDelegates()), new MessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()));
+        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
 
         var transportMessage = new TransportMessage
         {

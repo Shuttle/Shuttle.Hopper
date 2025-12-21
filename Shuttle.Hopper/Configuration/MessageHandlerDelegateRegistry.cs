@@ -2,9 +2,9 @@
 
 namespace Shuttle.Hopper;
 
-public class MessageHandlerDelegateRegistry(IDictionary<Type, MessageHandlerDelegate> messageHandlerDelegates) : IMessageHandlerDelegateRegistry
+public class MessageHandlerDelegateRegistry(IDictionary<Type, MessageHandlerDelegate> contextHandlerDelegates) : IMessageHandlerDelegateRegistry
 {
-    private readonly IReadOnlyDictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new ReadOnlyDictionary<Type, MessageHandlerDelegate>(messageHandlerDelegates);
+    private readonly IReadOnlyDictionary<Type, MessageHandlerDelegate> _delegates = new ReadOnlyDictionary<Type, MessageHandlerDelegate>(contextHandlerDelegates);
 
-    public bool TryGetValue(Type messageType, out MessageHandlerDelegate? handler) => _messageHandlerDelegates.TryGetValue(messageType, out handler);
+    public bool TryGetValue(Type messageType, out MessageHandlerDelegate? handler) => _delegates.TryGetValue(messageType, out handler);
 }

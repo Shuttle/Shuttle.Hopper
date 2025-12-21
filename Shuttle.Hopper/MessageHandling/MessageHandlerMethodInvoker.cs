@@ -5,6 +5,8 @@ namespace Shuttle.Hopper;
 
 internal class MessageHandlerMethodInvoker
 {
+    private static readonly Type HandlerContextType = typeof(HandlerContext<>);
+
     private readonly InvokeHandler _invoker;
 
     public MessageHandlerMethodInvoker(MethodInfo methodInfo)
@@ -23,10 +25,10 @@ internal class MessageHandlerMethodInvoker
         _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
     }
 
-    public async Task InvokeAsync(object handler, object message, CancellationToken cancellationToken)
+    public async Task InvokeAsync(object handler, object handlerContext, CancellationToken cancellationToken)
     {
-        await _invoker.Invoke(handler, message, cancellationToken).ConfigureAwait(false);
+        await _invoker.Invoke(handler, handlerContext, cancellationToken).ConfigureAwait(false);
     }
 
-    private delegate Task InvokeHandler(object handler, object message, CancellationToken cancellationToken);
+    private delegate Task InvokeHandler(object handler, object handlerContext, CancellationToken cancellationToken);
 }

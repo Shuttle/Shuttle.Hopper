@@ -3,13 +3,11 @@ using System.Reflection.Emit;
 
 namespace Shuttle.Hopper;
 
-internal class ContextHandlerMethodInvoker
+internal class DirectMessageHandlerMethodInvoker
 {
-    private static readonly Type HandlerContextType = typeof(HandlerContext<>);
-
     private readonly InvokeHandler _invoker;
 
-    public ContextHandlerMethodInvoker(MethodInfo methodInfo)
+    public DirectMessageHandlerMethodInvoker(MethodInfo methodInfo)
     {
         var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), [typeof(object), typeof(object), typeof(CancellationToken)], GetType().Module);
 
@@ -25,10 +23,10 @@ internal class ContextHandlerMethodInvoker
         _invoker = (InvokeHandler)dynamicMethod.CreateDelegate(typeof(InvokeHandler));
     }
 
-    public async Task InvokeAsync(object handler, object handlerContext, CancellationToken cancellationToken)
+    public async Task InvokeAsync(object handler, object message, CancellationToken cancellationToken)
     {
-        await _invoker.Invoke(handler, handlerContext, cancellationToken).ConfigureAwait(false);
+        await _invoker.Invoke(handler, message, cancellationToken).ConfigureAwait(false);
     }
 
-    private delegate Task InvokeHandler(object handler, object handlerContext, CancellationToken cancellationToken);
+    private delegate Task InvokeHandler(object handler, object message, CancellationToken cancellationToken);
 }

@@ -30,7 +30,7 @@ public class MessageHandlerInvokerFixture
         public bool Replied { get; set; }
     }
 
-    public class ContextHandler(IMessageHandlerTracker messageHandlerTracker) : IContextHandler<Message>
+    public class MessageHandler(IMessageHandlerTracker messageHandlerTracker) : IMessageHandler<Message>
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
@@ -57,7 +57,7 @@ public class MessageHandlerInvokerFixture
             }, cancellationToken);
         }
     }
-    public class MessageHandler(IServiceBus serviceBus, IMessageHandlerTracker messageHandlerTracker) : IMessageHandler<Message>
+    public class DirectMessageHandler(IServiceBus serviceBus, IMessageHandlerTracker messageHandlerTracker) : IDirectMessageHandler<Message>
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
@@ -145,7 +145,7 @@ public class MessageHandlerInvokerFixture
         var services = new ServiceCollection();
 
         var messageHandlerTracker = new MessageHandlerTracker();
-        var contextHandler = new ContextHandler(messageHandlerTracker);
+        var contextHandler = new MessageHandler(messageHandlerTracker);
 
         services.AddServiceBus(builder =>
         {
@@ -206,7 +206,7 @@ public class MessageHandlerInvokerFixture
 
         var services = new ServiceCollection()
             .AddSingleton<IMessageHandlerTracker, MessageHandlerTracker>()
-            .AddSingleton<IMessageHandler<Message>, MessageHandler>();
+            .AddSingleton<IDirectMessageHandler<Message>, DirectMessageHandler>();
 
         services.AddServiceBus(builder =>
         {

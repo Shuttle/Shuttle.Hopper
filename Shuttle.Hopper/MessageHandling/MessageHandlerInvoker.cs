@@ -3,18 +3,18 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender, IContextHandlerDelegateRegistry contextHandlerDelegateRegistry, IMessageHandlerDelegateRegistry messageHandlerDelegateRegistry)
+public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender, IMessageHandlerDelegateRegistry messageHandlerDelegateRegistry, IDirectMessageHandlerDelegateRegistry directMessageHandlerDelegateRegistry)
     : IMessageHandlerInvoker
 {
     private readonly IServiceProvider _serviceProvider = Guard.AgainstNull(serviceProvider);
     private readonly IMessageSender _messageSender = Guard.AgainstNull(messageSender);
-    private readonly IContextHandlerDelegateRegistry _contextHandlerDelegateRegistry = Guard.AgainstNull(contextHandlerDelegateRegistry);
     private readonly IMessageHandlerDelegateRegistry _messageHandlerDelegateRegistry = Guard.AgainstNull(messageHandlerDelegateRegistry);
-    private static readonly Type ContextHandlerType = typeof(IContextHandler<>);
+    private readonly IDirectMessageHandlerDelegateRegistry _directMessageHandlerDelegateRegistry = Guard.AgainstNull(directMessageHandlerDelegateRegistry);
     private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
+    private static readonly Type DirectMessageHandlerType = typeof(IDirectMessageHandler<>);
     private readonly Dictionary<Type, HandlerContextConstructorInvoker> _handlerContextConstructorInvokers = new();
-    private readonly Dictionary<Type, ContextHandlerMethodInvoker> _contextHandlerMethodInvokers = new();
     private readonly Dictionary<Type, MessageHandlerMethodInvoker> _messageHandlerMethodInvokers = new();
+    private readonly Dictionary<Type, DirectMessageHandlerMethodInvoker> _directMessageHandlerMethodInvokers = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
 
     public async ValueTask<bool> InvokeAsync(IPipelineContext<HandleMessage> pipelineContext, CancellationToken cancellationToken = default)
@@ -24,19 +24,19 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
         var messageType = message.GetType();
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
-        var contextHandler = _serviceProvider.GetService(ContextHandlerType.MakeGenericType(messageType));
+        var contextHandler = _serviceProvider.GetService(MessageHandlerType.MakeGenericType(messageType));
 
         if (contextHandler != null)
         {
-            ContextHandlerMethodInvoker? contextHandlerMethodInvoker;
+            MessageHandlerMethodInvoker? contextHandlerMethodInvoker;
 
             await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
-                if (!_contextHandlerMethodInvokers.TryGetValue(messageType, out contextHandlerMethodInvoker))
+                if (!_messageHandlerMethodInvokers.TryGetValue(messageType, out contextHandlerMethodInvoker))
                 {
-                    var interfaceType = ContextHandlerType.MakeGenericType(messageType);
+                    var interfaceType = MessageHandlerType.MakeGenericType(messageType);
                     var method = contextHandler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
                     if (method == null)
@@ -44,7 +44,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
                         throw new MessageHandlerInvokerException(string.Format(Resources.HandlerMessageMethodMissingException, contextHandler.GetType().FullName, messageType.FullName));
                     }
 
-                    var methodInfo = contextHandler.GetType().GetInterfaceMap(ContextHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
+                    var methodInfo = contextHandler.GetType().GetInterfaceMap(MessageHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
 
                     if (methodInfo == null)
                     {
@@ -53,7 +53,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
 
                     contextHandlerMethodInvoker = new(methodInfo);
 
-                    _contextHandlerMethodInvokers.Add(messageType, contextHandlerMethodInvoker);
+                    _messageHandlerMethodInvokers.Add(messageType, contextHandlerMethodInvoker);
                 }
             }
             finally
@@ -68,19 +68,19 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
             return true;
         }
 
-        var messageHandler = _serviceProvider.GetService(MessageHandlerType.MakeGenericType(messageType));
+        var messageHandler = _serviceProvider.GetService(DirectMessageHandlerType.MakeGenericType(messageType));
 
         if (messageHandler != null)
         {
-            MessageHandlerMethodInvoker? messageHandlerMethodInvoker;
+            DirectMessageHandlerMethodInvoker? messageHandlerMethodInvoker;
 
             await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
-                if (!_messageHandlerMethodInvokers.TryGetValue(messageType, out messageHandlerMethodInvoker))
+                if (!_directMessageHandlerMethodInvokers.TryGetValue(messageType, out messageHandlerMethodInvoker))
                 {
-                    var interfaceType = MessageHandlerType.MakeGenericType(messageType);
+                    var interfaceType = DirectMessageHandlerType.MakeGenericType(messageType);
                     var method = messageHandler.GetType().GetInterfaceMap(interfaceType).TargetMethods.SingleOrDefault();
 
                     if (method == null)
@@ -88,7 +88,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
                         throw new MessageHandlerInvokerException(string.Format(Resources.HandlerMessageMethodMissingException, messageHandler.GetType().FullName, messageType.FullName));
                     }
 
-                    var methodInfo = messageHandler.GetType().GetInterfaceMap(MessageHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
+                    var methodInfo = messageHandler.GetType().GetInterfaceMap(DirectMessageHandlerType.MakeGenericType(messageType)).TargetMethods.SingleOrDefault();
 
                     if (methodInfo == null)
                     {
@@ -97,7 +97,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
 
                     messageHandlerMethodInvoker = new(methodInfo);
 
-                    _messageHandlerMethodInvokers.Add(messageType, messageHandlerMethodInvoker);
+                    _directMessageHandlerMethodInvokers.Add(messageType, messageHandlerMethodInvoker);
                 }
             }
             finally
@@ -110,7 +110,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
             return true;
         }
 
-        if (_contextHandlerDelegateRegistry.TryGetValue(messageType, out var contextHandlerDelegate))
+        if (_messageHandlerDelegateRegistry.TryGetValue(messageType, out var contextHandlerDelegate))
         {
             var handlerContext = await GetHandlerContextAsync(state, messageType, transportMessage, message, cancellationToken);
 
@@ -119,7 +119,7 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
             return true;
         }
 
-        if (_messageHandlerDelegateRegistry.TryGetValue(messageType, out var messageHandlerDelegate))
+        if (_directMessageHandlerDelegateRegistry.TryGetValue(messageType, out var messageHandlerDelegate))
         {
             await (Task)messageHandlerDelegate!.Handler.DynamicInvoke(messageHandlerDelegate.GetParameters(_serviceProvider, message, cancellationToken))!;
 
