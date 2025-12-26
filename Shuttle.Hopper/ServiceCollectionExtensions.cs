@@ -111,14 +111,14 @@ public static class ServiceCollectionExtensions
                 return;
             }
 
-            if (!processorOptions.DurationToIgnoreOnFailure.Any())
+            if (!processorOptions.IgnoreOnFailureDurations.Any())
             {
-                processorOptions.DurationToIgnoreOnFailure = [..ServiceBusOptions.DefaultDurationToIgnoreOnFailure];
+                processorOptions.IgnoreOnFailureDurations = [..ServiceBusOptions.DefaultIgnoreOnFailureDurations];
             }
 
-            if (!processorOptions.DurationToSleepWhenIdle.Any())
+            if (!processorOptions.IdleDurations.Any())
             {
-                processorOptions.DurationToSleepWhenIdle = [..ServiceBusOptions.DefaultDurationToSleepWhenIdle];
+                processorOptions.IdleDurations = [..ServiceBusOptions.DefaultIdleDurations];
             }
         }
     }

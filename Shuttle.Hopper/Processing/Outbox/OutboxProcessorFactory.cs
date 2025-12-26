@@ -12,6 +12,6 @@ public class OutboxProcessorFactory(ServiceBusOptions serviceBusOptions, IPipeli
 
     public async Task<IProcessor> CreateAsync(CancellationToken cancellationToken = default)
     {
-        return await Task.FromResult(new OutboxProcessor(serviceBusOptions, new ThreadActivity(_serviceBusOptions.Outbox!.DurationToSleepWhenIdle), _pipelineFactory));
+        return await Task.FromResult(new OutboxProcessor(serviceBusOptions, new ThreadActivity(_serviceBusOptions.Outbox!.IdleDurations), _pipelineFactory));
     }
 }

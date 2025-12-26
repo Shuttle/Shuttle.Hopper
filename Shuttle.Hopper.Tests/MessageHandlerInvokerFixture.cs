@@ -91,7 +91,7 @@ public class MessageHandlerInvokerFixture
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-            builder.Options.Inbox.DurationToSleepWhenIdle = [TimeSpan.FromMilliseconds(5)];
+            builder.Options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
             builder.Options.MessageRoutes.Add(new()
             {
                 Uri = "memory://configuration/inbox",
@@ -151,7 +151,7 @@ public class MessageHandlerInvokerFixture
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-            builder.Options.Inbox.DurationToSleepWhenIdle = [TimeSpan.FromMilliseconds(5)];
+            builder.Options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
             builder.Options.MessageRoutes.Add(new()
             {
                 Uri = "memory://configuration/inbox",
@@ -212,7 +212,7 @@ public class MessageHandlerInvokerFixture
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-            builder.Options.Inbox.DurationToSleepWhenIdle = [TimeSpan.FromMilliseconds(5)];
+            builder.Options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
             builder.Options.MessageRoutes.Add(new()
             {
                 Uri = "memory://configuration/inbox",

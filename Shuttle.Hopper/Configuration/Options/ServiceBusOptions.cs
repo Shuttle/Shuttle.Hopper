@@ -6,14 +6,14 @@ public class ServiceBusOptions
 {
     public const string SectionName = "Shuttle:ServiceBus";
 
-    public static readonly IEnumerable<TimeSpan> DefaultDurationToIgnoreOnFailure = new List<TimeSpan>
+    public static readonly IEnumerable<TimeSpan> DefaultIgnoreOnFailureDurations = new List<TimeSpan>
     {
         TimeSpan.FromSeconds(30),
         TimeSpan.FromMinutes(2),
         TimeSpan.FromMinutes(5)
     }.AsReadOnly();
 
-    public static readonly IEnumerable<TimeSpan> DefaultDurationToSleepWhenIdle = new List<TimeSpan>
+    public static readonly IEnumerable<TimeSpan> DefaultIdleDurations = new List<TimeSpan>
     {
         TimeSpan.FromMilliseconds(250),
         TimeSpan.FromMilliseconds(250),

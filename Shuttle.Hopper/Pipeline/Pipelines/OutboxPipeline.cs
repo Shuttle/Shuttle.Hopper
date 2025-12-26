@@ -19,7 +19,7 @@ public class OutboxPipeline : Pipeline
         State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Outbox.WorkTransport));
         State.SetErrorTransport(serviceBusConfiguration.Outbox.ErrorTransport);
 
-        State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.DurationToIgnoreOnFailure);
+        State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.IgnoreOnFailureDurations);
         State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);
 
         AddStage("Read")

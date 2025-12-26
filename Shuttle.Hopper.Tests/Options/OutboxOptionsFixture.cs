@@ -17,11 +17,11 @@ public class OutboxOptionsFixture : OptionsFixture
 
         Assert.That(options.Outbox.MaximumFailureCount, Is.EqualTo(25));
 
-        Assert.That(options.Outbox.DurationToSleepWhenIdle[0], Is.EqualTo(TimeSpan.FromMilliseconds(250)));
-        Assert.That(options.Outbox.DurationToSleepWhenIdle[1], Is.EqualTo(TimeSpan.FromSeconds(10)));
-        Assert.That(options.Outbox.DurationToSleepWhenIdle[2], Is.EqualTo(TimeSpan.FromSeconds(30)));
+        Assert.That(options.Outbox.IdleDurations[0], Is.EqualTo(TimeSpan.FromMilliseconds(250)));
+        Assert.That(options.Outbox.IdleDurations[1], Is.EqualTo(TimeSpan.FromSeconds(10)));
+        Assert.That(options.Outbox.IdleDurations[2], Is.EqualTo(TimeSpan.FromSeconds(30)));
 
-        Assert.That(options.Outbox.DurationToIgnoreOnFailure[0], Is.EqualTo(TimeSpan.FromMinutes(30)));
-        Assert.That(options.Outbox.DurationToIgnoreOnFailure[1], Is.EqualTo(TimeSpan.FromHours(1)));
+        Assert.That(options.Outbox.IgnoreOnFailureDurations[0], Is.EqualTo(TimeSpan.FromMinutes(30)));
+        Assert.That(options.Outbox.IgnoreOnFailureDurations[1], Is.EqualTo(TimeSpan.FromHours(1)));
     }
 }

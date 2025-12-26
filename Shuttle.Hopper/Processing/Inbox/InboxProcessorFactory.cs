@@ -14,6 +14,6 @@ public class InboxProcessorFactory(ServiceBusOptions serviceBusOptions, IPipelin
 
     public async Task<IProcessor> CreateAsync(CancellationToken cancellationToken = default)
     {
-        return await Task.FromResult(new InboxProcessor(_serviceBusOptions, new ThreadActivity(_serviceBusOptions.Inbox.DurationToSleepWhenIdle), _pipelineFactory));
+        return await Task.FromResult(new InboxProcessor(_serviceBusOptions, new ThreadActivity(_serviceBusOptions.Inbox.IdleDurations), _pipelineFactory));
     }
 }

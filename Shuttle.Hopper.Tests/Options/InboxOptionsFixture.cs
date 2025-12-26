@@ -18,12 +18,12 @@ public class InboxOptionsFixture : OptionsFixture
         Assert.That(options.Inbox.ThreadCount, Is.EqualTo(25));
         Assert.That(options.Inbox.MaximumFailureCount, Is.EqualTo(25));
 
-        Assert.That(options.Inbox.DurationToSleepWhenIdle[0], Is.EqualTo(TimeSpan.FromMilliseconds(250)));
-        Assert.That(options.Inbox.DurationToSleepWhenIdle[1], Is.EqualTo(TimeSpan.FromSeconds(10)));
-        Assert.That(options.Inbox.DurationToSleepWhenIdle[2], Is.EqualTo(TimeSpan.FromSeconds(30)));
+        Assert.That(options.Inbox.IdleDurations[0], Is.EqualTo(TimeSpan.FromMilliseconds(250)));
+        Assert.That(options.Inbox.IdleDurations[1], Is.EqualTo(TimeSpan.FromSeconds(10)));
+        Assert.That(options.Inbox.IdleDurations[2], Is.EqualTo(TimeSpan.FromSeconds(30)));
 
-        Assert.That(options.Inbox.DurationToIgnoreOnFailure[0], Is.EqualTo(TimeSpan.FromMinutes(30)));
-        Assert.That(options.Inbox.DurationToIgnoreOnFailure[1], Is.EqualTo(TimeSpan.FromHours(1)));
+        Assert.That(options.Inbox.IgnoreOnFailureDurations[0], Is.EqualTo(TimeSpan.FromMinutes(30)));
+        Assert.That(options.Inbox.IgnoreOnFailureDurations[1], Is.EqualTo(TimeSpan.FromHours(1)));
 
         Assert.That(options.Inbox.DeferredMessageProcessorResetInterval, Is.EqualTo(TimeSpan.FromMinutes(5)));
     }
