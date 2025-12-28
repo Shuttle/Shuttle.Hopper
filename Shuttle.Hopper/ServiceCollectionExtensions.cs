@@ -43,11 +43,13 @@ public static class ServiceCollectionExtensions
 
             if (!serviceBusBuilder.ShouldSuppressPipelineProcessing)
             {
-                services.AddPipelines(pipelineProcessingBuilder =>
+                services.AddPipelines(pipelineBuilder =>
                 {
-                    pipelineProcessingBuilder.AddAssembly(typeof(ServiceBus).Assembly);
+                    pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
 
-                    pipelineProcessingBuilder.Options.UseTransactionScope<InboxMessagePipeline>("Handle");
+                    pipelineBuilder.Options.UseTransactionScope<InboxMessagePipeline>("Handle");
+
+                    serviceBusBuilder.OnAddPipelines(pipelineBuilder);
                 });
             }
 

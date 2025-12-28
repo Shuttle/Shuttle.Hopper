@@ -3,11 +3,19 @@ using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
 public class ServiceBusBuilder(IServiceCollection services)
 {
+    public class AddPipelinesEventArgs(PipelineBuilder pipelineBuilder) : EventArgs
+    {
+        public PipelineBuilder PipelineBuilder { get; } = Guard.AgainstNull(pipelineBuilder);
+    }
+
+    public event EventHandler<AddPipelinesEventArgs>? AddPipelines;
+
     private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
     private static readonly Type DirectMessageHandlerType = typeof(IDirectMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
@@ -234,5 +242,10 @@ public class ServiceBusBuilder(IServiceCollection services)
         ShouldSuppressPipelineProcessing = true;
 
         return this;
+    }
+
+    internal void OnAddPipelines(PipelineBuilder pipelineBuilder)
+    {
+        AddPipelines?.Invoke(this, new(pipelineBuilder));
     }
 }
