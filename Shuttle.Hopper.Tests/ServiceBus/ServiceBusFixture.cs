@@ -42,9 +42,9 @@ public class ServiceBusFixture
 
         await using (await serviceBus.StartAsync())
         {
-            var timeout = DateTime.Now.AddSeconds(5);
+            var timeout = DateTimeOffset.UtcNow.AddSeconds(5);
 
-            while (fakeTransport.MessageCount < 2 && DateTime.Now < timeout)
+            while (fakeTransport.MessageCount < 2 && DateTimeOffset.UtcNow < timeout)
             {
                 Thread.Sleep(5);
             }

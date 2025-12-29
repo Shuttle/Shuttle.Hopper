@@ -13,9 +13,16 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     public bool ShouldSendLocal { get; private set; }
 
-    public TransportMessageBuilder Defer(DateTime ignoreTillDate)
+    public TransportMessageBuilder Defer(DateTimeOffset ignoreTillDateTime)
     {
-        _transportMessage.IgnoreTillDate = ignoreTillDate;
+        _transportMessage.IgnoreTillDateTime = ignoreTillDateTime;
+
+        return this;
+    }
+
+    public TransportMessageBuilder Defer(TimeSpan ignoreTimeSpan)
+    {
+        _transportMessage.IgnoreTillDateTime = DateTimeOffset.UtcNow.Add(ignoreTimeSpan);
 
         return this;
     }
@@ -48,16 +55,16 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    public TransportMessageBuilder WillExpire(DateTime expiryDate)
+    public TransportMessageBuilder WillExpire(DateTimeOffset expiryDateTime)
     {
-        _transportMessage.ExpiryDate = expiryDate;
+        _transportMessage.ExpiryDateTime = expiryDateTime;
 
         return this;
     }
 
-    public TransportMessageBuilder WillExpire(TimeSpan fromUtcNow)
+    public TransportMessageBuilder WillExpire(TimeSpan expiryTimeSpan)
     {
-        _transportMessage.ExpiryDate = DateTime.UtcNow.Add(fromUtcNow);
+        _transportMessage.ExpiryDateTime = DateTimeOffset.UtcNow.Add(expiryTimeSpan);
 
         return this;
     }

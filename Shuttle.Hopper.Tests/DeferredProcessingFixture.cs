@@ -41,13 +41,13 @@ public class DeferredProcessingFixture
 
         await using var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync();
 
-        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTime.UtcNow.Add(TimeSpan.FromSeconds(1))));
-        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTime.UtcNow.Add(TimeSpan.FromSeconds(2))));
-        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTime.UtcNow.Add(TimeSpan.FromSeconds(3))));
+        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(1))));
+        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(2))));
+        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(3))));
         
-        var timeout = DateTime.Now.AddMilliseconds(3500);
+        var timeout = DateTimeOffset.UtcNow.AddMilliseconds(3500);
 
-        while (messagesReturned.Count < 3 && DateTime.Now < timeout)
+        while (messagesReturned.Count < 3 && DateTimeOffset.UtcNow < timeout)
         {
             Thread.Sleep(250);
         }

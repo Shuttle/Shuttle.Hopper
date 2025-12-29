@@ -1,11 +1,6 @@
 namespace Shuttle.Hopper;
 
-public class DeferredMessageProcessingHaltedEventArgs : EventArgs
+public class DeferredMessageProcessingHaltedEventArgs(DateTimeOffset restartDateTime) : EventArgs
 {
-    public DeferredMessageProcessingHaltedEventArgs(DateTime restartDateTime)
-    {
-        RestartDateTime = restartDateTime;
-    }
-
-    public DateTime RestartDateTime { get; }
+    public DateTimeOffset RestartDateTime { get; } = restartDateTime;
 }

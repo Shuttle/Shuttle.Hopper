@@ -113,7 +113,7 @@ public class MessageHandlerInvokerFixture
 
         var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-        DateTime timeout;
+        DateTimeOffset timeout;
 
         await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
         {
@@ -126,15 +126,15 @@ public class MessageHandlerInvokerFixture
                 });
             }
 
-            timeout = DateTime.Now.AddSeconds(5);
+            timeout = DateTimeOffset.UtcNow.AddSeconds(5);
 
-            while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
+            while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
             {
                 Thread.Sleep(25);
             }
         }
 
-        Assert.That(timeout > DateTime.Now, "Timed out before all messages were handled.");
+        Assert.That(timeout > DateTimeOffset.UtcNow, "Timed out before all messages were handled.");
     }
 
     [Test]
@@ -175,7 +175,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        DateTime timeout;
+        DateTimeOffset timeout;
 
         await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
         {
@@ -188,15 +188,15 @@ public class MessageHandlerInvokerFixture
                 });
             }
 
-            timeout = DateTime.Now.AddSeconds(500);
+            timeout = DateTimeOffset.UtcNow.AddSeconds(500);
 
-            while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
+            while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
             {
                 Thread.Sleep(25);
             }
         }
 
-        Assert.That(timeout > DateTime.Now, "Timed out before all messages were handled.");
+        Assert.That(timeout > DateTimeOffset.UtcNow, "Timed out before all messages were handled.");
     }
 
     [Test]
@@ -235,7 +235,7 @@ public class MessageHandlerInvokerFixture
 
         var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-        DateTime timeout;
+        DateTimeOffset timeout;
 
         await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
         {
@@ -248,14 +248,14 @@ public class MessageHandlerInvokerFixture
                 });
             }
 
-            timeout = DateTime.Now.AddSeconds(500);
+            timeout = DateTimeOffset.UtcNow.AddSeconds(500);
 
-            while (messageHandlerTracker.HandledCount < count * 2 && DateTime.Now < timeout)
+            while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
             {
                 Thread.Sleep(25);
             }
         }
 
-        Assert.That(timeout > DateTime.Now, "Timed out before all messages were handled.");
+        Assert.That(timeout > DateTimeOffset.UtcNow, "Timed out before all messages were handled.");
     }
 }

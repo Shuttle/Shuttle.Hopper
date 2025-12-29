@@ -10,9 +10,9 @@ public class TransportMessageFixture
     {
         Assert.That(new TransportMessage().HasExpiryDate(), Is.False);
 
-        Assert.That(new TransportMessage { ExpiryDate = DateTime.MaxValue }.HasExpiryDate(), Is.False);
+        Assert.That(new TransportMessage { ExpiryDateTime = DateTimeOffset.MaxValue }.HasExpiryDate(), Is.False);
 
-        Assert.That(new TransportMessage { ExpiryDate = DateTime.Now.AddSeconds(30) }.HasExpiryDate(), Is.True);
+        Assert.That(new TransportMessage { ExpiryDateTime = DateTimeOffset.UtcNow.AddSeconds(30) }.HasExpiryDate(), Is.True);
     }
 
     [Test]
@@ -20,9 +20,9 @@ public class TransportMessageFixture
     {
         Assert.That(new TransportMessage().HasExpired(), Is.False);
 
-        Assert.That(new TransportMessage { ExpiryDate = DateTime.MaxValue }.HasExpired(), Is.False);
+        Assert.That(new TransportMessage { ExpiryDateTime = DateTimeOffset.MaxValue }.HasExpired(), Is.False);
 
-        Assert.That(new TransportMessage { ExpiryDate = DateTime.Now.AddSeconds(-30) }.HasExpired(), Is.True);
+        Assert.That(new TransportMessage { ExpiryDateTime = DateTimeOffset.UtcNow.AddSeconds(-30) }.HasExpired(), Is.True);
     }
 
     [Test]
@@ -30,12 +30,12 @@ public class TransportMessageFixture
     {
         var transportMessage = new TransportMessage
         {
-            IgnoreTillDate = DateTime.Now.AddMinutes(1)
+            IgnoreTillDateTime = DateTimeOffset.UtcNow.AddMinutes(1)
         };
 
         Assert.That(transportMessage.IsIgnoring(), Is.True);
 
-        transportMessage.IgnoreTillDate = DateTime.Now.AddMilliseconds(-1);
+        transportMessage.IgnoreTillDateTime = DateTimeOffset.UtcNow.AddMilliseconds(-1);
 
         Assert.That(transportMessage.IsIgnoring(), Is.False);
     }
@@ -45,11 +45,11 @@ public class TransportMessageFixture
     {
         var message = new TransportMessage();
 
-        var before = DateTime.UtcNow;
+        var before = DateTimeOffset.UtcNow;
 
         message.RegisterFailure("failure");
 
-        Assert.That(before <= message.IgnoreTillDate, Is.True);
+        Assert.That(before <= message.IgnoreTillDateTime, Is.True);
 
         message = new();
 
@@ -61,26 +61,26 @@ public class TransportMessageFixture
                 TimeSpan.FromHours(2)
             };
 
-        Assert.That(DateTime.UtcNow.AddMinutes(3) <= message.IgnoreTillDate, Is.False);
+        Assert.That(DateTimeOffset.UtcNow.AddMinutes(3) <= message.IgnoreTillDateTime, Is.False);
 
         message.RegisterFailure("failure", durationToIgnoreOnFailure[0]);
 
-        var ignoreTillDate = DateTime.UtcNow.AddMinutes(3);
+        var ignoreTillDate = DateTimeOffset.UtcNow.AddMinutes(3);
 
-        Assert.That(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate, Is.True);
-        Assert.That(DateTime.UtcNow.AddMinutes(30) < message.IgnoreTillDate, Is.False);
+        Assert.That(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDateTime && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDateTime, Is.True);
+        Assert.That(DateTimeOffset.UtcNow.AddMinutes(30) < message.IgnoreTillDateTime, Is.False);
 
         message.RegisterFailure("failure", durationToIgnoreOnFailure[1]);
 
-        ignoreTillDate = DateTime.UtcNow.AddMinutes(30);
+        ignoreTillDate = DateTimeOffset.UtcNow.AddMinutes(30);
 
-        Assert.That(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate, Is.True);
-        Assert.That(DateTime.UtcNow.AddHours(2) < message.IgnoreTillDate, Is.False);
+        Assert.That(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDateTime && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDateTime, Is.True);
+        Assert.That(DateTimeOffset.UtcNow.AddHours(2) < message.IgnoreTillDateTime, Is.False);
 
         message.RegisterFailure("failure", durationToIgnoreOnFailure[2]);
 
-        ignoreTillDate = DateTime.UtcNow.AddHours(2);
+        ignoreTillDate = DateTimeOffset.UtcNow.AddHours(2);
 
-        Assert.That(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDate && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDate, Is.True);
+        Assert.That(ignoreTillDate.AddMilliseconds(-100) < message.IgnoreTillDateTime && ignoreTillDate.AddMilliseconds(100) > message.IgnoreTillDateTime, Is.True);
     }
 }

@@ -24,7 +24,7 @@ public class HandleMessageObserverFixture
             .AddStage(".")
             .WithEvent<HandleMessage>();
 
-        pipeline.State.SetTransportMessage(new() { ExpiryDate = DateTime.Now.AddDays(-1) });
+        pipeline.State.SetTransportMessage(new() { ExpiryDateTime = DateTimeOffset.UtcNow.AddDays(-1) });
 
         await pipeline.ExecuteAsync();
 
