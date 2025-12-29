@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
@@ -11,14 +12,14 @@ public interface IStartupProcessingObserver :
     IPipelineObserver<ConfigureThreadPools>,
     IPipelineObserver<StartThreadPools>;
 
-public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IDeferredMessageProcessor deferredMessageProcessor, IPipelineFactory pipelineFactory, IProcessorThreadPoolFactory processorThreadPoolFactory)
+public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IOptions<ThreadingOptions> threadingOptions, IServiceScopeFactory serviceScopeFactory, IServiceBusConfiguration serviceBusConfiguration, IProcessorIdleStrategy processorIdleStrategy)
     : IStartupProcessingObserver
 {
-    private readonly IDeferredMessageProcessor _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor);
-    private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
-    private readonly IProcessorThreadPoolFactory _processorThreadPoolFactory = Guard.AgainstNull(processorThreadPoolFactory);
+    private readonly ThreadingOptions _threadingOptions = Guard.AgainstNull(Guard.AgainstNull(threadingOptions).Value);
+    private readonly IServiceScopeFactory _serviceScopeFactory = Guard.AgainstNull(serviceScopeFactory);
     private readonly IServiceBusConfiguration _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
     private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly IProcessorIdleStrategy _processorIdleStrategy = Guard.AgainstNull(processorIdleStrategy);
 
     public async Task ExecuteAsync(IPipelineContext<CreatePhysicalTransports> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -33,31 +34,24 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
         await _serviceBusConfiguration.CreatePhysicalTransportsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ExecuteAsync(IPipelineContext<ConfigureThreadPools> pipelineContext, CancellationToken cancellationToken = default)
+    public Task ExecuteAsync(IPipelineContext<ConfigureThreadPools> pipelineContext, CancellationToken cancellationToken = default)
     {
         if (_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.HasDeferredTransport())
         {
-            pipelineContext.Pipeline.State.Add("DeferredMessageThreadPool", await _processorThreadPoolFactory.CreateAsync(
-                "DeferredMessageProcessor",
-                1,
-                new DeferredMessageProcessorFactory(_deferredMessageProcessor), cancellationToken));
+            pipelineContext.Pipeline.State.Add("DeferredMessageThread", new ProcessorThread("DeferredMessageProcessor", _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
         }
 
         if (_serviceBusConfiguration.HasInbox())
         {
-            pipelineContext.Pipeline.State.Add("InboxThreadPool", await _processorThreadPoolFactory.CreateAsync(
-                "InboxProcessor",
-                _serviceBusOptions.Inbox.ThreadCount,
-                new InboxProcessorFactory(_serviceBusOptions, _pipelineFactory), cancellationToken));
+            pipelineContext.Pipeline.State.Add("InboxThreadPool", new ProcessorThreadPool("InboxProcessor", _serviceBusOptions.Inbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
         }
 
         if (_serviceBusConfiguration.HasOutbox())
         {
-            pipelineContext.Pipeline.State.Add("OutboxThreadPool", await _processorThreadPoolFactory.CreateAsync(
-                "OutboxProcessor",
-                _serviceBusOptions.Outbox.ThreadCount,
-                new OutboxProcessorFactory(_serviceBusOptions, _pipelineFactory), cancellationToken));
+            pipelineContext.Pipeline.State.Add("OutboxThreadPool", new ProcessorThreadPool("OutboxProcessor", _serviceBusOptions.Outbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
         }
+
+        return Task.CompletedTask;
     }
 
     public async Task ExecuteAsync(IPipelineContext<StartThreadPools> pipelineContext, CancellationToken cancellationToken = default)
@@ -65,18 +59,12 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
         var state = Guard.AgainstNull(pipelineContext.Pipeline.State);
 
         var inboxThreadPool = state.Get<IProcessorThreadPool>("InboxThreadPool");
-        var controlInboxThreadPool = state.Get<IProcessorThreadPool>("ControlInboxThreadPool");
         var outboxThreadPool = state.Get<IProcessorThreadPool>("OutboxThreadPool");
-        var deferredMessageThreadPool = state.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+        var deferredMessageThread = state.Get<ProcessorThread>("DeferredMessageThread");
 
         if (inboxThreadPool != null)
         {
             await inboxThreadPool.StartAsync(cancellationToken);
-        }
-
-        if (controlInboxThreadPool != null)
-        {
-            await controlInboxThreadPool.StartAsync(cancellationToken);
         }
 
         if (outboxThreadPool != null)
@@ -84,9 +72,9 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
             await outboxThreadPool.StartAsync(cancellationToken);
         }
 
-        if (deferredMessageThreadPool != null)
+        if (deferredMessageThread != null)
         {
-            await deferredMessageThreadPool.StartAsync(cancellationToken);
+            await deferredMessageThread.StartAsync(cancellationToken);
         }
     }
 

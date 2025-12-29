@@ -74,9 +74,9 @@ public static class PipelineStateExtensions
         return state.Get<Stream>(StateKeys.TransportMessageStream);
     }
 
-    public static bool GetWorking(this IState state)
+    public static bool GetWorkPerformed(this IState state)
     {
-        return state.Contains(StateKeys.Working) && state.Get<bool>(StateKeys.Working);
+        return state.Contains(StateKeys.WorkPerformed) && state.Get<bool>(StateKeys.WorkPerformed);
     }
 
     public static ITransport? GetWorkTransport(this IState state)
@@ -84,9 +84,9 @@ public static class PipelineStateExtensions
         return state.Get<ITransport>(StateKeys.WorkTransport);
     }
 
-    public static void ResetWorking(this IState state)
+    public static void ResetWorkPerformed(this IState state)
     {
-        state.Replace(StateKeys.Working, false);
+        state.Replace(StateKeys.WorkPerformed, false);
     }
 
     public static void SetDeferredMessageReturned(this IState state, bool deferredMessageReturned)
@@ -161,7 +161,7 @@ public static class PipelineStateExtensions
 
     public static void SetWorking(this IState state)
     {
-        state.Replace(StateKeys.Working, true);
+        state.Replace(StateKeys.WorkPerformed, true);
     }
 
     public static void SetWorkTransport(this IState state, ITransport transport)

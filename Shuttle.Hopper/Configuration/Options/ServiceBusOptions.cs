@@ -51,8 +51,6 @@ public class ServiceBusOptions
     public bool RemoveCorruptMessages { get; set; } = false;
     public bool RemoveMessagesNotHandled { get; set; } = false;
     public SubscriptionOptions Subscription { get; set; } = new();
-    public AsyncEvent<ThreadStateEventArgs> ThreadWaiting { get; set; } = new();
-    public AsyncEvent<ThreadStateEventArgs> ThreadWorking { get; set; } = new();
     public AsyncEvent<TransportMessageDeferredEventArgs> TransportMessageDeferred { get; set; } = new();
     public AsyncEvent<DeserializationExceptionEventArgs> TransportMessageDeserializationException { get; set; } = new();
     public List<UriMappingOptions> UriMappings { get; set; } = [];

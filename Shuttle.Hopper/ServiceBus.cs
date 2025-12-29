@@ -74,8 +74,6 @@ public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender message
             // ignore
         }
 
-        _pipelineFactory.Flush();
-
         Inbox = null;
         Outbox = null;
 

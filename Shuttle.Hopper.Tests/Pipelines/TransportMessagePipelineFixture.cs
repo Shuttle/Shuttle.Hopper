@@ -35,8 +35,6 @@ public class TransportMessagePipelineFixture
 
                 await pipeline.ExecuteAsync().ConfigureAwait(false);
 
-                await pipelineFactory.ReleasePipelineAsync(pipeline);
-
                 count++;
             }
 

@@ -19,6 +19,6 @@ public static class StateKeys
     public const string TransportMessageBuilder = "TransportMessageBuilder";
     public const string TransportMessageReceived = "TransportMessageReceived";
     public const string TransportMessageStream = "TransportMessageStream";
-    public const string Working = "Working";
+    public const string WorkPerformed = "WorkPerformed";
     public const string WorkTransport = "WorkTransport";
 }

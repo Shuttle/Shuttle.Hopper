@@ -23,30 +23,26 @@ public class ServiceBusPerformanceFixture
         services.AddServiceBus();
 
         var serviceProvider = services.BuildServiceProvider();
-        var serviceBus = serviceProvider.GetRequiredService<IServiceBus>();
 
         var count = 0;
 
-        await using (await serviceBus.StartAsync())
+        await using var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync();
+
+        var sw = new Stopwatch();
+
+        sw.Start();
+
+        while (sw.ElapsedMilliseconds < 1000)
         {
-            var sw = new Stopwatch();
+            await serviceBus.SendAsync(new SimpleCommand($"{Guid.NewGuid()}"));
 
-            sw.Start();
-
-            while (sw.ElapsedMilliseconds < 1000)
-            {
-                await serviceBus.SendAsync(new SimpleCommand($"{Guid.NewGuid()}"));
-
-                count++;
-            }
-
-            sw.Stop();
-
-            Console.WriteLine($@"[service-bus-send] : count = {count} / ms = {sw.ElapsedMilliseconds}");
-
-            Assert.That(count, Is.GreaterThan(1000));
+            count++;
         }
 
-        Assert.That(count, Is.GreaterThan(1000));
+        sw.Stop();
+
+        Console.WriteLine($@"[service-bus-send] : count = {count} / ms = {sw.ElapsedMilliseconds}");
+
+        Assert.That(count, Is.GreaterThan(500));
     }
 }

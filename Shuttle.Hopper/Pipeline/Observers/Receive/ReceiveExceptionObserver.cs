@@ -23,7 +23,7 @@ public class ReceivePipelineFailedObserver(IServiceBusPolicy policy, ISerializer
         {
             using var tx = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled);
 
-            state.ResetWorking();
+            state.ResetWorkPerformed();
 
             if (pipelineContext.Pipeline.ExceptionHandled)
             {

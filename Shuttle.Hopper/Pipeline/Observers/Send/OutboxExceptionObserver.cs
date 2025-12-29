@@ -18,7 +18,7 @@ public class OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer seria
 
         try
         {
-            state.ResetWorking();
+            state.ResetWorkPerformed();
 
             if (pipelineContext.Pipeline.ExceptionHandled)
             {

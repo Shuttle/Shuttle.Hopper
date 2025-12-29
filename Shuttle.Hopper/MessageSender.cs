@@ -15,21 +15,14 @@ public class MessageSender(IPipelineFactory pipelineFactory, ISubscriptionServic
 
         var messagePipeline = await _pipelineFactory.GetPipelineAsync<DispatchTransportMessagePipeline>(cancellationToken);
 
-        try
-        {
-            await messagePipeline.ExecuteAsync(transportMessage, transportMessageReceived, cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            await _pipelineFactory.ReleasePipelineAsync(messagePipeline, cancellationToken);
-        }
+        await messagePipeline.ExecuteAsync(transportMessage, transportMessageReceived, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, TransportMessage? transportMessageReceived = null, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default)
     {
         Guard.AgainstNull(message);
 
-        var subscribers = (await _subscriptionService.GetSubscribedUrisAsync(message, cancellationToken: cancellationToken).ConfigureAwait(false)).ToList();
+        var subscribers = (await _subscriptionService.GetSubscribedUrisAsync(message, cancellationToken).ConfigureAwait(false)).ToList();
 
         if (subscribers.Count > 0)
         {
@@ -67,15 +60,8 @@ public class MessageSender(IPipelineFactory pipelineFactory, ISubscriptionServic
 
         var messagePipeline = await _pipelineFactory.GetPipelineAsync<TransportMessagePipeline>(cancellationToken);
 
-        try
-        {
-            await messagePipeline.ExecuteAsync(message, transportMessageReceived, builder, cancellationToken).ConfigureAwait(false);
+        await messagePipeline.ExecuteAsync(message, transportMessageReceived, builder, cancellationToken).ConfigureAwait(false);
 
-            return messagePipeline.State.GetTransportMessage()!;
-        }
-        finally
-        {
-            await _pipelineFactory.ReleasePipelineAsync(messagePipeline, cancellationToken);
-        }
+        return messagePipeline.State.GetTransportMessage()!;
     }
 }

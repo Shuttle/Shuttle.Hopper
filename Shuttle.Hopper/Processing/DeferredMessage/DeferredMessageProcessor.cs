@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
@@ -16,11 +15,11 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
     private DateTime _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
     private DateTime _nextProcessingDateTime = DateTime.MinValue.ToUniversalTime();
 
-    public async Task ExecuteAsync(IProcessorThreadContext _, CancellationToken cancellationToken = default)
+    public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
         if (_serviceBusOptions.Inbox.DeferredTransportUri == null)
         {
-            return;
+            return false;
         }
 
         await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -29,81 +28,68 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
         {
             if (DateTime.UtcNow < _nextProcessingDateTime)
             {
-                try
-                {
-                    await Task.Delay(_serviceBusOptions.Inbox.DeferredMessageProcessorWaitInterval, cancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-
-                return;
+                return false;
             }
 
             var pipeline = await _pipelineFactory.GetPipelineAsync<DeferredMessagePipeline>(cancellationToken);
 
-            try
+            pipeline.State.ResetWorkPerformed();
+            pipeline.State.SetDeferredMessageReturned(false);
+            pipeline.State.SetTransportMessage(null);
+
+            await pipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+            var transportMessage = pipeline.State.GetTransportMessage();
+
+            if (pipeline.State.GetDeferredMessageReturned())
             {
-                pipeline.State.ResetWorking();
-                pipeline.State.SetDeferredMessageReturned(false);
-                pipeline.State.SetTransportMessage(null);
-
-                await pipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-
-                var transportMessage = pipeline.State.GetTransportMessage();
-
-                if (pipeline.State.GetDeferredMessageReturned())
+                if (transportMessage != null &&
+                    transportMessage.MessageId.Equals(_checkpointMessageId))
                 {
-                    if (transportMessage != null &&
-                        transportMessage.MessageId.Equals(_checkpointMessageId))
-                    {
-                        _checkpointMessageId = Guid.Empty;
-                    }
-
-                    return;
+                    _checkpointMessageId = Guid.Empty;
                 }
 
-                if (pipeline.State.GetWorking() && transportMessage != null)
-                {
-                    if (transportMessage.IgnoreTillDate.ToUniversalTime() < _ignoreTillDate)
-                    {
-                        _ignoreTillDate = transportMessage.IgnoreTillDate.ToUniversalTime();
-                    }
-
-                    if (!_checkpointMessageId.Equals(transportMessage.MessageId))
-                    {
-                        if (!_checkpointMessageId.Equals(Guid.Empty))
-                        {
-                            return;
-                        }
-
-                        _checkpointMessageId = transportMessage.MessageId;
-
-                        return;
-                    }
-                }
-
-                _checkpointMessageId = Guid.Empty;
-
-                if (_nextProcessingDateTime > DateTime.UtcNow)
-                {
-                    return;
-                }
-
-                var nextProcessingDateTime = DateTime.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
-
-                await AdjustNextProcessingDateTimeAsync(_ignoreTillDate < nextProcessingDateTime
-                    ? _ignoreTillDate
-                    : nextProcessingDateTime, cancellationToken);
-
-                _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
-
-                await _serviceBusOptions.DeferredMessageProcessingHalted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
+                return false;
             }
-            finally
+
+            if (pipeline.State.GetWorkPerformed() && transportMessage != null)
             {
-                await _pipelineFactory.ReleasePipelineAsync(pipeline, cancellationToken);
+                if (transportMessage.IgnoreTillDate.ToUniversalTime() < _ignoreTillDate)
+                {
+                    _ignoreTillDate = transportMessage.IgnoreTillDate.ToUniversalTime();
+                }
+
+                if (!_checkpointMessageId.Equals(transportMessage.MessageId))
+                {
+                    if (!_checkpointMessageId.Equals(Guid.Empty))
+                    {
+                        return false;
+                    }
+
+                    _checkpointMessageId = transportMessage.MessageId;
+
+                    return false;
+                }
             }
+
+            _checkpointMessageId = Guid.Empty;
+
+            if (_nextProcessingDateTime > DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            var nextProcessingDateTime = DateTime.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
+
+            await AdjustNextProcessingDateTimeAsync(_ignoreTillDate < nextProcessingDateTime
+                ? _ignoreTillDate
+                : nextProcessingDateTime, cancellationToken);
+
+            _ignoreTillDate = DateTime.MaxValue.ToUniversalTime();
+
+            await _serviceBusOptions.DeferredMessageProcessingHalted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
+
+            return true;
         }
         finally
         {

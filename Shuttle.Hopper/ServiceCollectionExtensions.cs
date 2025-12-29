@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IServiceBusPolicy, DefaultServiceBusPolicy>();
             services.TryAddSingleton<IMessageRouteProvider, MessageRouteProvider>();
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
-            services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
+            services.TryAddScoped<IMessageHandlerInvoker, MessageHandlerInvoker>();
             services.TryAddSingleton<IUriResolver, UriResolver>();
             services.TryAddSingleton<ITransportService, TransportService>();
             services.TryAddSingleton<ITransportFactoryService, TransportFactoryService>();
@@ -36,15 +36,43 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<ISubscriptionQuery, NullSubscriptionQuery>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
-            services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
-            services.TryAddSingleton<IProcessorThreadPoolFactory, ProcessorThreadPoolFactory>();
             services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
             services.TryAddSingleton<IMemoryCache, MemoryCache>();
+
+            services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
+
+            services.TryAddKeyedSingleton<IProcessor>("DeferredMessageProcessor", (provider, _) => provider.GetRequiredService<IDeferredMessageProcessor>());
+            services.TryAddKeyedScoped<IProcessor, InboxProcessor>("InboxProcessor");
+            services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
+
+            services.AddThreading(threadingBuilder =>
+            {
+                threadingBuilder.ConfigureProcessorIdle("InboxProcessor", options =>
+                {
+                    options.Durations = serviceBusBuilder.Options.Inbox.IdleDurations.Any()
+                        ? serviceBusBuilder.Options.Inbox.IdleDurations
+                        : ServiceBusOptions.DefaultIdleDurations.ToList();
+                });
+
+                threadingBuilder.ConfigureProcessorIdle("OutboxProcessor", options =>
+                {
+                    options.Durations = serviceBusBuilder.Options.Outbox.IdleDurations.Any()
+                        ? serviceBusBuilder.Options.Outbox.IdleDurations
+                        : ServiceBusOptions.DefaultIdleDurations.ToList();
+                });
+
+                threadingBuilder.ConfigureProcessorIdle("DeferredMessageProcessor", options =>
+                {
+                    options.Durations = [serviceBusBuilder.Options.Inbox.DeferredMessageProcessorIdleDuration];
+                });
+            });
 
             if (!serviceBusBuilder.ShouldSuppressPipelineProcessing)
             {
                 services.AddPipelines(pipelineBuilder =>
                 {
+                    pipelineBuilder.Options.ReusePipelines = false;
+
                     pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
 
                     pipelineBuilder.Options.UseTransactionScope<InboxMessagePipeline>("Handle");

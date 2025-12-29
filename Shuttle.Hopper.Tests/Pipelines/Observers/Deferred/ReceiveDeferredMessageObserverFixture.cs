@@ -31,7 +31,7 @@ public class ReceiveDeferredMessageObserverFixture
         await pipeline.ExecuteAsync();
 
         Assert.That(pipeline.State.GetReceivedMessage(), Is.Not.Null);
-        Assert.That(pipeline.State.GetWorking(), Is.True);
+        Assert.That(pipeline.State.GetWorkPerformed(), Is.True);
         Assert.That(pipeline.Aborted, Is.False);
 
         pipeline.State.Clear();
@@ -40,7 +40,7 @@ public class ReceiveDeferredMessageObserverFixture
         await pipeline.ExecuteAsync();
 
         Assert.That(pipeline.State.GetReceivedMessage(), Is.Null);
-        Assert.That(pipeline.State.GetWorking(), Is.False);
+        Assert.That(pipeline.State.GetWorkPerformed(), Is.False);
         Assert.That(pipeline.Aborted, Is.True);
     }
 }
