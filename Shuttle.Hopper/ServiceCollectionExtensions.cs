@@ -77,8 +77,6 @@ public static class ServiceCollectionExtensions
                     {
                         options.UseTransactionScope<InboxMessagePipeline>("Handle");
                     });
-
-                    serviceBusBuilder.OnAddPipelines(pipelineBuilder);
                 });
             }
 
