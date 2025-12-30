@@ -71,11 +71,12 @@ public static class ServiceCollectionExtensions
             {
                 services.AddPipelines(pipelineBuilder =>
                 {
-                    pipelineBuilder.Options.ReusePipelines = false;
-
                     pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
 
-                    pipelineBuilder.Options.UseTransactionScope<InboxMessagePipeline>("Handle");
+                    pipelineBuilder.Configure(options =>
+                    {
+                        options.UseTransactionScope<InboxMessagePipeline>("Handle");
+                    });
 
                     serviceBusBuilder.OnAddPipelines(pipelineBuilder);
                 });
