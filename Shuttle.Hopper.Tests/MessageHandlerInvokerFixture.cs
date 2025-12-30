@@ -87,7 +87,7 @@ public class MessageHandlerInvokerFixture
 
         var services = new ServiceCollection();
 
-        services.AddServiceBus(builder =>
+        services.AddHopperx(builder =>
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
@@ -147,7 +147,7 @@ public class MessageHandlerInvokerFixture
         var messageHandlerTracker = new MessageHandlerTracker();
         var contextHandler = new MessageHandler(messageHandlerTracker);
 
-        services.AddServiceBus(builder =>
+        services.AddHopperx(builder =>
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
@@ -208,7 +208,7 @@ public class MessageHandlerInvokerFixture
             .AddSingleton<IMessageHandlerTracker, MessageHandlerTracker>()
             .AddSingleton<IDirectMessageHandler<Message>, DirectMessageHandler>();
 
-        services.AddServiceBus(builder =>
+        services.AddHopperx(builder =>
         {
             builder.Options.Inbox.ThreadCount = 1;
             builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");

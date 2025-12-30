@@ -3,7 +3,7 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Hopper.Tests;
 
-public class MemoryTransportFactory(IOptions<ServiceBusOptions> serviceBusOptions) : ITransportFactory
+public class MemoryTransportFactory(IOptions<HopperOptions> serviceBusOptions) : ITransportFactory
 {
     public string Scheme => "memory";
 

@@ -20,7 +20,7 @@ public class ServiceBusPerformanceFixture
         services.AddSingleton(messageRouteProvider.Object);
         services.AddSingleton<ITransportFactory, NullTransportFactory>();
 
-        services.AddServiceBus();
+        services.AddHopperx();
 
         var serviceProvider = services.BuildServiceProvider();
 

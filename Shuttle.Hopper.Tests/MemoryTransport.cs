@@ -3,11 +3,11 @@ using Shuttle.Core.Streams;
 
 namespace Shuttle.Hopper.Tests;
 
-public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITransport
+public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly Queue<Message> _queue = new();
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(serviceBusOptions);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(hopperOptions);
     private readonly Dictionary<Guid, Message> _unacknowledged = new();
 
     public TransportType Type { get; } = TransportType.Queue;
@@ -28,7 +28,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
             _lock.Release();
         }
 
-        await _serviceBusOptions.MessageSent.InvokeAsync(new(this, transportMessage, copy), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageSent.InvokeAsync(new(this, transportMessage, copy), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
@@ -55,7 +55,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
 
         var result = new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
 
-        await _serviceBusOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
 
         return result;
     }
@@ -78,7 +78,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
             _lock.Release();
         }
 
-        await _serviceBusOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
@@ -97,7 +97,7 @@ public class MemoryTransport(ServiceBusOptions serviceBusOptions, Uri uri) : ITr
             _lock.Release();
         }
 
-        await _serviceBusOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken);
+        await _hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken);
     }
 
     private class Message(TransportMessage transportMessage, Stream stream)

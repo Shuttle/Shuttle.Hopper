@@ -3,7 +3,7 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Hopper.Tests;
 
-public class NullTransportFactory(IOptions<ServiceBusOptions> serviceBusOptions) : ITransportFactory
+public class NullTransportFactory(IOptions<HopperOptions> serviceBusOptions) : ITransportFactory
 {
     public string Scheme => "null-transport";
 

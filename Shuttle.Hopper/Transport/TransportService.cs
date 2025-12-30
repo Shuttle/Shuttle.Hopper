@@ -4,11 +4,11 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Hopper;
 
-public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITransportFactoryService transportFactoryService, IUriResolver uriResolver)
+public class TransportService(IOptions<HopperOptions> serviceBusOptions, ITransportFactoryService transportFactoryService, IUriResolver uriResolver)
     : ITransportService
 {
     private static readonly SemaphoreSlim Lock = new(1, 1);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private readonly ITransportFactoryService _transportFactoryService = Guard.AgainstNull(transportFactoryService);
 
     private readonly List<ITransport> _transports = [];
@@ -41,11 +41,11 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
         foreach (var transport in _transports)
         {
-            await _serviceBusOptions.TransportDisposing.InvokeAsync(new(transport)).ConfigureAwait(false);
+            await _hopperOptions.TransportDisposing.InvokeAsync(new(transport)).ConfigureAwait(false);
 
             await transport.TryDisposeAsync();
 
-            await _serviceBusOptions.TransportDisposed.InvokeAsync(new(transport)).ConfigureAwait(false);
+            await _hopperOptions.TransportDisposed.InvokeAsync(new(transport)).ConfigureAwait(false);
         }
 
         _transports.Clear();
@@ -107,7 +107,7 @@ public class TransportService(IOptions<ServiceBusOptions> serviceBusOptions, ITr
 
         Guard.AgainstNull(result, string.Format(Resources.TransportFactoryCreatedNullTransport, transportFactory.GetType().FullName, transportUri));
 
-        await _serviceBusOptions.TransportCreated.InvokeAsync(new(result), cancellationToken).ConfigureAwait(false); 
+        await _hopperOptions.TransportCreated.InvokeAsync(new(result), cancellationToken).ConfigureAwait(false); 
 
         return result;
     }

@@ -10,7 +10,7 @@ public class TransportMessageBuilderFixture
     [Test]
     public void Should_be_able_to_set_sender()
     {
-        var serviceBusOptions = new ServiceBusOptions();
+        var serviceBusOptions = new HopperOptions();
         var identityProvider = new Mock<IIdentityProvider>();
         var transportMessage = new TransportMessage
         {

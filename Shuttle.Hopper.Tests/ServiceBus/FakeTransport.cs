@@ -6,7 +6,7 @@ using JsonSerializer = Shuttle.Core.Serialization.JsonSerializer;
 
 namespace Shuttle.Hopper.Tests;
 
-public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToReturn) : ITransport
+public class FakeTransport(HopperOptions hopperOptions, int messagesToReturn) : ITransport
 {
     private readonly ISerializer _serializer = new JsonSerializer(Options.Create(new JsonSerializerOptions()));
 
@@ -19,7 +19,7 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
 
     public async Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default)
     {
-        await serviceBusOptions.MessageSent.InvokeAsync(new(this, transportMessage, stream), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageSent.InvokeAsync(new(this, transportMessage, stream), cancellationToken).ConfigureAwait(false);
     }
 
     public ValueTask<bool> HasPendingAsync(CancellationToken cancellationToken = default)
@@ -29,12 +29,12 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
 
     public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
-        await serviceBusOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
     {
-        await serviceBusOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
@@ -61,7 +61,7 @@ public class FakeTransport(ServiceBusOptions serviceBusOptions, int messagesToRe
 
         var result = new ReceivedMessage(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), string.Empty);
 
-        await serviceBusOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
 
         return result;
     }

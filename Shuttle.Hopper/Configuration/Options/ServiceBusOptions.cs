@@ -2,9 +2,9 @@
 
 namespace Shuttle.Hopper;
 
-public class ServiceBusOptions
+public class HopperOptions
 {
-    public const string SectionName = "Shuttle:ServiceBus";
+    public const string SectionName = "Shuttle:Hopper";
 
     public static readonly IEnumerable<TimeSpan> DefaultIgnoreOnFailureDurations = new List<TimeSpan>
     {
@@ -25,6 +25,7 @@ public class ServiceBusOptions
         TimeSpan.FromSeconds(5)
     }.AsReadOnly();
 
+    public bool SuppressServiceBusHostedService { get; internal set; }
     public bool AddMessageHandlers { get; set; } = true;
     public bool CacheIdentity { get; set; } = true;
     public string CompressionAlgorithm { get; set; } = string.Empty;

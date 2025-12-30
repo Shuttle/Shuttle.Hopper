@@ -8,10 +8,10 @@ namespace Shuttle.Hopper;
 
 public interface IDeserializeMessageObserver : IPipelineObserver<DeserializeMessage>;
 
-public class DeserializeMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, ISerializer serializer) : IDeserializeMessageObserver
+public class DeserializeMessageObserver(IOptions<HopperOptions> serviceBusOptions, ISerializer serializer) : IDeserializeMessageObserver
 {
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<DeserializeMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -34,7 +34,7 @@ public class DeserializeMessageObserver(IOptions<ServiceBusOptions> serviceBusOp
             var errorTransport = Guard.AgainstNull(state.GetErrorTransport());
             var receivedMessage = state.GetReceivedMessage();
 
-            await _serviceBusOptions.MessageDeserializationException.InvokeAsync(new(pipelineContext, workTransport, errorTransport, ex), cancellationToken);
+            await _hopperOptions.MessageDeserializationException.InvokeAsync(new(pipelineContext, workTransport, errorTransport, ex), cancellationToken);
 
             if (workTransport == null || errorTransport == null || receivedMessage == null || workTransport.Type == TransportType.Stream)
             {

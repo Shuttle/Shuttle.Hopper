@@ -15,7 +15,7 @@ public class HandleMessageObserverFixture
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
 
-        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(new HopperOptions()), messageHandlerInvoker.Object, serializer.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
@@ -38,7 +38,7 @@ public class HandleMessageObserverFixture
         var messageHandlerInvoker = new Mock<IMessageHandlerInvoker>();
         var serializer = new Mock<ISerializer>();
 
-        var observer = new HandleMessageObserver(Options.Create(new ServiceBusOptions()), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(new HopperOptions()), messageHandlerInvoker.Object, serializer.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
@@ -75,7 +75,7 @@ public class HandleMessageObserverFixture
         var messageNotHandledCount = 0;
         var handlerExceptionCount = 0;
 
-        var serviceBusOptions = new ServiceBusOptions();
+        var serviceBusOptions = new HopperOptions();
 
         serviceBusOptions.MessageNotHandled += async (_, _) =>
         {
@@ -137,7 +137,7 @@ public class HandleMessageObserverFixture
         var messageNotHandledCount = 0;
         var handlerExceptionCount = 0;
 
-        var serviceBusOptions = new ServiceBusOptions
+        var serviceBusOptions = new HopperOptions
         {
             RemoveMessagesNotHandled = true
         };
@@ -195,7 +195,7 @@ public class HandleMessageObserverFixture
         var messageNotHandledCount = 0;
         var handlerExceptionCount = 0;
 
-        var serviceBusOptions = new ServiceBusOptions();
+        var serviceBusOptions = new HopperOptions();
 
         serviceBusOptions.MessageNotHandled += async (_, _) =>
         {

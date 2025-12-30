@@ -12,24 +12,24 @@ public interface IStartupProcessingObserver :
     IPipelineObserver<ConfigureThreadPools>,
     IPipelineObserver<StartThreadPools>;
 
-public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOptions, IOptions<ThreadingOptions> threadingOptions, IServiceScopeFactory serviceScopeFactory, IServiceBusConfiguration serviceBusConfiguration, IProcessorIdleStrategy processorIdleStrategy)
+public class StartupProcessingObserver(IOptions<HopperOptions> serviceBusOptions, IOptions<ThreadingOptions> threadingOptions, IServiceScopeFactory serviceScopeFactory, IServiceBusConfiguration serviceBusConfiguration, IProcessorIdleStrategy processorIdleStrategy)
     : IStartupProcessingObserver
 {
     private readonly ThreadingOptions _threadingOptions = Guard.AgainstNull(Guard.AgainstNull(threadingOptions).Value);
     private readonly IServiceScopeFactory _serviceScopeFactory = Guard.AgainstNull(serviceScopeFactory);
     private readonly IServiceBusConfiguration _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private readonly IProcessorIdleStrategy _processorIdleStrategy = Guard.AgainstNull(processorIdleStrategy);
 
     public async Task ExecuteAsync(IPipelineContext<CreatePhysicalTransports> pipelineContext, CancellationToken cancellationToken = default)
     {
-        if (!_serviceBusOptions.CreatePhysicalTransports)
+        if (!_hopperOptions.CreatePhysicalTransports)
         {
             return;
         }
 
-        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.WorkTransport == null && _serviceBusOptions.Inbox.WorkTransportUri == null, string.Format(Resources.RequiredTransportUriMissingException, "Inbox.WorkTransportUri"));
-        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasOutbox() && _serviceBusConfiguration.Outbox!.WorkTransport == null && _serviceBusOptions.Outbox.WorkTransportUri == null, string.Format(Resources.RequiredTransportUriMissingException, "Outbox.WorkTransportUri"));
+        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasInbox() && _serviceBusConfiguration.Inbox!.WorkTransport == null && _hopperOptions.Inbox.WorkTransportUri == null, string.Format(Resources.RequiredTransportUriMissingException, "Inbox.WorkTransportUri"));
+        Guard.Against<InvalidOperationException>(_serviceBusConfiguration.HasOutbox() && _serviceBusConfiguration.Outbox!.WorkTransport == null && _hopperOptions.Outbox.WorkTransportUri == null, string.Format(Resources.RequiredTransportUriMissingException, "Outbox.WorkTransportUri"));
 
         await _serviceBusConfiguration.CreatePhysicalTransportsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
     }
@@ -43,12 +43,12 @@ public class StartupProcessingObserver(IOptions<ServiceBusOptions> serviceBusOpt
 
         if (_serviceBusConfiguration.HasInbox())
         {
-            pipelineContext.Pipeline.State.Add("InboxThreadPool", new ProcessorThreadPool("InboxProcessor", _serviceBusOptions.Inbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
+            pipelineContext.Pipeline.State.Add("InboxThreadPool", new ProcessorThreadPool("InboxProcessor", _hopperOptions.Inbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
         }
 
         if (_serviceBusConfiguration.HasOutbox())
         {
-            pipelineContext.Pipeline.State.Add("OutboxThreadPool", new ProcessorThreadPool("OutboxProcessor", _serviceBusOptions.Outbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
+            pipelineContext.Pipeline.State.Add("OutboxThreadPool", new ProcessorThreadPool("OutboxProcessor", _hopperOptions.Outbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
         }
 
         return Task.CompletedTask;

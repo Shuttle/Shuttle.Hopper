@@ -3,18 +3,17 @@ using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class ServiceBusBuilder(IServiceCollection services)
+public class HopperBuilder(IServiceCollection services)
 {
     private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
     private static readonly Type DirectMessageHandlerType = typeof(IDirectMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
     private readonly Dictionary<Type, DirectMessageHandlerDelegate> _directMessageHandlerDelegates = new();
 
-    public ServiceBusOptions Options
+    public HopperOptions Options
     {
         get;
         set => field = value ?? throw new ArgumentNullException(nameof(value));
@@ -22,10 +21,7 @@ public class ServiceBusBuilder(IServiceCollection services)
 
     public IServiceCollection Services { get; } = Guard.AgainstNull(services);
 
-    public bool ShouldSuppressHostedService { get; private set; }
-    public bool ShouldSuppressPipelineProcessing { get; private set; }
-
-    public ServiceBusBuilder AddMessageHandler<TDelegate>(TDelegate handler) where TDelegate : Delegate
+    public HopperBuilder AddMessageHandler<TDelegate>(TDelegate handler) where TDelegate : Delegate
     {
         var returnType = handler.Method.ReturnType;
 
@@ -72,7 +68,7 @@ public class ServiceBusBuilder(IServiceCollection services)
         return this;
     }
 
-    public ServiceBusBuilder AddMessageHandler(object messageHandler)
+    public HopperBuilder AddMessageHandler(object messageHandler)
     {
         var type = Guard.AgainstNull(messageHandler).GetType();
 
@@ -105,12 +101,12 @@ public class ServiceBusBuilder(IServiceCollection services)
         return this;
     }
 
-    public ServiceBusBuilder AddMessageHandler<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+    public HopperBuilder AddMessageHandler<T>(ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
     {
         return AddMessageHandler(typeof(T), serviceLifetime);
     }
 
-    public ServiceBusBuilder AddMessageHandler(Type type, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+    public HopperBuilder AddMessageHandler(Type type, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
     {
         Guard.AgainstNull(type);
 
@@ -143,7 +139,7 @@ public class ServiceBusBuilder(IServiceCollection services)
         return this;
     }
 
-    public ServiceBusBuilder AddMessageHandlers(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
+    public HopperBuilder AddMessageHandlers(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
     {
         Guard.AgainstNull(assembly);
 
@@ -180,21 +176,21 @@ public class ServiceBusBuilder(IServiceCollection services)
         return this;
     }
 
-    public ServiceBusBuilder AddSubscription<T>()
+    public HopperBuilder AddSubscription<T>()
     {
         AddSubscription(typeof(T));
 
         return this;
     }
 
-    public ServiceBusBuilder AddSubscription(Type messageType)
+    public HopperBuilder AddSubscription(Type messageType)
     {
         AddSubscription(Guard.AgainstEmpty(Guard.AgainstNull(messageType).FullName));
 
         return this;
     }
 
-    public ServiceBusBuilder AddSubscription(string messageType)
+    public HopperBuilder AddSubscription(string messageType)
     {
         Guard.AgainstEmpty(messageType);
 
@@ -223,16 +219,9 @@ public class ServiceBusBuilder(IServiceCollection services)
         return new ReadOnlyDictionary<Type, DirectMessageHandlerDelegate>(_directMessageHandlerDelegates);
     }
 
-    public ServiceBusBuilder SuppressHostedService()
+    public HopperBuilder SuppressServiceBusHostedService()
     {
-        ShouldSuppressHostedService = true;
-
-        return this;
-    }
-
-    public ServiceBusBuilder SuppressPipelineProcessing()
-    {
-        ShouldSuppressPipelineProcessing = true;
+        Options.SuppressServiceBusHostedService = true;
 
         return this;
     }

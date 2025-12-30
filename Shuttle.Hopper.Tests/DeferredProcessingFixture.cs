@@ -12,7 +12,7 @@ public class DeferredProcessingFixture
         var messagesReturned = new List<TransportMessage>();
 
         var serviceProvider = new ServiceCollection()
-            .AddServiceBus(builder =>
+            .AddHopperx(builder =>
             {
                 builder.Options.Inbox = new()
                 {

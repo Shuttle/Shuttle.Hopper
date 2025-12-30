@@ -24,11 +24,14 @@ public class ServiceBusFixture
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
         services.AddTransactionScope(builder =>
         {
-            builder.Options.Enabled = false;
+            builder.Configure(options =>
+            {
+                options.Enabled = false;
+            });
         });
         services.AddSingleton(transportService.Object);
         services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
-        services.AddServiceBus(builder =>
+        services.AddHopperx(builder =>
         {
             builder.Options.Inbox = new()
             {

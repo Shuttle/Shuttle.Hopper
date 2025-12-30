@@ -4,12 +4,12 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Hopper;
 
-public class SubscriptionService(IOptions<ServiceBusOptions> serviceBusOptions, ISubscriptionQuery subscriptionQuery) : ISubscriptionService
+public class SubscriptionService(IOptions<HopperOptions> serviceBusOptions, ISubscriptionQuery subscriptionQuery) : ISubscriptionService
 {
     private static readonly SemaphoreSlim Lock = new(1, 1);
     private readonly IMemoryCache _subscribersCache = new MemoryCache(new MemoryCacheOptions());
 
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private readonly ISubscriptionQuery _subscriptionQuery = Guard.AgainstNull(subscriptionQuery);
 
     public async Task<IEnumerable<string>> GetSubscribedUrisAsync(string messageType, CancellationToken cancellationToken = default)
@@ -20,7 +20,7 @@ public class SubscriptionService(IOptions<ServiceBusOptions> serviceBusOptions, 
 
         try
         {
-            if (_serviceBusOptions.Subscription.CacheTimeout != null &&
+            if (_hopperOptions.Subscription.CacheTimeout != null &&
                 _subscribersCache.TryGetValue(messageType, out IEnumerable<string>? subscribers) &&
                 subscribers != null)
             {
@@ -29,10 +29,10 @@ public class SubscriptionService(IOptions<ServiceBusOptions> serviceBusOptions, 
 
             subscribers = await _subscriptionQuery.GetSubscribedUrisAsync(messageType, cancellationToken);
 
-            if (_serviceBusOptions.Subscription.CacheTimeout != null)
+            if (_hopperOptions.Subscription.CacheTimeout != null)
             {
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(_serviceBusOptions.Subscription.CacheTimeout.Value);
+                    .SetAbsoluteExpiration(_hopperOptions.Subscription.CacheTimeout.Value);
 
                 _subscribersCache.Set(messageType, subscribers, cacheEntryOptions);
             }

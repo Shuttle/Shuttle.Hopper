@@ -9,13 +9,13 @@ namespace Shuttle.Hopper;
 
 public interface IDeserializeTransportMessageObserver : IPipelineObserver<DeserializeTransportMessage>;
 
-public class DeserializeTransportMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
+public class DeserializeTransportMessageObserver(IOptions<HopperOptions> serviceBusOptions, ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
     : IDeserializeTransportMessageObserver
 {
     private readonly IEnvironmentService _environmentService = Guard.AgainstNull(environmentService);
     private readonly IProcessService _processService = Guard.AgainstNull(processService);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<DeserializeTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -32,9 +32,9 @@ public class DeserializeTransportMessageObserver(IOptions<ServiceBusOptions> ser
         }
         catch (Exception ex)
         {
-            await _serviceBusOptions.TransportMessageDeserializationException.InvokeAsync(new(pipelineContext, workTransport, Guard.AgainstNull(state.GetErrorTransport()), ex), cancellationToken);
+            await _hopperOptions.TransportMessageDeserializationException.InvokeAsync(new(pipelineContext, workTransport, Guard.AgainstNull(state.GetErrorTransport()), ex), cancellationToken);
 
-            if (_serviceBusOptions.RemoveCorruptMessages)
+            if (_hopperOptions.RemoveCorruptMessages)
             {
                 await workTransport.AcknowledgeAsync(Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken, cancellationToken).ConfigureAwait(false);
             }

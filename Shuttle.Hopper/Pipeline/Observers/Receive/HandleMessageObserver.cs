@@ -9,12 +9,12 @@ namespace Shuttle.Hopper;
 
 public interface IHandleMessageObserver : IPipelineObserver<HandleMessage>;
 
-public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
+public class HandleMessageObserver(IOptions<HopperOptions> serviceBusOptions, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
     : IHandleMessageObserver
 {
     private readonly IMessageHandlerInvoker _messageHandlerInvoker = Guard.AgainstNull(messageHandlerInvoker);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<HandleMessage> pipelineContext, CancellationToken cancellation = default)
     {
@@ -47,9 +47,9 @@ public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions
                 throw new InvalidOperationException(string.Format(Resources.MessageNotHandledMissingWorkTransportFailure, message.GetType().FullName, transportMessage.MessageId));
             }
 
-            await _serviceBusOptions.MessageNotHandled.InvokeAsync(new(workTransport, pipelineContext, transportMessage, message), cancellation);
+            await _hopperOptions.MessageNotHandled.InvokeAsync(new(workTransport, pipelineContext, transportMessage, message), cancellation);
 
-            if (_serviceBusOptions.RemoveMessagesNotHandled)
+            if (_hopperOptions.RemoveMessagesNotHandled)
             {
                 return;
             }
@@ -69,7 +69,7 @@ public class HandleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions
         {
             var exception = ex.TrimLeading<TargetInvocationException>();
 
-            await _serviceBusOptions.HandlerException.InvokeAsync(new(pipelineContext, transportMessage, message, exception), cancellation);
+            await _hopperOptions.HandlerException.InvokeAsync(new(pipelineContext, transportMessage, message, exception), cancellation);
 
             throw exception;
         }

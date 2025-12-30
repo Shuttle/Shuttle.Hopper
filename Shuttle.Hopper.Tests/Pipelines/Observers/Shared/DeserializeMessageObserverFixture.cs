@@ -14,7 +14,7 @@ public class DeserializeMessageObserverFixture
     {
         var serializer = new Mock<ISerializer>();
 
-        var observer = new DeserializeMessageObserver(Options.Create(new ServiceBusOptions()), serializer.Object);
+        var observer = new DeserializeMessageObserver(Options.Create(new HopperOptions()), serializer.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
@@ -36,7 +36,7 @@ public class DeserializeMessageObserverFixture
     {
         var serializer = new Mock<ISerializer>();
 
-        var observer = new DeserializeMessageObserver(Options.Create(new ServiceBusOptions()), serializer.Object);
+        var observer = new DeserializeMessageObserver(Options.Create(new HopperOptions()), serializer.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
@@ -66,7 +66,7 @@ public class DeserializeMessageObserverFixture
         var errorTransport = new Mock<ITransport>();
         var messageDeserializationExceptionCount = 0;
 
-        var serviceBusOptions = new ServiceBusOptions();
+        var serviceBusOptions = new HopperOptions();
 
         serviceBusOptions.MessageDeserializationException += async (_, _) =>
         {

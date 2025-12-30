@@ -4,20 +4,20 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOptions, IPipelineFactory pipelineFactory)
+public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions, IPipelineFactory pipelineFactory)
     : IDeferredMessageProcessor
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
 
     private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private Guid _checkpointMessageId = Guid.Empty;
     private DateTimeOffset _ignoreTillDateTime = DateTimeOffset.MaxValue;
     private DateTimeOffset _nextProcessingDateTime = DateTimeOffset.MinValue;
 
     public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        if (_serviceBusOptions.Inbox.DeferredTransportUri == null)
+        if (_hopperOptions.Inbox.DeferredTransportUri == null)
         {
             return false;
         }
@@ -79,7 +79,7 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
                 return false;
             }
 
-            var nextProcessingDateTime = DateTimeOffset.UtcNow.Add(_serviceBusOptions.Inbox.DeferredMessageProcessorResetInterval);
+            var nextProcessingDateTime = DateTimeOffset.UtcNow.Add(_hopperOptions.Inbox.DeferredMessageProcessorResetInterval);
 
             await AdjustNextProcessingDateTimeAsync(_ignoreTillDateTime < nextProcessingDateTime
                 ? _ignoreTillDateTime
@@ -87,7 +87,7 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
 
             _ignoreTillDateTime = DateTimeOffset.MaxValue.ToUniversalTime();
 
-            await _serviceBusOptions.DeferredMessageProcessingHalted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
+            await _hopperOptions.DeferredMessageProcessingHalted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
 
             return true;
         }
@@ -118,6 +118,6 @@ public class DeferredMessageProcessor(IOptions<ServiceBusOptions> serviceBusOpti
     {
         _nextProcessingDateTime = dateTime;
 
-        await _serviceBusOptions.DeferredMessageProcessingAdjusted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
+        await _hopperOptions.DeferredMessageProcessingAdjusted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
     }
 }

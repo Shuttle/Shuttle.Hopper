@@ -7,7 +7,7 @@ public sealed class MessageRouteProvider : IMessageRouteProvider
 {
     private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
-    public MessageRouteProvider(IOptions<ServiceBusOptions> serviceBusOptions)
+    public MessageRouteProvider(IOptions<HopperOptions> serviceBusOptions)
     {
         var specificationFactory = new MessageRouteSpecificationFactory();
 

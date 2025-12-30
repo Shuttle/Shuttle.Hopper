@@ -9,7 +9,7 @@ public class DefaultIdentityProvider : IIdentityProvider
     private static IIdentity? _identity;
     private readonly bool _cache;
 
-    public DefaultIdentityProvider(IOptions<ServiceBusOptions> serviceBusOptions)
+    public DefaultIdentityProvider(IOptions<HopperOptions> serviceBusOptions)
     {
         _cache = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value).CacheIdentity;
 

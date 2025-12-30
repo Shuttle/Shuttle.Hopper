@@ -13,7 +13,7 @@ public class MessageRouteProviderFixture
         const string firstMessageType = "first-message-type";
         const string secondMessageType = "second-message-type";
 
-        var provider = new MessageRouteProvider(Options.Create(new ServiceBusOptions()));
+        var provider = new MessageRouteProvider(Options.Create(new HopperOptions()));
 
         Assert.That((await provider.GetRouteUrisAsync(firstMessageType)).Any(), Is.False);
 

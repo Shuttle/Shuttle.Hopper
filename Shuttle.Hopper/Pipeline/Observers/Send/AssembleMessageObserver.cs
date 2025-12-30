@@ -6,12 +6,12 @@ namespace Shuttle.Hopper;
 
 public interface IAssembleMessageObserver : IPipelineObserver<AssembleMessage>;
 
-public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IIdentityProvider identityProvider)
+public class AssembleMessageObserver(IOptions<HopperOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IIdentityProvider identityProvider)
     : IAssembleMessageObserver
 {
     private readonly IServiceBusConfiguration _serviceBusConfiguration = Guard.AgainstNull(serviceBusConfiguration);
     private readonly IIdentityProvider _identityProvider = Guard.AgainstNull(identityProvider);
-    private readonly ServiceBusOptions _serviceBusOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
 
     public Task ExecuteAsync(IPipelineContext<AssembleMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -30,8 +30,8 @@ public class AssembleMessageObserver(IOptions<ServiceBusOptions> serviceBusOptio
             PrincipalIdentityName = Guard.AgainstNull(Guard.AgainstNull(identity).Name),
             MessageType = Guard.AgainstEmpty(message.GetType().FullName),
             AssemblyQualifiedName = Guard.AgainstEmpty(message.GetType().AssemblyQualifiedName),
-            EncryptionAlgorithm = _serviceBusOptions.EncryptionAlgorithm,
-            CompressionAlgorithm = _serviceBusOptions.CompressionAlgorithm,
+            EncryptionAlgorithm = _hopperOptions.EncryptionAlgorithm,
+            CompressionAlgorithm = _hopperOptions.CompressionAlgorithm,
             SendDateTime = DateTimeOffset.UtcNow
         };
 

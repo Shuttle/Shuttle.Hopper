@@ -7,7 +7,7 @@ namespace Shuttle.Hopper;
 
 public interface IDeferTransportMessageObserver : IPipelineObserver<TransportMessageDeserialized>;
 
-public class DeferTransportMessageObserver(IOptions<ServiceBusOptions> serviceBusOptions, IDeferredMessageProcessor deferredMessageProcessor) : IDeferTransportMessageObserver
+public class DeferTransportMessageObserver(IOptions<HopperOptions> serviceBusOptions, IDeferredMessageProcessor deferredMessageProcessor) : IDeferTransportMessageObserver
 {
     private readonly IDeferredMessageProcessor _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor);
 

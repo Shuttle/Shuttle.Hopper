@@ -15,7 +15,7 @@ public class DeferTransportMessageObserverFixture
         var workTransport = new Mock<ITransport>();
         var deferredTransport = new Mock<ITransport>();
 
-        var observer = new DeferTransportMessageObserver(Options.Create(new ServiceBusOptions()), deferredMessageProcessor.Object);
+        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
@@ -55,7 +55,7 @@ public class DeferTransportMessageObserverFixture
         var deferredMessageProcessor = new Mock<IDeferredMessageProcessor>();
         var workTransport = new Mock<ITransport>();
 
-        var observer = new DeferTransportMessageObserver(Options.Create(new ServiceBusOptions()), deferredMessageProcessor.Object);
+        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);
@@ -93,7 +93,7 @@ public class DeferTransportMessageObserverFixture
         var workTransport = new Mock<ITransport>();
         var deferredTransport = new Mock<ITransport>();
 
-        var observer = new DeferTransportMessageObserver(Options.Create(new ServiceBusOptions()), deferredMessageProcessor.Object);
+        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
 
         var pipeline = new Pipeline(PipelineDependencies.Empty())
             .AddObserver(observer);

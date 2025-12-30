@@ -22,7 +22,7 @@ public class DispatchTransportMessagePipelineFixture
 
         services.AddSingleton(transportService.Object);
 
-        services.AddServiceBus();
+        services.AddHopperx();
 
         var serviceProvider = services.BuildServiceProvider();
 

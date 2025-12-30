@@ -11,7 +11,7 @@ public class ProcessDeferredMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_process_a_deferred_message_when_ready_async()
     {
-        var observer = new ProcessDeferredMessageObserver(Options.Create(new ServiceBusOptions()));
+        var observer = new ProcessDeferredMessageObserver(Options.Create(new HopperOptions()));
 
         var pipeline = new Pipeline(PipelineDependencies.Empty()).AddObserver(observer);
 

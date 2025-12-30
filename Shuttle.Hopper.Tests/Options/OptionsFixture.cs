@@ -4,13 +4,13 @@ namespace Shuttle.Hopper.Tests;
 
 public class OptionsFixture
 {
-    protected ServiceBusOptions GetOptions()
+    protected HopperOptions GetOptions()
     {
-        var result = new ServiceBusOptions();
+        var result = new HopperOptions();
 
         new ConfigurationBuilder()
             .AddJsonFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\Options\appsettings.json")).Build()
-            .GetSection(ServiceBusOptions.SectionName).Bind(result);
+            .GetSection(HopperOptions.SectionName).Bind(result);
 
         return result;
     }

@@ -12,7 +12,7 @@ public class DeserializeTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_acknowledge_message_when_corrupt_message_is_received_async()
     {
-        var serviceBusOptions = Options.Create(new ServiceBusOptions
+        var serviceBusOptions = Options.Create(new HopperOptions
         {
             RemoveCorruptMessages = true
         });
@@ -57,7 +57,7 @@ public class DeserializeTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_kill_process_when_corrupt_message_is_received_async()
     {
-        var serviceBusOptions = Options.Create(new ServiceBusOptions
+        var serviceBusOptions = Options.Create(new HopperOptions
         {
             RemoveCorruptMessages = false
         });

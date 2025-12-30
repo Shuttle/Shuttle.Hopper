@@ -40,7 +40,7 @@ public class MessageHandlerInvokerFixture
     {
         var services = new ServiceCollection();
 
-        var builder = new ServiceBusBuilder(services)
+        var builder = new HopperBuilder(services)
             .AddMessageHandler(async (IHandlerContext<WorkMessage> context) =>
             {
                 Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
@@ -70,7 +70,7 @@ public class MessageHandlerInvokerFixture
     {
         var services = new ServiceCollection();
 
-        var builder = new ServiceBusBuilder(services)
+        var builder = new HopperBuilder(services)
             .AddMessageHandler(async (WorkMessage message, CancellationToken cancellationToken) =>
             {
                 Console.WriteLine($@"[work-message] : guid = {message.Guid}");
