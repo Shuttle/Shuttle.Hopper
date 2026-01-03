@@ -11,7 +11,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
     public List<TransportHeader> Headers => _transportMessage.Headers;
     public bool ShouldReply { get; private set; }
 
-    public bool ShouldSendLocal { get; private set; }
+    public bool ShouldSendToSelf { get; private set; }
 
     public TransportMessageBuilder DeferUntil(DateTimeOffset ignoreUntil)
     {
@@ -29,7 +29,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     private void GuardRecipient()
     {
-        if (!HasRecipient && !ShouldSendLocal && !ShouldReply)
+        if (!HasRecipient && !ShouldSendToSelf && !ShouldReply)
         {
             return;
         }
@@ -41,7 +41,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
     {
         GuardRecipient();
 
-        ShouldSendLocal = true;
+        ShouldSendToSelf = true;
 
         return this;
     }
@@ -55,14 +55,14 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    public TransportMessageBuilder ExpireAt(DateTimeOffset expiresAt)
+    public TransportMessageBuilder ExpiresAt(DateTimeOffset expiresAt)
     {
         _transportMessage.ExpiresAt = expiresAt;
 
         return this;
     }
 
-    public TransportMessageBuilder ExpireIn(TimeSpan after)
+    public TransportMessageBuilder ExpiresIn(TimeSpan after)
     {
         _transportMessage.ExpiresAt = DateTimeOffset.UtcNow.Add(after);
 

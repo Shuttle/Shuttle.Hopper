@@ -46,7 +46,7 @@ public class AssembleMessageObserver(IOptions<HopperOptions> serviceBusOptions, 
 
         builder?.Invoke(transportMessageBuilder);
 
-        if (transportMessageBuilder.ShouldSendLocal)
+        if (transportMessageBuilder.ShouldSendToSelf)
         {
             if (!_serviceBusConfiguration.HasInbox())
             {
