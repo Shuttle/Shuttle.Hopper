@@ -32,7 +32,7 @@ public class AssembleMessageObserver(IOptions<HopperOptions> serviceBusOptions, 
             AssemblyQualifiedName = Guard.AgainstEmpty(message.GetType().AssemblyQualifiedName),
             EncryptionAlgorithm = _hopperOptions.EncryptionAlgorithm,
             CompressionAlgorithm = _hopperOptions.CompressionAlgorithm,
-            SendDateTime = DateTimeOffset.UtcNow
+            SentAt = DateTimeOffset.UtcNow
         };
 
         if (transportMessageReceived != null)
@@ -66,7 +66,7 @@ public class AssembleMessageObserver(IOptions<HopperOptions> serviceBusOptions, 
             transportMessage.RecipientInboxWorkTransportUri = transportMessageReceived.SenderInboxWorkTransportUri;
         }
 
-        if (transportMessage.IgnoreTillDateTime > DateTimeOffset.UtcNow &&
+        if (transportMessage.IgnoreUntil > DateTimeOffset.UtcNow &&
             _serviceBusConfiguration.HasInbox() &&
             Guard.AgainstNull(_serviceBusConfiguration.Inbox!.WorkTransport).Type == TransportType.Stream)
         {

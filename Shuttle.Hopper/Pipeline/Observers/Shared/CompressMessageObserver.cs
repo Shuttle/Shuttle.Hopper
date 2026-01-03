@@ -14,7 +14,7 @@ public class CompressMessageObserver(ICompressionService compressionService) : I
     {
         var transportMessage = Guard.AgainstNull(Guard.AgainstNull(pipelineContext).Pipeline.State.GetTransportMessage());
 
-        if (!transportMessage.CompressionEnabled())
+        if (!transportMessage.IsCompressionEnabled())
         {
             return;
         }

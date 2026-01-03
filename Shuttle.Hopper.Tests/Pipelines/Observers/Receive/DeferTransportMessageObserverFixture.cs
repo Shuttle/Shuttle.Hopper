@@ -64,7 +64,7 @@ public class DeferTransportMessageObserverFixture
             .AddStage(".")
             .WithEvent<TransportMessageDeserialized>();
 
-        var transportMessage = new TransportMessage { IgnoreTillDateTime = DateTimeOffset.UtcNow.AddDays(1) };
+        var transportMessage = new TransportMessage { IgnoreUntil = DateTimeOffset.UtcNow.AddDays(1) };
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());
 
         pipeline.State.SetTransportMessage(transportMessage);
@@ -102,7 +102,7 @@ public class DeferTransportMessageObserverFixture
             .AddStage(".")
             .WithEvent<TransportMessageDeserialized>();
 
-        var transportMessage = new TransportMessage { IgnoreTillDateTime = DateTimeOffset.Now.AddDays(1) };
+        var transportMessage = new TransportMessage { IgnoreUntil = DateTimeOffset.Now.AddDays(1) };
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());
 
         pipeline.State.SetTransportMessage(transportMessage);

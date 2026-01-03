@@ -17,77 +17,11 @@ public static class ServiceCollectionExtensions
 {
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddHopperx(Action<HopperBuilder>? builder = null)
-        {
-            var hopperBuilder = new HopperBuilder(services);
-
-            builder?.Invoke(hopperBuilder);
-
-            var optionsDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(HopperOptions));
-            
-            HopperOptions hopperOptions;
-            
-            if (optionsDescriptor != null)
-            {
-                hopperOptions = (HopperOptions)optionsDescriptor.ImplementationInstance!;
-            }
-            else
-            {
-                hopperOptions = hopperBuilder.Options;
-                services.AddSingleton(hopperOptions);
-            }
-
-            services.TryAddSingleton<IServiceBus, ServiceBus>();
-            services.TryAddSingleton<IMessageSender, MessageSender>();
-            services.TryAddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(hopperBuilder.GetMessageHandlerDelegates()));
-            services.TryAddSingleton<IDirectMessageHandlerDelegateRegistry>(_ => new DirectMessageHandlerDelegateRegistry(hopperBuilder.GetDirectMessageHandlerDelegates()));
-
-            services.AddThreading(threadingBuilder =>
-            {
-                threadingBuilder.ConfigureProcessorIdle("InboxProcessor", options => options.Durations = hopperBuilder.Options.Inbox.IdleDurations.Any()
-                    ? hopperBuilder.Options.Inbox.IdleDurations
-                    : HopperOptions.DefaultIdleDurations.ToList());
-
-                threadingBuilder.ConfigureProcessorIdle("OutboxProcessor", options => options.Durations = hopperBuilder.Options.Outbox.IdleDurations.Any()
-                    ? hopperBuilder.Options.Outbox.IdleDurations
-                    : HopperOptions.DefaultIdleDurations.ToList());
-            });
-
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, ServiceBusHostedService>());
-
-            services.AddPipelines(pipelineBuilder =>
-            {
-                pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
-                pipelineBuilder.Configure(options =>
-                {
-                    options.UseTransactionScope<InboxMessagePipeline>("Handle");
-                });
-            });
-
-            services.AddTransactionScope();
-
-            return services;
-        }
-
         public IServiceCollection AddHopper(Action<HopperBuilder>? builder = null)
         {
             var hopperBuilder = new HopperBuilder(Guard.AgainstNull(services));
 
             builder?.Invoke(hopperBuilder);
-
-            var optionsDescriptor = services.FirstOrDefault(d => d.ServiceType == typeof(HopperOptions));
-
-            HopperOptions hopperOptions;
-
-            if (optionsDescriptor != null)
-            {
-                hopperOptions = (HopperOptions)optionsDescriptor.ImplementationInstance!;
-            }
-            else
-            {
-                hopperOptions = hopperBuilder.Options;
-                services.AddSingleton(hopperOptions);
-            }
 
             services.TryAddSingleton<IEnvironmentService, EnvironmentService>();
             services.TryAddSingleton<IProcessService, ProcessService>();

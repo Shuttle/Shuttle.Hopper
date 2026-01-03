@@ -12,8 +12,8 @@ public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions,
     private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
     private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
     private Guid _checkpointMessageId = Guid.Empty;
-    private DateTimeOffset _ignoreTillDateTime = DateTimeOffset.MaxValue;
-    private DateTimeOffset _nextProcessingDateTime = DateTimeOffset.MinValue;
+    private DateTimeOffset _ignoreUntil = DateTimeOffset.MaxValue;
+    private DateTimeOffset _nextProcessingAt = DateTimeOffset.MinValue;
 
     public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
@@ -26,7 +26,7 @@ public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions,
 
         try
         {
-            if (DateTimeOffset.UtcNow < _nextProcessingDateTime)
+            if (DateTimeOffset.UtcNow < _nextProcessingAt)
             {
                 return false;
             }
@@ -54,9 +54,9 @@ public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions,
 
             if (pipeline.State.GetWorkPerformed() && transportMessage != null)
             {
-                if (transportMessage.IgnoreTillDateTime.ToUniversalTime() < _ignoreTillDateTime)
+                if (transportMessage.IgnoreUntil.ToUniversalTime() < _ignoreUntil)
                 {
-                    _ignoreTillDateTime = transportMessage.IgnoreTillDateTime.ToUniversalTime();
+                    _ignoreUntil = transportMessage.IgnoreUntil.ToUniversalTime();
                 }
 
                 if (!_checkpointMessageId.Equals(transportMessage.MessageId))
@@ -74,20 +74,20 @@ public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions,
 
             _checkpointMessageId = Guid.Empty;
 
-            if (_nextProcessingDateTime > DateTimeOffset.UtcNow)
+            if (_nextProcessingAt > DateTimeOffset.UtcNow)
             {
                 return false;
             }
 
             var nextProcessingDateTime = DateTimeOffset.UtcNow.Add(_hopperOptions.Inbox.DeferredMessageProcessorResetInterval);
 
-            await AdjustNextProcessingDateTimeAsync(_ignoreTillDateTime < nextProcessingDateTime
-                ? _ignoreTillDateTime
+            await AdjustNextProcessingDateTimeAsync(_ignoreUntil < nextProcessingDateTime
+                ? _ignoreUntil
                 : nextProcessingDateTime, cancellationToken);
 
-            _ignoreTillDateTime = DateTimeOffset.MaxValue.ToUniversalTime();
+            _ignoreUntil = DateTimeOffset.MaxValue.ToUniversalTime();
 
-            await _hopperOptions.DeferredMessageProcessingHalted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
+            await _hopperOptions.DeferredMessageProcessingHalted.InvokeAsync(new(_nextProcessingAt), cancellationToken);
 
             return true;
         }
@@ -97,15 +97,15 @@ public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions,
         }
     }
 
-    public async Task MessageDeferredAsync(DateTimeOffset ignoreTillDateTime, CancellationToken cancellationToken = default)
+    public async Task MessageDeferredAsync(DateTimeOffset ignoreUntil, CancellationToken cancellationToken = default)
     {
         await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
         try
         {
-            if (ignoreTillDateTime.ToUniversalTime() < _nextProcessingDateTime)
+            if (ignoreUntil.ToUniversalTime() < _nextProcessingAt)
             {
-                await AdjustNextProcessingDateTimeAsync(ignoreTillDateTime.ToUniversalTime(), cancellationToken);
+                await AdjustNextProcessingDateTimeAsync(ignoreUntil.ToUniversalTime(), cancellationToken);
             }
         }
         finally
@@ -114,10 +114,10 @@ public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions,
         }
     }
 
-    private async Task AdjustNextProcessingDateTimeAsync(DateTimeOffset dateTime, CancellationToken cancellationToken = default)
+    private async Task AdjustNextProcessingDateTimeAsync(DateTimeOffset nextProcessingAt, CancellationToken cancellationToken = default)
     {
-        _nextProcessingDateTime = dateTime;
+        _nextProcessingAt = nextProcessingAt;
 
-        await _hopperOptions.DeferredMessageProcessingAdjusted.InvokeAsync(new(_nextProcessingDateTime), cancellationToken);
+        await _hopperOptions.DeferredMessageProcessingAdjusted.InvokeAsync(new(_nextProcessingAt), cancellationToken);
     }
 }

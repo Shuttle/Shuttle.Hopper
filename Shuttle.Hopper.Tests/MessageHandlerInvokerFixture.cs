@@ -53,7 +53,7 @@ public class MessageHandlerInvokerFixture
                 Name = $"replied-{context.Message.Count}"
             }, builder =>
             {
-                builder.Reply();
+                builder.AsReply();
             }, cancellationToken);
         }
     }

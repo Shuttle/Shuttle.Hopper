@@ -24,7 +24,7 @@ public class ProcessDeferredMessageObserverFixture
 
         var transportMessage = new TransportMessage
         {
-            IgnoreTillDateTime = DateTimeOffset.Now.AddMilliseconds(200)
+            IgnoreUntil = DateTimeOffset.Now.AddMilliseconds(200)
         };
 
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());

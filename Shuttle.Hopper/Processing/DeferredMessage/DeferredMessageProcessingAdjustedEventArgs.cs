@@ -1,6 +1,6 @@
 namespace Shuttle.Hopper;
 
-public class DeferredMessageProcessingAdjustedEventArgs(DateTimeOffset nextProcessingDateTime) : EventArgs
+public class DeferredMessageProcessingAdjustedEventArgs(DateTimeOffset nextProcessingAt) 
 {
-    public DateTimeOffset NextProcessingDateTime { get; } = nextProcessingDateTime;
+    public DateTimeOffset NextProcessingAt { get; } = nextProcessingAt;
 }

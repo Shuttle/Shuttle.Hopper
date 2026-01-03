@@ -51,7 +51,7 @@ public class FakeTransport(HopperOptions hopperOptions, int messagesToReturn) : 
         var transportMessage = new TransportMessage
         {
             MessageType = command.GetType().Name,
-            ExpiryDateTime = expired ? DateTimeOffset.UtcNow.AddMilliseconds(-1) : DateTimeOffset.MaxValue,
+            ExpiresAt = expired ? DateTimeOffset.UtcNow.AddMilliseconds(-1) : DateTimeOffset.MaxValue,
             PrincipalIdentityName = "Identity",
             AssemblyQualifiedName = command.GetType().AssemblyQualifiedName!,
             Message = await (await _serializer.SerializeAsync(command, cancellationToken)).ToBytesAsync().ConfigureAwait(false)

@@ -35,7 +35,7 @@ public class DeferTransportMessageObserver(IOptions<HopperOptions> serviceBusOpt
             {
                 await deferredTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
 
-                await _deferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreTillDateTime, cancellation).ConfigureAwait(false);
+                await _deferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
             }
         }
 

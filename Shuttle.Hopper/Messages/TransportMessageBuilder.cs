@@ -13,16 +13,16 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     public bool ShouldSendLocal { get; private set; }
 
-    public TransportMessageBuilder Defer(DateTimeOffset ignoreTillDateTime)
+    public TransportMessageBuilder DeferUntil(DateTimeOffset ignoreUntil)
     {
-        _transportMessage.IgnoreTillDateTime = ignoreTillDateTime;
+        _transportMessage.IgnoreUntil = ignoreUntil;
 
         return this;
     }
 
-    public TransportMessageBuilder Defer(TimeSpan ignoreTimeSpan)
+    public TransportMessageBuilder DeferFor(TimeSpan delay)
     {
-        _transportMessage.IgnoreTillDateTime = DateTimeOffset.UtcNow.Add(ignoreTimeSpan);
+        _transportMessage.IgnoreUntil = DateTimeOffset.UtcNow.Add(delay);
 
         return this;
     }
@@ -37,7 +37,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         throw new InvalidOperationException(Resources.TransportMessageRecipientException);
     }
 
-    public TransportMessageBuilder Local()
+    public TransportMessageBuilder ToSelf()
     {
         GuardRecipient();
 
@@ -46,7 +46,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    public TransportMessageBuilder Reply()
+    public TransportMessageBuilder AsReply()
     {
         GuardRecipient();
 
@@ -55,23 +55,23 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    public TransportMessageBuilder WillExpire(DateTimeOffset expiryDateTime)
+    public TransportMessageBuilder ExpireAt(DateTimeOffset expiresAt)
     {
-        _transportMessage.ExpiryDateTime = expiryDateTime;
+        _transportMessage.ExpiresAt = expiresAt;
 
         return this;
     }
 
-    public TransportMessageBuilder WillExpire(TimeSpan expiryTimeSpan)
+    public TransportMessageBuilder ExpireIn(TimeSpan after)
     {
-        _transportMessage.ExpiryDateTime = DateTimeOffset.UtcNow.Add(expiryTimeSpan);
+        _transportMessage.ExpiresAt = DateTimeOffset.UtcNow.Add(after);
 
         return this;
     }
 
-    public TransportMessageBuilder WithCompression(string compression)
+    public TransportMessageBuilder WithCompression(string algorithm)
     {
-        _transportMessage.CompressionAlgorithm = compression;
+        _transportMessage.CompressionAlgorithm = algorithm;
 
         return this;
     }
@@ -83,9 +83,9 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    public TransportMessageBuilder WithEncryption(string encryption)
+    public TransportMessageBuilder WithEncryption(string algorithm)
     {
-        _transportMessage.EncryptionAlgorithm = encryption;
+        _transportMessage.EncryptionAlgorithm = algorithm;
 
         return this;
     }

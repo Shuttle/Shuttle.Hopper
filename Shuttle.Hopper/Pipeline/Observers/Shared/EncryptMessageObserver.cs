@@ -14,7 +14,7 @@ public class EncryptMessageObserver(IEncryptionService encryptionService) : IEnc
     {
         var transportMessage = Guard.AgainstNull(Guard.AgainstNull(pipelineContext).Pipeline.State.GetTransportMessage());
 
-        if (!transportMessage.EncryptionEnabled())
+        if (!transportMessage.IsEncryptionEnabled())
         {
             return;
         }

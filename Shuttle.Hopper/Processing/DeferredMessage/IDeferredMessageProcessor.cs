@@ -4,5 +4,5 @@ namespace Shuttle.Hopper;
 
 public interface IDeferredMessageProcessor : IProcessor
 {
-    Task MessageDeferredAsync(DateTimeOffset ignoreTillDateTime, CancellationToken cancellationToken = default);
+    Task MessageDeferredAsync(DateTimeOffset ignoreUntil, CancellationToken cancellationToken = default);
 }
