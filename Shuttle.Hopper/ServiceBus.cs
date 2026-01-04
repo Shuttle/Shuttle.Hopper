@@ -1,14 +1,14 @@
+using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender messageSender)
-    : IServiceBus
+public class ServiceBus(IServiceScopeFactory serviceScopeFactory) : IServiceBus
 {
-    private readonly IMessageSender _messageSender = Guard.AgainstNull(messageSender);
-    private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
+    private IMessageSender? _messageSender;
+    private IPipelineFactory? _pipelineFactory;
     private CancellationTokenSource _cancellationTokenSource = new();
 
     private IProcessorThreadPool? _controlInboxThreadPool;
@@ -17,6 +17,7 @@ public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender message
     private bool _disposed;
     private IProcessorThreadPool? _inboxThreadPool;
     private IProcessorThreadPool? _outboxThreadPool;
+    private IServiceScope? _serviceScope;
 
     public async Task<IServiceBus> StartAsync(CancellationToken cancellationToken = default)
     {
@@ -24,6 +25,11 @@ public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender message
         {
             throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
         }
+
+        _serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
+
+        _messageSender = _serviceScope.ServiceProvider.GetRequiredService<IMessageSender>();
+        _pipelineFactory = _serviceScope.ServiceProvider.GetRequiredService<IPipelineFactory>();
 
         _cancellationTokenSource = new();
 
@@ -65,7 +71,7 @@ public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender message
 
         try
         {
-            var shutdownPipeline = await _pipelineFactory.GetPipelineAsync<ShutdownPipeline>(CancellationToken.None);
+            var shutdownPipeline = await _pipelineFactory!.GetPipelineAsync<ShutdownPipeline>(CancellationToken.None);
 
             await shutdownPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
         }
@@ -78,6 +84,8 @@ public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender message
         Outbox = null;
 
         Started = false;
+        
+        _serviceScope?.Dispose();
     }
 
     public bool Started { get; private set; }
@@ -98,14 +106,14 @@ public class ServiceBus(IPipelineFactory pipelineFactory, IMessageSender message
     {
         StartedGuard();
 
-        return await _messageSender.SendAsync(message, null, builder, cancellationToken).ConfigureAwait(false);
+        return await _messageSender!.SendAsync(message, null, builder, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default)
     {
         StartedGuard();
 
-        return await _messageSender.PublishAsync(message, null, builder, cancellationToken);
+        return await _messageSender!.PublishAsync(message, null, builder, cancellationToken);
     }
 
     public void Dispose()
