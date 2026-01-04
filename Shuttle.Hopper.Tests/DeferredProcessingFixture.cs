@@ -12,7 +12,7 @@ public class DeferredProcessingFixture
         var messagesReturned = new List<TransportMessage>();
 
         var serviceProvider = new ServiceCollection()
-            .AddHopperx(builder =>
+            .AddHopper(builder =>
             {
                 builder.Options.Inbox = new()
                 {
@@ -41,9 +41,9 @@ public class DeferredProcessingFixture
 
         await using var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync();
 
-        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(1))));
-        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(2))));
-        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.Local().Defer(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(3))));
+        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(1))));
+        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(2))));
+        await serviceBus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(3))));
         
         var timeout = DateTimeOffset.UtcNow.AddMilliseconds(3500);
 

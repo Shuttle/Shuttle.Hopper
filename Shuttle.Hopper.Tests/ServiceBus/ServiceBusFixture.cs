@@ -31,7 +31,7 @@ public class ServiceBusFixture
         });
         services.AddSingleton(transportService.Object);
         services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
-        services.AddHopperx(builder =>
+        services.AddHopper(builder =>
         {
             builder.Options.Inbox = new()
             {

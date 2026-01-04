@@ -13,7 +13,7 @@ public class TransportMessagePipelineFixture
     {
         var services = new ServiceCollection();
 
-        services.AddHopperx();
+        services.AddHopper();
 
         var serviceProvider = services.BuildServiceProvider();
 
