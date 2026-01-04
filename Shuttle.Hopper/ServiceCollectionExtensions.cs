@@ -40,9 +40,9 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
             services.TryAddSingleton<IMemoryCache, MemoryCache>();
 
-            services.TryAddSingleton<IDeferredMessageProcessor, DeferredMessageProcessor>();
+            services.TryAddScoped<IDeferredMessageProcessor, DeferredMessageProcessor>();
 
-            services.TryAddKeyedSingleton<IProcessor>("DeferredMessageProcessor", (provider, _) => provider.GetRequiredService<IDeferredMessageProcessor>());
+            services.TryAddKeyedScoped<IProcessor>("DeferredMessageProcessor", (provider, _) => provider.GetRequiredService<IDeferredMessageProcessor>());
             services.TryAddKeyedScoped<IProcessor, InboxProcessor>("InboxProcessor");
             services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
 
@@ -68,15 +68,15 @@ public static class ServiceCollectionExtensions
                 });
             });
 
-                services.AddPipelines(pipelineBuilder =>
-                {
-                    pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
+            services.AddPipelines(pipelineBuilder =>
+            {
+                pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
 
-                    pipelineBuilder.Configure(options =>
-                    {
-                        options.UseTransactionScope<InboxMessagePipeline>("Handle");
-                    });
+                pipelineBuilder.Configure(options =>
+                {
+                    options.UseTransactionScope<InboxMessagePipeline>("Handle");
                 });
+            });
 
             services.AddTransactionScope();
 
@@ -102,8 +102,8 @@ public static class ServiceCollectionExtensions
                 options.Subscription = hopperBuilder.Options.Subscription;
             });
 
-            services.AddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(hopperBuilder.GetMessageHandlerDelegates()));
-            services.AddSingleton<IDirectMessageHandlerDelegateRegistry>(_ => new DirectMessageHandlerDelegateRegistry(hopperBuilder.GetDirectMessageHandlerDelegates()));
+            services.TryAddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(hopperBuilder.GetMessageHandlerDelegates()));
+            services.TryAddSingleton<IDirectMessageHandlerDelegateRegistry>(_ => new DirectMessageHandlerDelegateRegistry(hopperBuilder.GetDirectMessageHandlerDelegates()));
 
             if (hopperBuilder.Options.AddMessageHandlers)
             {
@@ -117,10 +117,10 @@ public static class ServiceCollectionExtensions
                 hopperBuilder.AddMessageHandlers(typeof(ServiceBus).Assembly);
             }
 
-            services.AddSingleton<IMessageSender, MessageSender>();
-            services.AddSingleton<IServiceBus, ServiceBus>();
+            services.TryAddScoped<IMessageSender, MessageSender>();
+            services.TryAddSingleton<IServiceBus, ServiceBus>();
 
-                services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, ServiceBusHostedService>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, ServiceBusHostedService>());
 
             return services;
         }
