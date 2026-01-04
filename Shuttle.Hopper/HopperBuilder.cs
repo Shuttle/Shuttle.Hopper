@@ -3,6 +3,7 @@ using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Shuttle.Hopper;
 
@@ -156,7 +157,7 @@ public class HopperBuilder(IServiceCollection services)
                 throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
             }
 
-            Services.Add(serviceDescriptor);
+            Services.TryAdd(serviceDescriptor);
         }
 
         foreach (var type in assembly.GetTypesCastableToAsync(DirectMessageHandlerType).GetAwaiter().GetResult())
@@ -170,7 +171,7 @@ public class HopperBuilder(IServiceCollection services)
                 throw new InvalidOperationException(string.Format(Resources.MessageHandlerAlreadyRegisteredException, type.FullName));
             }
 
-            Services.Add(serviceDescriptor);
+            Services.TryAdd(serviceDescriptor);
         }
 
         return this;
