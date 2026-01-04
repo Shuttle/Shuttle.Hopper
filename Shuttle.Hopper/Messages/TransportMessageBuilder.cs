@@ -27,7 +27,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    private void GuardRecipient()
+    private void GuardAgainstMultipleRecipients()
     {
         if (!HasRecipient && !ShouldSendToSelf && !ShouldReply)
         {
@@ -39,7 +39,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     public TransportMessageBuilder ToSelf()
     {
-        GuardRecipient();
+        GuardAgainstMultipleRecipients();
 
         ShouldSendToSelf = true;
 
@@ -48,7 +48,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     public TransportMessageBuilder AsReply()
     {
-        GuardRecipient();
+        GuardAgainstMultipleRecipients();
 
         ShouldReply = true;
 
@@ -109,9 +109,9 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     public TransportMessageBuilder WithRecipient(string uri)
     {
-        GuardRecipient();
-
-        _transportMessage.RecipientInboxWorkTransportUri = uri;
+        GuardAgainstMultipleRecipients();
+        
+        _transportMessage.RecipientInboxWorkTransportUri = Guard.AgainstEmpty(uri);
 
         return this;
     }
