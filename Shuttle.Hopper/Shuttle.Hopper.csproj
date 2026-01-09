@@ -16,17 +16,17 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
-    <PackageReference Include="Shuttle.Core.Compression" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Contract" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Encryption" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Pipelines" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Reflection" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Serialization" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Specification" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Streams" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.System" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.Threading" Version="21.0.0" />
-    <PackageReference Include="Shuttle.Core.TransactionScope" Version="21.0.0" />
+    <PackageReference Include="Shuttle.Core.Compression" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Contract" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Encryption" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Pipelines" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Reflection" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Serialization" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Specification" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Streams" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.System" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="21.0.0-alpha" />
+    <PackageReference Include="Shuttle.Core.TransactionScope" Version="21.0.0-alpha" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +46,7 @@
 
   <PropertyGroup>
     <Description>Hopper is a flexible enterprise service bus which works with Azure Storage Queues, Amazon SQS, RabbitMQ, Kafka, and Event Hubs through a provider plugin API.</Description>
-    <Version>21.0.0</Version>
+    <Version>21.0.0-alpha</Version>
     <PackageProjectUrl>https://github.com/shuttle/Shuttle.Hopper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/shuttle/Shuttle.Hopper.git</RepositoryUrl>
     <PackageTags>shuttle</PackageTags>
