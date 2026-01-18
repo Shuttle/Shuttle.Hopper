@@ -93,7 +93,7 @@ public class DeserializeTransportMessageObserverFixture
 
         await pipeline.ExecuteAsync(CancellationToken.None);
 
-        serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        serializer.Verify(m => m.DeserializeAsync(It.IsAny<Type>(), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
 
         process.Verify(m => m.Kill(), Times.Once);
 
