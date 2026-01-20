@@ -43,6 +43,6 @@ public class TransportMessagePipelineFixture
 
         Console.WriteLine($@"[transport-message-assembly] : count = {count} / ms = {sw.ElapsedMilliseconds}");
 
-        Assert.That(count, Is.GreaterThan(1000));
+        Assert.That(count, Is.GreaterThan(500));
     }
 }

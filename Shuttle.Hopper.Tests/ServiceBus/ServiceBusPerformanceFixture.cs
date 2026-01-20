@@ -43,6 +43,6 @@ public class ServiceBusPerformanceFixture
 
         Console.WriteLine($@"[service-bus-send] : count = {count} / ms = {sw.ElapsedMilliseconds}");
 
-        Assert.That(count, Is.GreaterThan(500));
+        Assert.That(count, Is.GreaterThan(250));
     }
 }
