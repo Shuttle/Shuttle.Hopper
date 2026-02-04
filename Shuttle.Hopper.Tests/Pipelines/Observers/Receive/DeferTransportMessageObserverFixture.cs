@@ -17,7 +17,7 @@ public class DeferTransportMessageObserverFixture
 
         var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -57,7 +57,7 @@ public class DeferTransportMessageObserverFixture
 
         var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -95,7 +95,7 @@ public class DeferTransportMessageObserverFixture
 
         var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

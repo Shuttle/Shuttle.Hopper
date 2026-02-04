@@ -33,7 +33,7 @@ public class DeserializeTransportMessageObserverFixture
             new Mock<IEnvironmentService>().Object,
             processService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -77,7 +77,7 @@ public class DeserializeTransportMessageObserverFixture
             new Mock<IEnvironmentService>().Object,
             processService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

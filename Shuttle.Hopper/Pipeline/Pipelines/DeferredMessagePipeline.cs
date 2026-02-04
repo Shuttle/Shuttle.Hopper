@@ -1,12 +1,14 @@
-﻿using Shuttle.Core.Contract;
+﻿using Microsoft.Extensions.Options;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
 public class DeferredMessagePipeline : Pipeline
 {
-    public DeferredMessagePipeline(IPipelineDependencies pipelineDependencies, IServiceBusConfiguration serviceBusConfiguration, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
-        : base(pipelineDependencies)
+    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IServiceBusConfiguration serviceBusConfiguration, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
+        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
         Guard.AgainstNull(serviceBusConfiguration);
         Guard.AgainstNull(serviceBusConfiguration.Inbox);

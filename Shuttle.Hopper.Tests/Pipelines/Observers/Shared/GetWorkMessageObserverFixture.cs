@@ -12,7 +12,7 @@ public class GetWorkMessageObserverFixture
     {
         var observer = new ReceiveWorkMessageObserver();
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -31,7 +31,7 @@ public class GetWorkMessageObserverFixture
         var workTransport = new Mock<ITransport>();
         var observer = new ReceiveWorkMessageObserver();
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -58,7 +58,7 @@ public class GetWorkMessageObserverFixture
         var workTransport = new Mock<ITransport>();
         var observer = new ReceiveWorkMessageObserver();
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

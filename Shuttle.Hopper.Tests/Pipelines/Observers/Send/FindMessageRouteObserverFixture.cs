@@ -14,7 +14,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -38,7 +38,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -70,7 +70,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -102,7 +102,7 @@ public class FindMessageRouteObserverFixture
 
         var observer = new FindMessageRouteObserver(messageRouteProvider.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

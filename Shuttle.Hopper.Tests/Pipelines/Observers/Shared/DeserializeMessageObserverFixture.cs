@@ -16,7 +16,7 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(Options.Create(new HopperOptions()), serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -38,7 +38,7 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(Options.Create(new HopperOptions()), serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -77,7 +77,7 @@ public class DeserializeMessageObserverFixture
 
         var observer = new DeserializeMessageObserver(Options.Create(serviceBusOptions), serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

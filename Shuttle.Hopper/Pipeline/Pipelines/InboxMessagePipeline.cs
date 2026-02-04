@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
 public class InboxMessagePipeline : Pipeline
 {
-    public InboxMessagePipeline(IPipelineDependencies pipelineDependencies, IOptions<HopperOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceivePipelineFailedObserver receivePipelineFailedObserver)
-        : base(pipelineDependencies)
+    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceivePipelineFailedObserver receivePipelineFailedObserver)
+        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
         AddStage("Read")
             .WithEvent<ReceiveMessage>()
@@ -19,7 +20,8 @@ public class InboxMessagePipeline : Pipeline
             .WithEvent<DecryptMessage>()
             .WithEvent<MessageDecrypted>()
             .WithEvent<DeserializeMessage>()
-            .WithEvent<MessageDeserialized>();
+            .WithEvent<MessageDeserialized>()
+            .WithTransactionScope();
 
         AddStage("Handle")
             .WithEvent<HandleMessage>()
@@ -27,7 +29,8 @@ public class InboxMessagePipeline : Pipeline
             .WithEvent<CompleteTransactionScope>()
             .WithEvent<DisposeTransactionScope>()
             .WithEvent<AcknowledgeMessage>()
-            .WithEvent<MessageAcknowledged>();
+            .WithEvent<MessageAcknowledged>()
+            .WithTransactionScope();
 
         AddObserver(Guard.AgainstNull(receiveWorkMessageObserver));
         AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));

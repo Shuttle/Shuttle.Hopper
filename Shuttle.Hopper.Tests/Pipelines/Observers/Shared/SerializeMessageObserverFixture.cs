@@ -15,7 +15,7 @@ public class SerializeMessageObserverFixture
 
         var observer = new SerializeMessageObserver(serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

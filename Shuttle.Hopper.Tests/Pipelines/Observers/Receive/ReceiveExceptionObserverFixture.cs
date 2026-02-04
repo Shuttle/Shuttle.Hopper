@@ -31,7 +31,7 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
         var observer = new ReceivePipelineFailedObserver(policy.Object,
             new Mock<ISerializer>().Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(this)
             .AddObserver(observer);
 

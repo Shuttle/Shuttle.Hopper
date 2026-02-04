@@ -15,7 +15,7 @@ public class CompressMessageObserverFixture
 
         var observer = new CompressMessageObserver(compressionService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -37,7 +37,7 @@ public class CompressMessageObserverFixture
 
         var observer = new CompressMessageObserver(compressionService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

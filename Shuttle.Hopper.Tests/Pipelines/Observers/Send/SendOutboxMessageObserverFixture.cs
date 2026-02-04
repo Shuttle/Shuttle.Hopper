@@ -14,7 +14,7 @@ public class SendOutboxMessageObserverFixture
 
         var observer = new SendOutboxMessageObserver(transportService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -51,7 +51,7 @@ public class SendOutboxMessageObserverFixture
 
         var observer = new SendOutboxMessageObserver(transportService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

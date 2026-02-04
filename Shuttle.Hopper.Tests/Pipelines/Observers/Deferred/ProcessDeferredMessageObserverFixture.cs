@@ -13,7 +13,7 @@ public class ProcessDeferredMessageObserverFixture
     {
         var observer = new ProcessDeferredMessageObserver(Options.Create(new HopperOptions()));
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty()).AddObserver(observer);
+        var pipeline = Pipeline.Get().AddObserver(observer);
 
         pipeline
             .AddStage(".")

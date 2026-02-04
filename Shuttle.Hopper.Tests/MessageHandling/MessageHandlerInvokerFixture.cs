@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
@@ -27,7 +26,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<HandleMessage>(new Pipeline(PipelineDependencies.Empty()));
+        var pipelineContext = new PipelineContext<HandleMessage>(Pipeline.Get());
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
@@ -57,7 +56,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<HandleMessage>(new Pipeline(PipelineDependencies.Empty()));
+        var pipelineContext = new PipelineContext<HandleMessage>(Pipeline.Get());
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);
@@ -87,7 +86,7 @@ public class MessageHandlerInvokerFixture
             Message = await Stream.Null.ToBytesAsync()
         };
 
-        var pipelineContext = new PipelineContext<HandleMessage>(new Pipeline(PipelineDependencies.Empty()));
+        var pipelineContext = new PipelineContext<HandleMessage>(Pipeline.Get());
 
         pipelineContext.Pipeline.State.Add(StateKeys.Message, new WorkMessage());
         pipelineContext.Pipeline.State.Add(StateKeys.TransportMessage, transportMessage);

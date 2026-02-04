@@ -13,7 +13,7 @@ public class ReceiveDeferredMessageObserverFixture
     {
         var observer = new ReceiveDeferredMessageObserver();
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty()).AddObserver(observer);
+        var pipeline = Pipeline.Get().AddObserver(observer);
 
         pipeline
             .AddStage(".")

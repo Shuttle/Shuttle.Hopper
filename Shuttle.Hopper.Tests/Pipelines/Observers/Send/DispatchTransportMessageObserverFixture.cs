@@ -27,7 +27,7 @@ public class DispatchTransportMessageObserverFixture
 
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, transportService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -65,7 +65,7 @@ public class DispatchTransportMessageObserverFixture
 
         var observer = new DispatchTransportMessageObserver(serviceBusConfiguration.Object, transportService.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

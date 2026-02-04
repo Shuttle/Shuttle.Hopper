@@ -12,7 +12,7 @@ public class AcknowledgeMessageObserverFixture
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(new HandleExceptionObserver())
             .AddObserver(observer);
@@ -36,7 +36,7 @@ public class AcknowledgeMessageObserverFixture
     {
         var observer = new AcknowledgeMessageObserver();
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

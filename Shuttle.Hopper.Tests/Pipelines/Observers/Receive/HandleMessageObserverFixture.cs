@@ -17,7 +17,7 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(new HopperOptions()), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -40,7 +40,7 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(new HopperOptions()), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -96,7 +96,7 @@ public class HandleMessageObserverFixture
 
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/name"));
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -158,7 +158,7 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline
@@ -213,7 +213,7 @@ public class HandleMessageObserverFixture
 
         var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(observer);
 
         pipeline

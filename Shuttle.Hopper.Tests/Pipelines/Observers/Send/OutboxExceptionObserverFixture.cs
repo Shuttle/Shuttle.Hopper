@@ -18,7 +18,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(new HandleExceptionObserver()) // marks exception as handled
             .AddObserver(observer);
@@ -50,7 +50,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -81,7 +81,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -117,7 +117,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -158,7 +158,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -205,7 +205,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 
@@ -250,7 +250,7 @@ public class OutboxExceptionObserverFixture
 
         var observer = new OutboxExceptionObserver(serviceBusPolicy.Object, serializer.Object);
 
-        var pipeline = new Pipeline(PipelineDependencies.Empty())
+        var pipeline = Pipeline.Get()
             .AddObserver(new ThrowExceptionObserver())
             .AddObserver(observer);
 

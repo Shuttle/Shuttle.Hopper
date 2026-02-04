@@ -1,13 +1,14 @@
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
+using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
 public class StartupPipeline : Pipeline
 {
-    public StartupPipeline(IPipelineDependencies pipelineDependencies, IStartupProcessingObserver startupProcessingObserver)
-        : base(pipelineDependencies)
+    public StartupPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IStartupProcessingObserver startupProcessingObserver)
+        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
         AddStage("Start")
             .WithEvent<Starting>()
