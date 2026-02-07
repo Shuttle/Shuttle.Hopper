@@ -4,7 +4,7 @@ Typically this package would only be directly referenced when implementing any o
 
 Please visit the [Shuttle.Hopper documentation](https://www.pendel.co.za/shuttle-hopper/home.html) for more information.
 
-# Installation
+## Installation
 
 ```bash
 dotnet add package Shuttle.Hopper
