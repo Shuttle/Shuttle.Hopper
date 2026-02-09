@@ -7,11 +7,11 @@ public sealed class MessageRouteProvider : IMessageRouteProvider
 {
     private readonly IMessageRouteCollection _messageRoutes = new MessageRouteCollection();
 
-    public MessageRouteProvider(IOptions<HopperOptions> serviceBusOptions)
+    public MessageRouteProvider(IOptions<HopperOptions> hopperOptions)
     {
         var specificationFactory = new MessageRouteSpecificationFactory();
 
-        foreach (var messageRouteOptions in Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value).MessageRoutes)
+        foreach (var messageRouteOptions in Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value).MessageRoutes)
         {
             var messageRoute = _messageRoutes.FindByUri(messageRouteOptions.Uri);
 

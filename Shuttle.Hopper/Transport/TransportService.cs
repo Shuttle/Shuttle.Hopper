@@ -4,11 +4,11 @@ using Shuttle.Core.Reflection;
 
 namespace Shuttle.Hopper;
 
-public class TransportService(IOptions<HopperOptions> serviceBusOptions, ITransportFactoryService transportFactoryService, IUriResolver uriResolver)
+public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportFactoryService transportFactoryService, IUriResolver uriResolver)
     : ITransportService
 {
     private static readonly SemaphoreSlim Lock = new(1, 1);
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
     private readonly ITransportFactoryService _transportFactoryService = Guard.AgainstNull(transportFactoryService);
 
     private readonly List<ITransport> _transports = [];

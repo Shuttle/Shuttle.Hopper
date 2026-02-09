@@ -7,15 +7,15 @@ namespace Shuttle.Hopper;
 
 public class DeferredMessagePipeline : Pipeline
 {
-    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IServiceBusConfiguration serviceBusConfiguration, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
+    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IBusConfiguration busConfiguration, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
-        Guard.AgainstNull(serviceBusConfiguration);
-        Guard.AgainstNull(serviceBusConfiguration.Inbox);
+        Guard.AgainstNull(busConfiguration);
+        Guard.AgainstNull(busConfiguration.Inbox);
 
-        State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox!.WorkTransport));
-        State.SetErrorTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox.ErrorTransport));
-        State.SetDeferredTransport(Guard.AgainstNull(serviceBusConfiguration.Inbox.DeferredTransport));
+        State.SetWorkTransport(Guard.AgainstNull(busConfiguration.Inbox!.WorkTransport));
+        State.SetErrorTransport(Guard.AgainstNull(busConfiguration.Inbox.ErrorTransport));
+        State.SetDeferredTransport(Guard.AgainstNull(busConfiguration.Inbox.DeferredTransport));
 
         AddStage("Process")
             .WithEvent<ReceiveMessage>()

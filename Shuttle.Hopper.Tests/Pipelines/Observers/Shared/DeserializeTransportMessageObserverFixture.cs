@@ -12,7 +12,7 @@ public class DeserializeTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_acknowledge_message_when_corrupt_message_is_received_async()
     {
-        var serviceBusOptions = Options.Create(new HopperOptions
+        var hopperOptions = Options.Create(new HopperOptions
         {
             RemoveCorruptMessages = true
         });
@@ -28,7 +28,7 @@ public class DeserializeTransportMessageObserverFixture
         processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
         var observer = new DeserializeTransportMessageObserver(
-            serviceBusOptions,
+            hopperOptions,
             serializer.Object,
             new Mock<IEnvironmentService>().Object,
             processService.Object);
@@ -57,7 +57,7 @@ public class DeserializeTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_kill_process_when_corrupt_message_is_received_async()
     {
-        var serviceBusOptions = Options.Create(new HopperOptions
+        var busOptions = Options.Create(new HopperOptions
         {
             RemoveCorruptMessages = false
         });
@@ -72,7 +72,7 @@ public class DeserializeTransportMessageObserverFixture
         processService.Setup(m => m.GetCurrentProcess()).Returns(process.Object);
 
         var observer = new DeserializeTransportMessageObserver(
-            serviceBusOptions,
+            busOptions,
             serializer.Object,
             new Mock<IEnvironmentService>().Object,
             processService.Object);

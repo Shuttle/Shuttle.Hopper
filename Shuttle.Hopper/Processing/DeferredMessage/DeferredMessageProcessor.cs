@@ -4,13 +4,13 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class DeferredMessageProcessor(IOptions<HopperOptions> serviceBusOptions, IPipelineFactory pipelineFactory)
+public class DeferredMessageProcessor(IOptions<HopperOptions> hopperOptions, IPipelineFactory pipelineFactory)
     : IDeferredMessageProcessor
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
 
     private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
     private Guid _checkpointMessageId = Guid.Empty;
     private DateTimeOffset _ignoreUntil = DateTimeOffset.MaxValue;
     private DateTimeOffset _nextProcessingAt = DateTimeOffset.MinValue;

@@ -3,7 +3,7 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class DefaultServiceBusPolicy : IServiceBusPolicy
+public class DefaultBusPolicy : IBusPolicy
 {
     public MessageFailureAction EvaluateMessageHandlingFailure(IPipelineContext<PipelineFailed> pipelineContext)
     {

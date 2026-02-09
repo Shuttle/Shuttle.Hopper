@@ -7,9 +7,9 @@ namespace Shuttle.Hopper;
 
 public interface IOutboxExceptionObserver : IPipelineObserver<PipelineFailed>;
 
-public class OutboxExceptionObserver(IServiceBusPolicy policy, ISerializer serializer) : IOutboxExceptionObserver
+public class OutboxExceptionObserver(IBusPolicy policy, ISerializer serializer) : IOutboxExceptionObserver
 {
-    private readonly IServiceBusPolicy _policy = Guard.AgainstNull(policy);
+    private readonly IBusPolicy _policy = Guard.AgainstNull(policy);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
 
     public async Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)

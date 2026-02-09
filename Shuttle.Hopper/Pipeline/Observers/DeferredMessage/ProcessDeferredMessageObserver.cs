@@ -6,7 +6,7 @@ namespace Shuttle.Hopper;
 
 public interface IProcessDeferredMessageObserver : IPipelineObserver<ProcessDeferredMessage>;
 
-public class ProcessDeferredMessageObserver(IOptions<HopperOptions> serviceBusOptions) : IProcessDeferredMessageObserver
+public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOptions) : IProcessDeferredMessageObserver
 {
     public async Task ExecuteAsync(IPipelineContext<ProcessDeferredMessage> pipelineContext, CancellationToken cancellation = default)
     {
@@ -30,6 +30,6 @@ public class ProcessDeferredMessageObserver(IOptions<HopperOptions> serviceBusOp
 
         state.SetDeferredMessageReturned(true);
 
-        await serviceBusOptions.Value.MessageReturned.InvokeAsync(new(transportMessage, receivedMessage), cancellation);
+        await hopperOptions.Value.MessageReturned.InvokeAsync(new(transportMessage, receivedMessage), cancellation);
     }
 }

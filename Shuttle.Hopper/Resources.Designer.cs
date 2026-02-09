@@ -79,6 +79,24 @@ namespace Shuttle.Hopper {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The bus instance has already been started..
+        /// </summary>
+        public static string BusInstanceAlreadyStarted {
+            get {
+                return ResourceManager.GetString("BusInstanceAlreadyStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The bus instance has not yet been started..
+        /// </summary>
+        public static string BusInstanceNotStarted {
+            get {
+                return ResourceManager.GetString("BusInstanceNotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not resolve source uri &apos;{0}&apos;..
         /// </summary>
         public static string CouldNotResolveSourceUriException {
@@ -300,42 +318,6 @@ namespace Shuttle.Hopper {
         public static string SendToSelfException {
             get {
                 return ResourceManager.GetString("SendToSelfException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The service bus instance has already been started..
-        /// </summary>
-        public static string ServiceBusInstanceAlreadyStarted {
-            get {
-                return ResourceManager.GetString("ServiceBusInstanceAlreadyStarted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The service bus instance has not yet been started..
-        /// </summary>
-        public static string ServiceBusInstanceNotStarted {
-            get {
-                return ResourceManager.GetString("ServiceBusInstanceNotStarted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The service bus options asynchronous value is &apos;true&apos;.  Cannot start the service bus synchronously.  Please call the `StartAsync()` method..
-        /// </summary>
-        public static string ServiceBusStartAsynchronousException {
-            get {
-                return ResourceManager.GetString("ServiceBusStartAsynchronousException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The service bus options asynchronous value is &apos;false&apos;.  Cannot start the service bus asynchronously.  Please call the `Start()` method..
-        /// </summary>
-        public static string ServiceBusStartSynchronousException {
-            get {
-                return ResourceManager.GetString("ServiceBusStartSynchronousException", resourceCulture);
             }
         }
         

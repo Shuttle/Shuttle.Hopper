@@ -8,9 +8,9 @@ namespace Shuttle.Hopper;
 
 public interface IReceivePipelineFailedObserver : IPipelineObserver<PipelineFailed>;
 
-public class ReceivePipelineFailedObserver(IServiceBusPolicy policy, ISerializer serializer) : IReceivePipelineFailedObserver
+public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serializer) : IReceivePipelineFailedObserver
 {
-    private readonly IServiceBusPolicy _policy = Guard.AgainstNull(policy);
+    private readonly IBusPolicy _policy = Guard.AgainstNull(policy);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
 
     public async Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)

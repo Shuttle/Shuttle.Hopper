@@ -66,16 +66,16 @@ public class DeserializeMessageObserverFixture
         var errorTransport = new Mock<ITransport>();
         var messageDeserializationExceptionCount = 0;
 
-        var serviceBusOptions = new HopperOptions();
+        var hopperOptions = new HopperOptions();
 
-        serviceBusOptions.MessageDeserializationException += async (_, _) =>
+        hopperOptions.MessageDeserializationException += async (_, _) =>
         {
             messageDeserializationExceptionCount++;
 
             await Task.CompletedTask;
         };
 
-        var observer = new DeserializeMessageObserver(Options.Create(serviceBusOptions), serializer.Object);
+        var observer = new DeserializeMessageObserver(Options.Create(hopperOptions), serializer.Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(observer);

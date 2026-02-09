@@ -75,16 +75,16 @@ public class HandleMessageObserverFixture
         var messageNotHandledCount = 0;
         var handlerExceptionCount = 0;
 
-        var serviceBusOptions = new HopperOptions();
+        var hopperOptions = new HopperOptions();
 
-        serviceBusOptions.MessageNotHandled += async (_, _) =>
+        hopperOptions.MessageNotHandled += async (_, _) =>
         {
             messageNotHandledCount++;
 
             await Task.CompletedTask;
         };
 
-        serviceBusOptions.HandlerException += async (_, _) =>
+        hopperOptions.HandlerException += async (_, _) =>
         {
             handlerExceptionCount++;
 
@@ -92,7 +92,7 @@ public class HandleMessageObserverFixture
         };
 
 
-        var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(hopperOptions), messageHandlerInvoker.Object, serializer.Object);
 
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/name"));
 
@@ -137,26 +137,26 @@ public class HandleMessageObserverFixture
         var messageNotHandledCount = 0;
         var handlerExceptionCount = 0;
 
-        var serviceBusOptions = new HopperOptions
+        var hopperOptions = new HopperOptions
         {
             RemoveMessagesNotHandled = true
         };
 
-        serviceBusOptions.MessageNotHandled += async (_, _) =>
+        hopperOptions.MessageNotHandled += async (_, _) =>
         {
             messageNotHandledCount++;
 
             await Task.CompletedTask;
         };
 
-        serviceBusOptions.HandlerException += async (_, _) =>
+        hopperOptions.HandlerException += async (_, _) =>
         {
             handlerExceptionCount++;
 
             await Task.CompletedTask;
         };
 
-        var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(hopperOptions), messageHandlerInvoker.Object, serializer.Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(observer);
@@ -195,23 +195,23 @@ public class HandleMessageObserverFixture
         var messageNotHandledCount = 0;
         var handlerExceptionCount = 0;
 
-        var serviceBusOptions = new HopperOptions();
+        var hopperOptions = new HopperOptions();
 
-        serviceBusOptions.MessageNotHandled += async (_, _) =>
+        hopperOptions.MessageNotHandled += async (_, _) =>
         {
             messageNotHandledCount++;
 
             await Task.CompletedTask;
         };
 
-        serviceBusOptions.HandlerException += async (_, _) =>
+        hopperOptions.HandlerException += async (_, _) =>
         {
             handlerExceptionCount++;
 
             await Task.CompletedTask;
         };
 
-        var observer = new HandleMessageObserver(Options.Create(serviceBusOptions), messageHandlerInvoker.Object, serializer.Object);
+        var observer = new HandleMessageObserver(Options.Create(hopperOptions), messageHandlerInvoker.Object, serializer.Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(observer);

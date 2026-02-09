@@ -3,7 +3,7 @@ using NUnit.Framework;
 namespace Shuttle.Hopper.Tests;
 
 [TestFixture]
-public class ServiceBusOptionsFixture : OptionsFixture
+public class HopperOptionsFixture : OptionsFixture
 {
     [Test]
     public void Should_be_able_to_load_shared_configuration()

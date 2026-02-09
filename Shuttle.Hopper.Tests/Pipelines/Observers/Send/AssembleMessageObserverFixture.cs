@@ -11,8 +11,8 @@ public class AssembleMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_assembly_transport_message_using_received_transport_message_async()
     {
-        var serviceBusConfiguration = new Mock<IServiceBusConfiguration>();
-        var observer = new AssembleMessageObserver(Options.Create(new HopperOptions()), serviceBusConfiguration.Object, new DefaultIdentityProvider(Options.Create(new HopperOptions())));
+        var busConfiguration = new Mock<IBusConfiguration>();
+        var observer = new AssembleMessageObserver(Options.Create(new HopperOptions()), busConfiguration.Object, new DefaultIdentityProvider(Options.Create(new HopperOptions())));
 
         var pipeline = Pipeline.Get();
         var state = pipeline.State;

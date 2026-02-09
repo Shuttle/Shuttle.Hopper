@@ -9,7 +9,7 @@ namespace Shuttle.Hopper;
 
 public interface IDeserializeTransportMessageObserver : IPipelineObserver<DeserializeTransportMessage>;
 
-public class DeserializeTransportMessageObserver(IOptions<HopperOptions> serviceBusOptions, ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
+public class DeserializeTransportMessageObserver(IOptions<HopperOptions> hopperOptions, ISerializer serializer, IEnvironmentService environmentService, IProcessService processService)
     : IDeserializeTransportMessageObserver
 {
     private class TransportMessageObsolete
@@ -37,7 +37,7 @@ public class DeserializeTransportMessageObserver(IOptions<HopperOptions> service
     private readonly IEnvironmentService _environmentService = Guard.AgainstNull(environmentService);
     private readonly IProcessService _processService = Guard.AgainstNull(processService);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<DeserializeTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
     {

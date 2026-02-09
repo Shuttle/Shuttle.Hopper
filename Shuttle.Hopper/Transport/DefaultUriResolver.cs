@@ -7,9 +7,9 @@ public class UriResolver : IUriResolver
 {
     private readonly Dictionary<string, Uri> _targetUris = new();
 
-    public UriResolver(IOptions<HopperOptions> serviceBusOptions)
+    public UriResolver(IOptions<HopperOptions> hopperOptions)
     {
-        foreach (var configuration in Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value).UriMappings)
+        foreach (var configuration in Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value).UriMappings)
         {
             Add(configuration.SourceUri, configuration.TargetUri);
         }

@@ -7,7 +7,7 @@ using Shuttle.Core.TransactionScope;
 namespace Shuttle.Hopper.Tests;
 
 [TestFixture]
-public class ServiceBusFixture
+public class BusFixture
 {
     [Test]
     public async Task Should_be_able_to_handle_expired_message_async()
@@ -41,9 +41,9 @@ public class ServiceBusFixture
             };
         });
 
-        var serviceBus = services.BuildServiceProvider().GetRequiredService<IServiceBus>();
+        var bus = services.BuildServiceProvider().GetRequiredService<IBusControl>();
 
-        await using (await serviceBus.StartAsync())
+        await using (await bus.StartAsync())
         {
             var timeout = DateTimeOffset.UtcNow.AddSeconds(5);
 

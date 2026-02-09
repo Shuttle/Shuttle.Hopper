@@ -25,7 +25,7 @@ public class HopperOptions
         TimeSpan.FromSeconds(5)
     }.AsReadOnly();
 
-    public bool SuppressServiceBusHostedService { get; internal set; }
+    public bool SuppressBusHostedService { get; internal set; }
     public bool AddMessageHandlers { get; set; } = true;
     public bool CacheIdentity { get; set; } = true;
     public string CompressionAlgorithm { get; set; } = string.Empty;

@@ -1,6 +1,6 @@
 ﻿namespace Shuttle.Hopper;
 
-public interface IServiceBusConfiguration
+public interface IBusConfiguration
 {
     IInboxConfiguration? Inbox { get; }
     IOutboxConfiguration? Outbox { get; }

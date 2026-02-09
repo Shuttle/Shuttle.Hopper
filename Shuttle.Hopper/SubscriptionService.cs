@@ -4,12 +4,12 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Hopper;
 
-public class SubscriptionService(IOptions<HopperOptions> serviceBusOptions, ISubscriptionQuery subscriptionQuery) : ISubscriptionService
+public class SubscriptionService(IOptions<HopperOptions> hopperOptions, ISubscriptionQuery subscriptionQuery) : ISubscriptionService
 {
     private static readonly SemaphoreSlim Lock = new(1, 1);
     private readonly IMemoryCache _subscribersCache = new MemoryCache(new MemoryCacheOptions());
 
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
     private readonly ISubscriptionQuery _subscriptionQuery = Guard.AgainstNull(subscriptionQuery);
 
     public async Task<IEnumerable<string>> GetSubscribedUrisAsync(string messageType, CancellationToken cancellationToken = default)

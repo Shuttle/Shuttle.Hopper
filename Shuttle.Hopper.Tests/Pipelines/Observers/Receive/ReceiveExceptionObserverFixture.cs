@@ -18,7 +18,7 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
     [Test]
     public async Task Should_be_able_to_move_message_to_error_transport_when_UnrecoverableHandlerException_is_thrown_async()
     {
-        var policy = new Mock<IServiceBusPolicy>();
+        var policy = new Mock<IBusPolicy>();
 
         policy.Setup(m => m.EvaluateMessageHandlingFailure(It.IsAny<IPipelineContext<PipelineFailed>>()))
             .Returns(new MessageFailureAction(true, TimeSpan.Zero));

@@ -220,9 +220,9 @@ public class HopperBuilder(IServiceCollection services)
         return new ReadOnlyDictionary<Type, DirectMessageHandlerDelegate>(_directMessageHandlerDelegates);
     }
 
-    public HopperBuilder SuppressServiceBusHostedService()
+    public HopperBuilder SuppressBusHostedService()
     {
-        Options.SuppressServiceBusHostedService = true;
+        Options.SuppressBusHostedService = true;
 
         return this;
     }

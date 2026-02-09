@@ -3,9 +3,9 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Hopper;
 
-public class ServiceBusConfiguration(IOptions<HopperOptions> serviceBusOptions, ITransportService transportService) : IServiceBusConfiguration
+public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportService transportService) : IBusConfiguration
 {
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
     private readonly SemaphoreSlim _lock = new(1, 1);

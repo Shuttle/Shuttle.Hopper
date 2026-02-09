@@ -5,7 +5,7 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class ServiceBus(IServiceScopeFactory serviceScopeFactory) : IServiceBus
+public class Bus(IServiceScopeFactory serviceScopeFactory) : IBusControl
 {
     private IMessageSender? _messageSender;
     private IPipelineFactory? _pipelineFactory;
@@ -19,11 +19,11 @@ public class ServiceBus(IServiceScopeFactory serviceScopeFactory) : IServiceBus
     private IProcessorThreadPool? _outboxThreadPool;
     private IServiceScope? _serviceScope;
 
-    public async Task<IServiceBus> StartAsync(CancellationToken cancellationToken = default)
+    public async Task<IBusControl> StartAsync(CancellationToken cancellationToken = default)
     {
         if (Started)
         {
-            throw new ApplicationException(Resources.ServiceBusInstanceAlreadyStarted);
+            throw new ApplicationException(Resources.BusInstanceAlreadyStarted);
         }
 
         _serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
@@ -35,7 +35,7 @@ public class ServiceBus(IServiceScopeFactory serviceScopeFactory) : IServiceBus
 
         var startupPipeline = await _pipelineFactory.GetPipelineAsync<StartupPipeline>(cancellationToken);
 
-        Started = true; // required for using ServiceBus in OnStarted event
+        Started = true; // required for using Bus in OnStarted event
 
         try
         {
@@ -92,13 +92,13 @@ public class ServiceBus(IServiceScopeFactory serviceScopeFactory) : IServiceBus
 
     public IInboxConfiguration? Inbox
     {
-        get => Started ? field : throw new ApplicationException(Resources.ServiceBusInstanceNotStarted);
+        get => Started ? field : throw new ApplicationException(Resources.BusInstanceNotStarted);
         private set;
     }
 
     public IOutboxConfiguration? Outbox
     {
-        get => Started ? field : throw new ApplicationException(Resources.ServiceBusInstanceNotStarted);
+        get => Started ? field : throw new ApplicationException(Resources.BusInstanceNotStarted);
         private set;
     }
 
@@ -140,6 +140,6 @@ public class ServiceBus(IServiceScopeFactory serviceScopeFactory) : IServiceBus
             return;
         }
 
-        throw new InvalidOperationException(Resources.ServiceBusInstanceNotStarted);
+        throw new InvalidOperationException(Resources.BusInstanceNotStarted);
     }
 }

@@ -7,7 +7,7 @@ namespace Shuttle.Hopper;
 
 public interface IDeferTransportMessageObserver : IPipelineObserver<TransportMessageDeserialized>;
 
-public class DeferTransportMessageObserver(IOptions<HopperOptions> serviceBusOptions, IDeferredMessageProcessor deferredMessageProcessor) : IDeferTransportMessageObserver
+public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions, IDeferredMessageProcessor deferredMessageProcessor) : IDeferTransportMessageObserver
 {
     private readonly IDeferredMessageProcessor _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor);
 
@@ -41,7 +41,7 @@ public class DeferTransportMessageObserver(IOptions<HopperOptions> serviceBusOpt
 
         await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellation).ConfigureAwait(false);
 
-        await serviceBusOptions.Value.TransportMessageDeferred.InvokeAsync(new(transportMessage), cancellation);
+        await hopperOptions.Value.TransportMessageDeferred.InvokeAsync(new(transportMessage), cancellation);
 
         pipelineContext.Pipeline.Abort();
     }

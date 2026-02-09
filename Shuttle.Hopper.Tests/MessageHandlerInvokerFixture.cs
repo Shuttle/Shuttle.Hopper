@@ -57,7 +57,7 @@ public class MessageHandlerInvokerFixture
             }, cancellationToken);
         }
     }
-    public class DirectMessageHandler(IServiceBus serviceBus, IMessageHandlerTracker messageHandlerTracker) : IDirectMessageHandler<Message>
+    public class DirectMessageHandler(IBus bus, IMessageHandlerTracker messageHandlerTracker) : IDirectMessageHandler<Message>
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
@@ -72,7 +72,7 @@ public class MessageHandlerInvokerFixture
                 return;
             }
 
-            await serviceBus.SendAsync(new Message
+            await bus.SendAsync(new Message
             {
                 Replied = true,
                 Name = $"replied-{message.Count}"
@@ -115,11 +115,11 @@ public class MessageHandlerInvokerFixture
 
         DateTimeOffset timeout;
 
-        await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+        await using (var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync().ConfigureAwait(false))
         {
             for (var i = 0; i < count; i++)
             {
-                await serviceBus.SendAsync(new Message
+                await bus.SendAsync(new Message
                 {
                     Count = i + 1,
                     Name = $"message - {i + 1}"
@@ -177,11 +177,11 @@ public class MessageHandlerInvokerFixture
 
         DateTimeOffset timeout;
 
-        await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+        await using (var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync().ConfigureAwait(false))
         {
             for (var i = 0; i < count; i++)
             {
-                await serviceBus.SendAsync(new Message
+                await bus.SendAsync(new Message
                 {
                     Count = i + 1,
                     Name = $"message - {i + 1}"
@@ -237,11 +237,11 @@ public class MessageHandlerInvokerFixture
 
         DateTimeOffset timeout;
 
-        await using (var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync().ConfigureAwait(false))
+        await using (var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync().ConfigureAwait(false))
         {
             for (var i = 0; i < count; i++)
             {
-                await serviceBus.SendAsync(new Message
+                await bus.SendAsync(new Message
                 {
                     Count = i + 1,
                     Name = $"message - {i + 1}"

@@ -10,7 +10,7 @@ public class TransportMessageBuilderFixture
     [Test]
     public void Should_be_able_to_set_sender()
     {
-        var serviceBusOptions = new HopperOptions();
+        var hopperOptions = new HopperOptions();
         var identityProvider = new Mock<IIdentityProvider>();
         var transportMessage = new TransportMessage
         {
@@ -20,7 +20,7 @@ public class TransportMessageBuilderFixture
 
         var transportService = new Mock<ITransportService>();
 
-        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((Uri uri, CancellationToken _) => new NullTransport(serviceBusOptions, uri));
+        transportService.Setup(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((Uri uri, CancellationToken _) => new NullTransport(hopperOptions, uri));
 
         identityProvider.Setup(m => m.Get()).Returns(new GenericIdentity(Environment.UserDomainName + "\\" + Environment.UserName, "Anonymous"));
 

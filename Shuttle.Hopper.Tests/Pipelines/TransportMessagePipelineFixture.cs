@@ -17,13 +17,13 @@ public class TransportMessagePipelineFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var serviceBus = serviceProvider.GetRequiredService<IServiceBus>();
+        var bus = serviceProvider.GetRequiredService<IBusControl>();
         var pipelineFactory = serviceProvider.GetRequiredService<IPipelineFactory>();
 
         var sw = new Stopwatch();
         var count = 0;
 
-        await using (await serviceBus.StartAsync())
+        await using (await bus.StartAsync())
         {
             sw.Start();
 

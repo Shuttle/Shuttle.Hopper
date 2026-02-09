@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Shuttle.Hopper.Tests;
 
 [TestFixture]
-public class ServiceBusPerformanceFixture
+public class BusPerformanceFixture
 {
     [Test]
     public async Task Should_be_able_to_send_messages_with_optimal_performance_async()
@@ -26,7 +26,7 @@ public class ServiceBusPerformanceFixture
 
         var count = 0;
 
-        await using var serviceBus = await serviceProvider.GetRequiredService<IServiceBus>().StartAsync();
+        await using var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
         var sw = new Stopwatch();
 
@@ -34,7 +34,7 @@ public class ServiceBusPerformanceFixture
 
         while (sw.ElapsedMilliseconds < 1000)
         {
-            await serviceBus.SendAsync(new SimpleCommand($"{Guid.NewGuid()}"));
+            await bus.SendAsync(new SimpleCommand($"{Guid.NewGuid()}"));
 
             count++;
         }

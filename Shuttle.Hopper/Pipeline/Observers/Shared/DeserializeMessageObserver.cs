@@ -8,10 +8,10 @@ namespace Shuttle.Hopper;
 
 public interface IDeserializeMessageObserver : IPipelineObserver<DeserializeMessage>;
 
-public class DeserializeMessageObserver(IOptions<HopperOptions> serviceBusOptions, ISerializer serializer) : IDeserializeMessageObserver
+public class DeserializeMessageObserver(IOptions<HopperOptions> hopperOptions, ISerializer serializer) : IDeserializeMessageObserver
 {
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<DeserializeMessage> pipelineContext, CancellationToken cancellationToken = default)
     {

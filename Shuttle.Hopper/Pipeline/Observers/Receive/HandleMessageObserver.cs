@@ -9,12 +9,12 @@ namespace Shuttle.Hopper;
 
 public interface IHandleMessageObserver : IPipelineObserver<HandleMessage>;
 
-public class HandleMessageObserver(IOptions<HopperOptions> serviceBusOptions, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
+public class HandleMessageObserver(IOptions<HopperOptions> hopperOptions, IMessageHandlerInvoker messageHandlerInvoker, ISerializer serializer)
     : IHandleMessageObserver
 {
     private readonly IMessageHandlerInvoker _messageHandlerInvoker = Guard.AgainstNull(messageHandlerInvoker);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
 
     public async Task ExecuteAsync(IPipelineContext<HandleMessage> pipelineContext, CancellationToken cancellation = default)
     {

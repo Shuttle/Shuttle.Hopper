@@ -7,21 +7,21 @@ namespace Shuttle.Hopper;
 
 public class OutboxPipeline : Pipeline
 {
-    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> serviceBusOptions, IServiceBusConfiguration serviceBusConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
+    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
-        Guard.AgainstNull(Guard.AgainstNull(serviceBusOptions).Value);
+        Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
 
-        if (serviceBusConfiguration.Outbox == null)
+        if (busConfiguration.Outbox == null)
         {
             return;
         }
 
-        State.SetWorkTransport(Guard.AgainstNull(serviceBusConfiguration.Outbox.WorkTransport));
-        State.SetErrorTransport(serviceBusConfiguration.Outbox.ErrorTransport);
+        State.SetWorkTransport(Guard.AgainstNull(busConfiguration.Outbox.WorkTransport));
+        State.SetErrorTransport(busConfiguration.Outbox.ErrorTransport);
 
-        State.SetDurationToIgnoreOnFailure(serviceBusOptions.Value.Outbox.IgnoreOnFailureDurations);
-        State.SetMaximumFailureCount(serviceBusOptions.Value.Outbox.MaximumFailureCount);
+        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Outbox.IgnoreOnFailureDurations);
+        State.SetMaximumFailureCount(hopperOptions.Value.Outbox.MaximumFailureCount);
 
         AddStage("Read")
             .WithEvent<ReceiveMessage>()

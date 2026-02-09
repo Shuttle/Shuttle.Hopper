@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IEnvironmentService, EnvironmentService>();
             services.TryAddSingleton<IProcessService, ProcessService>();
             services.TryAddSingleton<ISerializer, JsonSerializer>();
-            services.TryAddSingleton<IServiceBusPolicy, DefaultServiceBusPolicy>();
+            services.TryAddSingleton<IBusPolicy, DefaultBusPolicy>();
             services.TryAddSingleton<IMessageRouteProvider, MessageRouteProvider>();
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
             services.TryAddScoped<IMessageHandlerInvoker, MessageHandlerInvoker>();
@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<ISubscriptionQuery, NullSubscriptionQuery>();
             services.TryAddSingleton<IEncryptionService, EncryptionService>();
             services.TryAddSingleton<ICompressionService, CompressionService>();
-            services.TryAddSingleton<IServiceBusConfiguration, ServiceBusConfiguration>();
+            services.TryAddSingleton<IBusConfiguration, BusConfiguration>();
             services.TryAddSingleton<IMemoryCache, MemoryCache>();
 
             services.TryAddScoped<IDeferredMessageProcessor, DeferredMessageProcessor>();
@@ -70,14 +70,14 @@ public static class ServiceCollectionExtensions
 
             services.AddPipelines(pipelineBuilder =>
             {
-                pipelineBuilder.AddAssembly(typeof(ServiceBus).Assembly);
+                pipelineBuilder.AddAssembly(typeof(Bus).Assembly);
             });
 
             services.AddTransactionScope();
 
             services.AddOptions<HopperOptions>().Configure(options =>
             {
-                options.SuppressServiceBusHostedService |= hopperBuilder.Options.SuppressServiceBusHostedService;
+                options.SuppressBusHostedService |= hopperBuilder.Options.SuppressBusHostedService;
 
                 options.Inbox = hopperBuilder.Options.Inbox;
                 options.Outbox = hopperBuilder.Options.Outbox;
@@ -109,13 +109,15 @@ public static class ServiceCollectionExtensions
             }
             else
             {
-                hopperBuilder.AddMessageHandlers(typeof(ServiceBus).Assembly);
+                hopperBuilder.AddMessageHandlers(typeof(Bus).Assembly);
             }
 
             services.TryAddScoped<IMessageSender, MessageSender>();
-            services.TryAddSingleton<IServiceBus, ServiceBus>();
+            services.TryAddSingleton<Bus>();
+            services.TryAddSingleton<IBus>(sp => sp.GetRequiredService<Bus>());
+            services.TryAddSingleton<IBusControl>(sp => sp.GetRequiredService<Bus>());
 
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, ServiceBusHostedService>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, BusHostedService>());
 
             return services;
         }

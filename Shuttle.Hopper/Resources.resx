@@ -161,8 +161,8 @@
     <value>Transport message with id '{0}' will be deferred until '{1}'.</value>
     <comment>0 = transport message id, 1 = deferred till date</comment>
   </data>
-  <data name="ServiceBusInstanceAlreadyStarted" xml:space="preserve">
-    <value>The service bus instance has already been started.</value>
+  <data name="BusInstanceAlreadyStarted" xml:space="preserve">
+    <value>The bus instance has already been started.</value>
   </data>
   <data name="MessageNotHandledIgnored" xml:space="preserve">
     <value>No handler has been registered for message type '{0}'.  The message (id '{1}') has been ignored.</value>
@@ -185,8 +185,8 @@
     <value>Transport factory with type '{0}' create returned (null) for uri '{1}'.</value>
     <comment>0 = the transport factory type name, 1 = the uri that the threadActivityFactory was requested to create the transport for</comment>
   </data>
-  <data name="ServiceBusInstanceNotStarted" xml:space="preserve">
-    <value>The service bus instance has not yet been started.</value>
+  <data name="BusInstanceNotStarted" xml:space="preserve">
+    <value>The bus instance has not yet been started.</value>
   </data>
   <data name="HandlerMessageMethodMissingException" xml:space="preserve">
     <value>Handler type '{0}' does not have the required `ProcessMessage` method that handles message type '{1}'.</value>
@@ -240,12 +240,6 @@
   <data name="MessageNotHandledMissingErrorTransportFailure" xml:space="preserve">
     <value>No handler has been registered for message type '{0}'.  The message (id '{1}') could not be moved to the error transport as no error transport has been set in the pipeline state.</value>
     <comment>0 = full type name of the discarded message, 1= message id</comment>
-  </data>
-  <data name="ServiceBusStartAsynchronousException" xml:space="preserve">
-    <value>The service bus options asynchronous value is 'true'.  Cannot start the service bus synchronously.  Please call the `StartAsync()` method.</value>
-  </data>
-  <data name="ServiceBusStartSynchronousException" xml:space="preserve">
-    <value>The service bus options asynchronous value is 'false'.  Cannot start the service bus asynchronously.  Please call the `Start()` method.</value>
   </data>
   <data name="HandlerContextConstructorMissingException" xml:space="preserve">
     <value>Could not create a HandlerContext for type '{0}'.</value>
