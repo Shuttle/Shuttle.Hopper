@@ -5,8 +5,6 @@ namespace Shuttle.Hopper;
 
 internal class MessageHandlerMethodInvoker
 {
-    private static readonly Type HandlerContextType = typeof(HandlerContext<>);
-
     private readonly InvokeHandler _invoker;
 
     public MessageHandlerMethodInvoker(MethodInfo methodInfo)

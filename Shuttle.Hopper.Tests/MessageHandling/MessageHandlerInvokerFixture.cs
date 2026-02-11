@@ -1,9 +1,9 @@
-﻿using System.Collections.Concurrent;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
+using System.Collections.Concurrent;
 
 namespace Shuttle.Hopper.Tests.MessageHandling;
 
@@ -15,11 +15,11 @@ public class MessageHandlerInvokerFixture
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton(typeof(IMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
+        services.AddSingleton(typeof(IDirectMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler));
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, DirectMessageHandlerDelegate>()));
+        var invoker = new MessageHandlerInvoker(new MessageContext(), new MessageSenderContext(), serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, DirectMessageHandlerDelegate>()));
 
         var transportMessage = new TransportMessage
         {
@@ -40,16 +40,16 @@ public class MessageHandlerInvokerFixture
         var services = new ServiceCollection();
 
         var builder = new HopperBuilder(services)
-            .AddMessageHandler(async (IHandlerContext<WorkMessage> context) =>
+            .AddMessageHandler(async (WorkMessage message) =>
             {
-                Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
+                Console.WriteLine($@"[work-message] : guid = {message.Guid}");
 
                 await Task.CompletedTask;
             });
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
+        var invoker = new MessageHandlerInvoker(new MessageContext(), new MessageSenderContext(), serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
 
         var transportMessage = new TransportMessage
         {
@@ -79,7 +79,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
+        var invoker = new MessageHandlerInvoker(new MessageContext(), new MessageSenderContext(), serviceProvider, new Mock<IMessageSender>().Object, new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
 
         var transportMessage = new TransportMessage
         {

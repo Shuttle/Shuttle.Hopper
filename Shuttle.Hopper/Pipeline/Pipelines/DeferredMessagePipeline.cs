@@ -7,7 +7,7 @@ namespace Shuttle.Hopper;
 
 public class DeferredMessagePipeline : Pipeline
 {
-    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IBusConfiguration busConfiguration, IReceiveDeferredMessageObserver receiveDeferredMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IProcessDeferredMessageObserver processDeferredMessageObserver)
+    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IBusConfiguration busConfiguration)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
         Guard.AgainstNull(busConfiguration);
@@ -25,8 +25,8 @@ public class DeferredMessagePipeline : Pipeline
             .WithEvent<ProcessDeferredMessage>()
             .WithEvent<DeferredMessageProcessed>();
 
-        AddObserver(Guard.AgainstNull(receiveDeferredMessageObserver));
-        AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
-        AddObserver(Guard.AgainstNull(processDeferredMessageObserver));
+        AddObserver<IReceiveDeferredMessageObserver>();
+        AddObserver<IDeserializeTransportMessageObserver>();
+        AddObserver< IProcessDeferredMessageObserver>();
     }
 }

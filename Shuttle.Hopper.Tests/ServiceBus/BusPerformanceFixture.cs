@@ -26,7 +26,9 @@ public class BusPerformanceFixture
 
         var count = 0;
 
-        await using var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
+        await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
+
+        var bus = serviceProvider.GetRequiredService<IBus>();
 
         var sw = new Stopwatch();
 

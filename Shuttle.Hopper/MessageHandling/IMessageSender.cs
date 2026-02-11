@@ -1,14 +1,8 @@
 namespace Shuttle.Hopper;
 
-public interface IHandlerContext
+public interface IMessageSender
 {
-    ExceptionHandling ExceptionHandling { get; set; }
-    TransportMessage TransportMessage { get; }
+    Task DispatchAsync(TransportMessage transportMessage, CancellationToken cancellationToken = default);
     Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default);
     Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default);
-}
-
-public interface IHandlerContext<out T> : IHandlerContext where T : class
-{
-    T Message { get; }
 }

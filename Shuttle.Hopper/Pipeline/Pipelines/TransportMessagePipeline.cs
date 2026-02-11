@@ -7,9 +7,13 @@ namespace Shuttle.Hopper;
 
 public class TransportMessagePipeline : Pipeline
 {
-    public TransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IAssembleMessageObserver assembleMessageObserver, ISerializeMessageObserver serializeMessageObserver, ICompressMessageObserver compressMessageObserver, IEncryptMessageObserver encryptMessageObserver)
+    private readonly IMessageSenderContext _messageSenderContext;
+
+    public TransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IMessageSenderContext messageSenderContext)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
+        _messageSenderContext = Guard.AgainstNull(messageSenderContext);
+
         AddStage("Create")
             .WithEvent<AssembleMessage>()
             .WithEvent<MessageAssembled>()
@@ -20,16 +24,16 @@ public class TransportMessagePipeline : Pipeline
             .WithEvent<CompressMessage>()
             .WithEvent<MessageCompressed>();
 
-        AddObserver(Guard.AgainstNull(assembleMessageObserver));
-        AddObserver(Guard.AgainstNull(serializeMessageObserver));
-        AddObserver(Guard.AgainstNull(compressMessageObserver));
-        AddObserver(Guard.AgainstNull(encryptMessageObserver));
+        AddObserver<IAssembleMessageObserver>();
+        AddObserver<ISerializeMessageObserver>();
+        AddObserver<ICompressMessageObserver>();
+        AddObserver<IEncryptMessageObserver>();
     }
 
-    public async Task<bool> ExecuteAsync(object message, TransportMessage? transportMessageReceived, Action<TransportMessageBuilder>? builder, CancellationToken cancellationToken = default)
+    public async Task<bool> ExecuteAsync(object message, Action<TransportMessageBuilder>? builder, CancellationToken cancellationToken = default)
     {
         State.SetMessage(Guard.AgainstNull(message));
-        State.SetTransportMessageReceived(transportMessageReceived);
+        State.SetTransportMessageReceived(_messageSenderContext.TransportMessage);
         State.SetTransportMessageBuilder(builder);
 
         return await base.ExecuteAsync(cancellationToken).ConfigureAwait(false);

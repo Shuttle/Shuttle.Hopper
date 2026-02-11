@@ -30,7 +30,7 @@ public class BusFixture
             });
         });
         services.AddSingleton(transportService.Object);
-        services.AddSingleton<IMessageHandlerInvoker>(handlerInvoker);
+        services.AddScoped<IMessageHandlerInvoker>(_ => handlerInvoker);
         services.AddHopper(builder =>
         {
             builder.Options.Inbox = new()

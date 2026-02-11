@@ -263,4 +263,7 @@
   <data name="MessageNotHandledMissingWorkTransportFailure" xml:space="preserve">
     <value>No handler has been registered for message type '{0}'.  Cannot find the work transport in the pipeline state.</value>
   </data>
+  <data name="MessageContextTransportMessageException" xml:space="preserve">
+    <value>TransportMessage has already been set and cannot be modified.</value>
+  </data>
 </root>

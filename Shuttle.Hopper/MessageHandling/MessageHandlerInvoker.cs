@@ -3,9 +3,11 @@ using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSender messageSender, IMessageHandlerDelegateRegistry messageHandlerDelegateRegistry, IDirectMessageHandlerDelegateRegistry directMessageHandlerDelegateRegistry)
+public class MessageHandlerInvoker(IMessageContext messageContext, IMessageSenderContext messageSenderContext, IServiceProvider serviceProvider, IMessageSender messageSender, IMessageHandlerDelegateRegistry messageHandlerDelegateRegistry, IDirectMessageHandlerDelegateRegistry directMessageHandlerDelegateRegistry)
     : IMessageHandlerInvoker
 {
+    private readonly IMessageContext _messageContext = Guard.AgainstNull(messageContext);
+    private readonly IMessageSenderContext _messageSenderContext = Guard.AgainstNull(messageSenderContext);
     private readonly IServiceProvider _serviceProvider = Guard.AgainstNull(serviceProvider);
     private readonly IMessageSender _messageSender = Guard.AgainstNull(messageSender);
     private readonly IMessageHandlerDelegateRegistry _messageHandlerDelegateRegistry = Guard.AgainstNull(messageHandlerDelegateRegistry);
@@ -24,6 +26,9 @@ public class MessageHandlerInvoker(IServiceProvider serviceProvider, IMessageSen
         var messageType = message.GetType();
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
 
+        _messageContext.TransportMessage = transportMessage;
+        _messageSenderContext.TransportMessage = transportMessage;
+        
         var contextHandler = _serviceProvider.GetService(MessageHandlerType.MakeGenericType(messageType));
 
         if (contextHandler != null)

@@ -39,7 +39,9 @@ public class DeferredProcessingFixture
             .AddSingleton<ITransportFactory, MemoryTransportFactory>()
             .BuildServiceProvider();
 
-        await using var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
+        await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
+        
+        var bus = serviceProvider.GetRequiredService<IBus>();
 
         await bus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(1))));
         await bus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(2))));

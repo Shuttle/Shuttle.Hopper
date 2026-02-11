@@ -7,7 +7,7 @@ namespace Shuttle.Hopper;
 
 public class InboxMessagePipeline : Pipeline
 {
-    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, IDeferTransportMessageObserver deferTransportMessageObserver, IDeserializeMessageObserver deserializeMessageObserver, IDecryptMessageObserver decryptMessageObserver, IDecompressMessageObserver decompressMessageObserver, IHandleMessageObserver handleMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IReceivePipelineFailedObserver receivePipelineFailedObserver)
+    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
         AddStage("Read")
@@ -32,16 +32,16 @@ public class InboxMessagePipeline : Pipeline
             .WithEvent<MessageAcknowledged>()
             .WithTransactionScope();
 
-        AddObserver(Guard.AgainstNull(receiveWorkMessageObserver));
-        AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
-        AddObserver(Guard.AgainstNull(deferTransportMessageObserver));
-        AddObserver(Guard.AgainstNull(deserializeMessageObserver));
-        AddObserver(Guard.AgainstNull(decryptMessageObserver));
-        AddObserver(Guard.AgainstNull(decompressMessageObserver));
-        AddObserver(Guard.AgainstNull(handleMessageObserver));
-        AddObserver(Guard.AgainstNull(acknowledgeMessageObserver));
+        AddObserver<IReceiveWorkMessageObserver>();
+        AddObserver<IDeserializeTransportMessageObserver>();
+        AddObserver<IDeferTransportMessageObserver>();
+        AddObserver<IDeserializeMessageObserver>();
+        AddObserver<IDecryptMessageObserver>();
+        AddObserver<IDecompressMessageObserver>();
+        AddObserver<IHandleMessageObserver>();
+        AddObserver<IAcknowledgeMessageObserver>();
 
-        AddObserver(Guard.AgainstNull(receivePipelineFailedObserver)); // must be last
+        AddObserver<IReceivePipelineFailedObserver>(); // must be last
 
         Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
         Guard.AgainstNull(busConfiguration);

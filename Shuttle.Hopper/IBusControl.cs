@@ -1,6 +1,6 @@
 namespace Shuttle.Hopper;
 
-public interface IBusControl : IBus, IDisposable, IAsyncDisposable
+public interface IBusControl : IDisposable, IAsyncDisposable
 {
     bool Started { get; }
     Task<IBusControl> StartAsync(CancellationToken cancellationToken = default);

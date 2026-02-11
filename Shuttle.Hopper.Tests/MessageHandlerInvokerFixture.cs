@@ -113,25 +113,24 @@ public class MessageHandlerInvokerFixture
 
         var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-        DateTimeOffset timeout;
+        await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
-        await using (var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync().ConfigureAwait(false))
+        var bus = serviceProvider.GetRequiredService<IBus>();
+        
+        for (var i = 0; i < count; i++)
         {
-            for (var i = 0; i < count; i++)
+            await bus.SendAsync(new Message
             {
-                await bus.SendAsync(new Message
-                {
-                    Count = i + 1,
-                    Name = $"message - {i + 1}"
-                });
-            }
+                Count = i + 1,
+                Name = $"message - {i + 1}"
+            });
+        }
 
-            timeout = DateTimeOffset.UtcNow.AddSeconds(5);
+        var timeout = DateTimeOffset.UtcNow.AddSeconds(5);
 
-            while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
-            {
-                Thread.Sleep(25);
-            }
+        while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
+        {
+            Thread.Sleep(25);
         }
 
         Assert.That(timeout > DateTimeOffset.UtcNow, "Timed out before all messages were handled.");
@@ -175,25 +174,24 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        DateTimeOffset timeout;
+        await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
-        await using (var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync().ConfigureAwait(false))
+        var bus = serviceProvider.GetRequiredService<IBus>();
+        
+        for (var i = 0; i < count; i++)
         {
-            for (var i = 0; i < count; i++)
+            await bus.SendAsync(new Message
             {
-                await bus.SendAsync(new Message
-                {
-                    Count = i + 1,
-                    Name = $"message - {i + 1}"
-                });
-            }
+                Count = i + 1,
+                Name = $"message - {i + 1}"
+            });
+        }
 
-            timeout = DateTimeOffset.UtcNow.AddSeconds(500);
+        var timeout = DateTimeOffset.UtcNow.AddSeconds(500);
 
-            while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
-            {
-                Thread.Sleep(25);
-            }
+        while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
+        {
+            Thread.Sleep(25);
         }
 
         Assert.That(timeout > DateTimeOffset.UtcNow, "Timed out before all messages were handled.");
@@ -235,25 +233,24 @@ public class MessageHandlerInvokerFixture
 
         var messageHandlerTracker = serviceProvider.GetRequiredService<IMessageHandlerTracker>();
 
-        DateTimeOffset timeout;
+        await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
-        await using (var bus = await serviceProvider.GetRequiredService<IBusControl>().StartAsync().ConfigureAwait(false))
+        var bus = serviceProvider.GetRequiredService<IBus>();
+        
+        for (var i = 0; i < count; i++)
         {
-            for (var i = 0; i < count; i++)
+            await bus.SendAsync(new Message
             {
-                await bus.SendAsync(new Message
-                {
-                    Count = i + 1,
-                    Name = $"message - {i + 1}"
-                });
-            }
+                Count = i + 1,
+                Name = $"message - {i + 1}"
+            });
+        }
 
-            timeout = DateTimeOffset.UtcNow.AddSeconds(500);
+        var timeout = DateTimeOffset.UtcNow.AddSeconds(500);
 
-            while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
-            {
-                Thread.Sleep(25);
-            }
+        while (messageHandlerTracker.HandledCount < count * 2 && DateTimeOffset.UtcNow < timeout)
+        {
+            Thread.Sleep(25);
         }
 
         Assert.That(timeout > DateTimeOffset.UtcNow, "Timed out before all messages were handled.");

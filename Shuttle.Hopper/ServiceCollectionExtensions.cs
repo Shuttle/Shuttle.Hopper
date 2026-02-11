@@ -29,7 +29,6 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IBusPolicy, DefaultBusPolicy>();
             services.TryAddSingleton<IMessageRouteProvider, MessageRouteProvider>();
             services.TryAddSingleton<IIdentityProvider, DefaultIdentityProvider>();
-            services.TryAddScoped<IMessageHandlerInvoker, MessageHandlerInvoker>();
             services.TryAddSingleton<IUriResolver, UriResolver>();
             services.TryAddSingleton<ITransportService, TransportService>();
             services.TryAddSingleton<ITransportFactoryService, TransportFactoryService>();
@@ -41,7 +40,6 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IMemoryCache, MemoryCache>();
 
             services.TryAddScoped<IDeferredMessageProcessor, DeferredMessageProcessor>();
-
             services.TryAddKeyedScoped<IProcessor>("DeferredMessageProcessor", (provider, _) => provider.GetRequiredService<IDeferredMessageProcessor>());
             services.TryAddKeyedScoped<IProcessor, InboxProcessor>("InboxProcessor");
             services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
@@ -112,10 +110,12 @@ public static class ServiceCollectionExtensions
                 hopperBuilder.AddMessageHandlers(typeof(Bus).Assembly);
             }
 
+            services.TryAddScoped<IMessageHandlerInvoker, MessageHandlerInvoker>();
+            services.TryAddScoped<IMessageContext, MessageContext>();
             services.TryAddScoped<IMessageSender, MessageSender>();
-            services.TryAddSingleton<Bus>();
-            services.TryAddSingleton<IBus>(sp => sp.GetRequiredService<Bus>());
-            services.TryAddSingleton<IBusControl>(sp => sp.GetRequiredService<Bus>());
+            services.TryAddScoped<IMessageSenderContext, MessageSenderContext>();
+            services.TryAddScoped<IBus, Bus>();
+            services.TryAddSingleton<IBusControl, BusControl>();
 
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, BusHostedService>());
 

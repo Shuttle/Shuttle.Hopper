@@ -28,8 +28,7 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
 
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/some-transport"));
 
-        var observer = new ReceivePipelineFailedObserver(policy.Object,
-            new Mock<ISerializer>().Object);
+        var observer = new ReceivePipelineFailedObserver(policy.Object, new Mock<ISerializer>().Object, new Mock<IMessageContext>().Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(this)

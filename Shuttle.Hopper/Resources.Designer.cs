@@ -187,6 +187,15 @@ namespace Shuttle.Hopper {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TransportMessage has already been set and cannot be modified..
+        /// </summary>
+        public static string MessageContextTransportMessageException {
+            get {
+                return ResourceManager.GetString("MessageContextTransportMessageException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message handler with type &apos;{0}&apos; has already been registered..
         /// </summary>
         public static string MessageHandlerAlreadyRegisteredException {

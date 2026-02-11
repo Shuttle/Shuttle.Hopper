@@ -12,11 +12,11 @@ public class HandlerContext<T>(IMessageSender messageSender, TransportMessage tr
 
     public async Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken1 = default)
     {
-        return await _messageSender.SendAsync(message, TransportMessage, builder, cancellationToken1).ConfigureAwait(false);
+        return await _messageSender.SendAsync(message, builder, cancellationToken1).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken1 = default)
     {
-        return await _messageSender.PublishAsync(message, TransportMessage, builder, cancellationToken1).ConfigureAwait(false);
+        return await _messageSender.PublishAsync(message, builder, cancellationToken1).ConfigureAwait(false);
     }
 }

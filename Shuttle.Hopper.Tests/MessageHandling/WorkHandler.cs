@@ -1,10 +1,10 @@
 ﻿namespace Shuttle.Hopper.Tests.MessageHandling;
 
-public class WorkHandler : IMessageHandler<WorkMessage>
+public class WorkHandler : IDirectMessageHandler<WorkMessage>
 {
-    public async Task ProcessMessageAsync(IHandlerContext<WorkMessage> context, CancellationToken cancellationToken = default)
+    public async Task ProcessMessageAsync(WorkMessage message, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine($@"[work-message] : guid = {context.Message.Guid}");
+        Console.WriteLine($@"[work-message] : guid = {message.Guid}");
 
         await Task.CompletedTask;
     }

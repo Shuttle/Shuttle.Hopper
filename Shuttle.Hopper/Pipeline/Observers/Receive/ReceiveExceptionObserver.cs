@@ -8,10 +8,11 @@ namespace Shuttle.Hopper;
 
 public interface IReceivePipelineFailedObserver : IPipelineObserver<PipelineFailed>;
 
-public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serializer) : IReceivePipelineFailedObserver
+public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serializer, IMessageContext messageContext) : IReceivePipelineFailedObserver
 {
     private readonly IBusPolicy _policy = Guard.AgainstNull(policy);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
+    private readonly IMessageContext _messageContext = Guard.AgainstNull(messageContext);
 
     public async Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -51,7 +52,6 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
                 var action = _policy.EvaluateMessageHandlingFailure(pipelineContext);
 
                 var errorTransport = state.GetErrorTransport();
-                var handlerContext = state.GetHandlerContext() as IHandlerContext;
                 var exception = Guard.AgainstNull(pipelineContext.Pipeline.Exception);
 
                 transportMessage.RegisterFailure(exception.AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
@@ -61,22 +61,22 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
                 retry = retry && !exception.Contains<UnrecoverableHandlerException>();
                 retry = retry && action.Retry;
 
-                if (retry && handlerContext != null)
+                if (retry)
                 {
                     retry =
-                        handlerContext.ExceptionHandling == ExceptionHandling.Retry ||
-                        handlerContext.ExceptionHandling == ExceptionHandling.Default;
+                        _messageContext.ExceptionHandling == ExceptionHandling.Retry ||
+                        _messageContext.ExceptionHandling == ExceptionHandling.Default;
                 }
 
                 var poison = errorTransport != null;
 
                 poison = poison && !retry;
 
-                if (poison && handlerContext != null)
+                if (poison)
                 {
                     poison =
-                        handlerContext.ExceptionHandling == ExceptionHandling.Poison ||
-                        handlerContext.ExceptionHandling == ExceptionHandling.Default;
+                        _messageContext.ExceptionHandling == ExceptionHandling.Poison ||
+                        _messageContext.ExceptionHandling == ExceptionHandling.Default;
                 }
 
                 Guard.AgainstNull(receivedMessage);

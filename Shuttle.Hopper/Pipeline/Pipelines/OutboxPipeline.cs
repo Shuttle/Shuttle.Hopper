@@ -7,7 +7,7 @@ namespace Shuttle.Hopper;
 
 public class OutboxPipeline : Pipeline
 {
-    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration, IReceiveWorkMessageObserver receiveWorkMessageObserver, IDeserializeTransportMessageObserver deserializeTransportMessageObserver, ISendOutboxMessageObserver sendOutboxMessageObserver, IAcknowledgeMessageObserver acknowledgeMessageObserver, IOutboxExceptionObserver outboxExceptionObserver)
+    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
     {
         Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
@@ -34,11 +34,10 @@ public class OutboxPipeline : Pipeline
             .WithEvent<TransportMessageDispatched>()
             .WithEvent<MessageAcknowledged>();
 
-        AddObserver(Guard.AgainstNull(receiveWorkMessageObserver));
-        AddObserver(Guard.AgainstNull(deserializeTransportMessageObserver));
-        AddObserver(Guard.AgainstNull(sendOutboxMessageObserver));
-        AddObserver(Guard.AgainstNull(acknowledgeMessageObserver));
-
-        AddObserver(Guard.AgainstNull(outboxExceptionObserver)); // must be last
+        AddObserver<IReceiveWorkMessageObserver>();
+        AddObserver<IDeserializeTransportMessageObserver>();
+        AddObserver<ISendOutboxMessageObserver>();
+        AddObserver<IAcknowledgeMessageObserver>();
+        AddObserver<IOutboxExceptionObserver>(); // must be last
     }
 }
