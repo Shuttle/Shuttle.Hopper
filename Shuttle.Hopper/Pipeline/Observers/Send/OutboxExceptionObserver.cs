@@ -18,8 +18,6 @@ public class OutboxExceptionObserver(IBusPolicy policy, ISerializer serializer) 
 
         try
         {
-            state.ResetWorkPerformed();
-
             if (pipelineContext.Pipeline.ExceptionHandled)
             {
                 return;

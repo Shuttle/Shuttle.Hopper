@@ -13,6 +13,7 @@ internal class HandlerContextConstructorInvoker
         var dynamicMethod = new DynamicMethod(string.Empty, typeof(object),
         [
             typeof(IMessageSender),
+            typeof(IMessageContext),
             typeof(TransportMessage),
             typeof(object)
         ], HandlerContextType.Module);
@@ -22,11 +23,13 @@ internal class HandlerContextConstructorInvoker
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldarg_1);
         il.Emit(OpCodes.Ldarg_2);
+        il.Emit(OpCodes.Ldarg_3);
 
         var contextType = HandlerContextType.MakeGenericType(messageType);
         var constructorInfo = contextType.GetConstructor(
         [
             typeof(IMessageSender),
+            typeof(IMessageContext),
             typeof(TransportMessage),
             messageType
         ]);
@@ -42,10 +45,10 @@ internal class HandlerContextConstructorInvoker
         _constructorInvoker = (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
     }
 
-    public object CreateHandlerContext(IMessageSender messageSender, TransportMessage transportMessage, object message)
+    public object CreateHandlerContext(IMessageSender messageSender, IMessageContext messageContext, TransportMessage transportMessage, object message)
     {
-        return _constructorInvoker(messageSender, transportMessage, message);
+        return _constructorInvoker(messageSender, messageContext, transportMessage, message);
     }
 
-    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, TransportMessage transportMessage, object message);
+    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, IMessageContext messageContext, TransportMessage transportMessage, object message);
 }

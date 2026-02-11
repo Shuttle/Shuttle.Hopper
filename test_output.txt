@@ -1,0 +1,123 @@
+  Determining projects to restore...
+  Restored d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\Shuttle.Hopper.csproj (in 541 ms).
+  1 of 2 projects are up-to-date for restore.
+  Shuttle.Hopper -> d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\bin\Debug\net10.0\Shuttle.Hopper.dll
+  Shuttle.Hopper.Tests -> d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\bin\Debug\net10.0\Shuttle.Hopper.Tests.dll
+Test run for d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\bin\Debug\net10.0\Shuttle.Hopper.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed Should_be_able_to_invoke_context_delegate_async [53 ms]
+  Error Message:
+   System.InvalidOperationException : No service for type 'Shuttle.Hopper.IMessageContext' has been registered.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Shuttle.Hopper.MessageHandlerInvoker.InvokeAsync(IPipelineContext`1 pipelineContext, CancellationToken cancellationToken) in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\MessageHandling\MessageHandlerInvoker.cs:line 27
+   at Shuttle.Hopper.Tests.MessageHandling.MessageHandlerInvokerFixture.Should_be_able_to_invoke_context_delegate_async() in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\MessageHandling\MessageHandlerInvokerFixture.cs:line 64
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()
+   at NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[T](Func`1 func)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()
+1)    at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Shuttle.Hopper.MessageHandlerInvoker.InvokeAsync(IPipelineContext`1 pipelineContext, CancellationToken cancellationToken) in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\MessageHandling\MessageHandlerInvoker.cs:line 27
+   at Shuttle.Hopper.Tests.MessageHandling.MessageHandlerInvokerFixture.Should_be_able_to_invoke_context_delegate_async() in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\MessageHandling\MessageHandlerInvokerFixture.cs:line 64
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()
+   at NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[T](Func`1 func)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()
+
+  Failed Should_be_able_to_invoke_message_delegate_async [1 ms]
+  Error Message:
+   System.InvalidOperationException : No service for type 'Shuttle.Hopper.IMessageContext' has been registered.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Shuttle.Hopper.MessageHandlerInvoker.InvokeAsync(IPipelineContext`1 pipelineContext, CancellationToken cancellationToken) in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\MessageHandling\MessageHandlerInvoker.cs:line 27
+   at Shuttle.Hopper.Tests.MessageHandling.MessageHandlerInvokerFixture.Should_be_able_to_invoke_message_delegate_async() in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\MessageHandling\MessageHandlerInvokerFixture.cs:line 94
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()
+   at NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[T](Func`1 func)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()
+1)    at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Shuttle.Hopper.MessageHandlerInvoker.InvokeAsync(IPipelineContext`1 pipelineContext, CancellationToken cancellationToken) in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\MessageHandling\MessageHandlerInvoker.cs:line 27
+   at Shuttle.Hopper.Tests.MessageHandling.MessageHandlerInvokerFixture.Should_be_able_to_invoke_message_delegate_async() in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\MessageHandling\MessageHandlerInvokerFixture.cs:line 94
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()
+   at NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[T](Func`1 func)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()
+
+  Failed Should_be_able_to_invoke_message_handler_async [1 ms]
+  Error Message:
+   System.InvalidOperationException : No service for type 'Shuttle.Hopper.IMessageContext' has been registered.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Shuttle.Hopper.MessageHandlerInvoker.InvokeAsync(IPipelineContext`1 pipelineContext, CancellationToken cancellationToken) in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\MessageHandling\MessageHandlerInvoker.cs:line 27
+   at Shuttle.Hopper.Tests.MessageHandling.MessageHandlerInvokerFixture.Should_be_able_to_invoke_message_handler_async() in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\MessageHandling\MessageHandlerInvokerFixture.cs:line 34
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()
+   at NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[T](Func`1 func)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()
+1)    at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Shuttle.Hopper.MessageHandlerInvoker.InvokeAsync(IPipelineContext`1 pipelineContext, CancellationToken cancellationToken) in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper\MessageHandling\MessageHandlerInvoker.cs:line 27
+   at Shuttle.Hopper.Tests.MessageHandling.MessageHandlerInvokerFixture.Should_be_able_to_invoke_message_handler_async() in d:\development.github\shuttle\Shuttle.Hopper\Shuttle.Hopper.Tests\MessageHandling\MessageHandlerInvokerFixture.cs:line 34
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.GetResult()
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(TestExecutionContext context, Func`1 invoke)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass3_0.<PerformWork>b__0()
+   at NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(ContextCallback callback, Object state)
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[T](Func`1 func)
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()
+
+
+Failed!  - Failed:     3, Passed:    75, Skipped:     0, Total:    78, Duration: 8 s - Shuttle.Hopper.Tests.dll (net10.0)

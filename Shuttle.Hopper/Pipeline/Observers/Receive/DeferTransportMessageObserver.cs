@@ -7,9 +7,9 @@ namespace Shuttle.Hopper;
 
 public interface IDeferTransportMessageObserver : IPipelineObserver<TransportMessageDeserialized>;
 
-public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions, IDeferredMessageProcessor deferredMessageProcessor) : IDeferTransportMessageObserver
+public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions, IDeferredMessageProcessorContext deferredMessageProcessorContext) : IDeferTransportMessageObserver
 {
-    private readonly IDeferredMessageProcessor _deferredMessageProcessor = Guard.AgainstNull(deferredMessageProcessor);
+    private readonly IDeferredMessageProcessorContext _deferredMessageProcessorContext = Guard.AgainstNull(deferredMessageProcessorContext);
 
     public async Task ExecuteAsync(IPipelineContext<TransportMessageDeserialized> pipelineContext, CancellationToken cancellation = default)
     {
@@ -35,7 +35,7 @@ public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions
             {
                 await deferredTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
 
-                await _deferredMessageProcessor.MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
+                await _deferredMessageProcessorContext.MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
             }
         }
 

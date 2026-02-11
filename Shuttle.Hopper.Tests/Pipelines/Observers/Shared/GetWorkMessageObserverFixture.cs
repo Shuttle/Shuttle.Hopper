@@ -47,7 +47,7 @@ public class GetWorkMessageObserverFixture
         workTransport.Verify(m => m.ReceiveAsync(CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);
-        Assert.That(pipeline.State.GetWorkPerformed(), Is.False);
+        Assert.That(pipeline.State.HasReceivedMessage(), Is.False);
 
         workTransport.VerifyNoOtherCalls();
     }
@@ -76,7 +76,7 @@ public class GetWorkMessageObserverFixture
         workTransport.Verify(m => m.ReceiveAsync(CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.Aborted, Is.False);
-        Assert.That(pipeline.State.GetWorkPerformed(), Is.True);
+        Assert.That(pipeline.State.HasReceivedMessage(), Is.True);
         Assert.That(pipeline.State.GetReceivedMessage(), Is.SameAs(receivedMessage));
 
         workTransport.VerifyNoOtherCalls();

@@ -39,8 +39,8 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IBusConfiguration, BusConfiguration>();
             services.TryAddSingleton<IMemoryCache, MemoryCache>();
 
-            services.TryAddScoped<IDeferredMessageProcessor, DeferredMessageProcessor>();
-            services.TryAddKeyedScoped<IProcessor>("DeferredMessageProcessor", (provider, _) => provider.GetRequiredService<IDeferredMessageProcessor>());
+            services.TryAddSingleton<IDeferredMessageProcessorContext, DeferredMessageProcessorContext>();
+            services.TryAddKeyedScoped<IProcessor, DeferredMessageProcessor>("DeferredMessageProcessor");
             services.TryAddKeyedScoped<IProcessor, InboxProcessor>("InboxProcessor");
             services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
 
@@ -110,9 +110,9 @@ public static class ServiceCollectionExtensions
                 hopperBuilder.AddMessageHandlers(typeof(Bus).Assembly);
             }
 
-            services.TryAddScoped<IMessageHandlerInvoker, MessageHandlerInvoker>();
-            services.TryAddScoped<IMessageContext, MessageContext>();
+            services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
             services.TryAddScoped<IMessageSender, MessageSender>();
+            services.TryAddScoped<IMessageContext, MessageContext>();
             services.TryAddScoped<IMessageSenderContext, MessageSenderContext>();
             services.TryAddScoped<IBus, Bus>();
             services.TryAddSingleton<IBusControl, BusControl>();

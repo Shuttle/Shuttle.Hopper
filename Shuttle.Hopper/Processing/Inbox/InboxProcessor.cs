@@ -6,15 +6,12 @@ namespace Shuttle.Hopper;
 
 public class InboxProcessor(IPipelineFactory pipelineFactory) : IProcessor
 {
-    private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
-
     public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        var messagePipeline = await _pipelineFactory.GetPipelineAsync<InboxMessagePipeline>(cancellationToken);
+        var messagePipeline = await Guard.AgainstNull(pipelineFactory).GetPipelineAsync<InboxMessagePipeline>(cancellationToken);
 
-        messagePipeline.State.ResetWorkPerformed();
         messagePipeline.State.SetTransportMessage(null);
-        messagePipeline.State.SetReceivedMessage(null);
+        messagePipeline.State.ResetReceivedMessage();
 
         if (cancellationToken.IsCancellationRequested)
         {
@@ -23,6 +20,6 @@ public class InboxProcessor(IPipelineFactory pipelineFactory) : IProcessor
 
         await messagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
-        return messagePipeline.State.GetWorkPerformed();
+        return messagePipeline.State.HasReceivedMessage();
     }
 }

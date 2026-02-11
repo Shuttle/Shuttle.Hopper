@@ -6,7 +6,7 @@ public static class PipelineStateExtensions
 {
     extension(IState state)
     {
-        public bool GetDeferredMessageReturned()
+        public bool HasDeferredMessageReturned()
         {
             return state.Get<bool>(StateKeys.DeferredMessageReturned);
         }
@@ -24,11 +24,6 @@ public static class PipelineStateExtensions
         public ITransport? GetErrorTransport()
         {
             return state.Get<ITransport>(StateKeys.ErrorTransport);
-        }
-
-        public object? GetHandlerContext()
-        {
-            return state.Get<object>(StateKeys.HandlerContext);
         }
 
         public int? GetMaximumFailureCount()
@@ -76,9 +71,9 @@ public static class PipelineStateExtensions
             return state.Get<Stream>(StateKeys.TransportMessageStream);
         }
 
-        public bool GetWorkPerformed()
+        public bool HasReceivedMessage()
         {
-            return state.Contains(StateKeys.WorkPerformed) && state.Get<bool>(StateKeys.WorkPerformed);
+            return state.Contains(StateKeys.ReceivedMessage);
         }
 
         public ITransport? GetWorkTransport()
@@ -86,14 +81,14 @@ public static class PipelineStateExtensions
             return state.Get<ITransport>(StateKeys.WorkTransport);
         }
 
-        public void ResetWorkPerformed()
+        public void ResetDeferredMessageReturned()
         {
-            state.Replace(StateKeys.WorkPerformed, false);
+            state.Replace(StateKeys.DeferredMessageReturned, false);
         }
 
-        public void SetDeferredMessageReturned(bool deferredMessageReturned)
+        public void DeferredMessageReturned()
         {
-            state.Replace(StateKeys.DeferredMessageReturned, deferredMessageReturned);
+            state.Replace(StateKeys.DeferredMessageReturned, true);
         }
 
         public void SetDeferredTransport(ITransport? transport)
@@ -136,7 +131,12 @@ public static class PipelineStateExtensions
             state.Replace(StateKeys.MessageHandlerInvokeResult, value);
         }
 
-        public void SetReceivedMessage(ReceivedMessage? receivedMessage)
+        public void ResetReceivedMessage()
+        {
+            state.Remove(StateKeys.ReceivedMessage);
+        }
+
+        public void SetReceivedMessage(ReceivedMessage receivedMessage)
         {
             state.Replace(StateKeys.ReceivedMessage, receivedMessage);
         }
@@ -159,11 +159,6 @@ public static class PipelineStateExtensions
         public void SetTransportMessageStream(Stream value)
         {
             state.Replace(StateKeys.TransportMessageStream, value);
-        }
-
-        public void SetWorking()
-        {
-            state.Replace(StateKeys.WorkPerformed, true);
         }
 
         public void SetWorkTransport(ITransport transport)

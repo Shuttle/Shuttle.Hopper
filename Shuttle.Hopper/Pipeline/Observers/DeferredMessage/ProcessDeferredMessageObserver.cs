@@ -20,7 +20,7 @@ public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOption
         {
             await deferredTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellation).ConfigureAwait(false);
 
-            state.SetDeferredMessageReturned(false);
+            state.ResetDeferredMessageReturned();
 
             return;
         }
@@ -28,7 +28,7 @@ public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOption
         await workTransport.SendAsync(transportMessage, receivedMessage.Stream, cancellation).ConfigureAwait(false);
         await deferredTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellation).ConfigureAwait(false);
 
-        state.SetDeferredMessageReturned(true);
+        state.DeferredMessageReturned();
 
         await hopperOptions.Value.MessageReturned.InvokeAsync(new(transportMessage, receivedMessage), cancellation);
     }

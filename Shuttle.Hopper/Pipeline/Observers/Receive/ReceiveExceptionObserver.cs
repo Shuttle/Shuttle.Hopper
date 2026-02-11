@@ -24,8 +24,6 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
         {
             using var tx = new TransactionScope(TransactionScopeOption.RequiresNew, TransactionScopeAsyncFlowOption.Enabled);
 
-            state.ResetWorkPerformed();
-
             if (pipelineContext.Pipeline.ExceptionHandled)
             {
                 return;

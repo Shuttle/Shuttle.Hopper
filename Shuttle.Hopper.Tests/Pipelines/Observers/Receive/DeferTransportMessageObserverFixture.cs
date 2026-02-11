@@ -11,11 +11,11 @@ public class DeferTransportMessageObserverFixture
     [Test]
     public async Task Should_be_able_to_return_when_message_does_not_need_to_be_deferred_async()
     {
-        var deferredMessageProcessor = new Mock<IDeferredMessageProcessor>();
+        var deferredMessageProcessorContext = new Mock<IDeferredMessageProcessorContext>();
         var workTransport = new Mock<ITransport>();
         var deferredTransport = new Mock<ITransport>();
 
-        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
+        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessorContext.Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(observer);
@@ -38,7 +38,7 @@ public class DeferTransportMessageObserverFixture
 
         workTransport.VerifyNoOtherCalls();
         deferredTransport.VerifyNoOtherCalls();
-        deferredMessageProcessor.VerifyNoOtherCalls();
+        deferredMessageProcessorContext.VerifyNoOtherCalls();
 
         await pipeline.ExecuteAsync();
 
@@ -46,16 +46,16 @@ public class DeferTransportMessageObserverFixture
 
         workTransport.VerifyNoOtherCalls();
         deferredTransport.VerifyNoOtherCalls();
-        deferredMessageProcessor.VerifyNoOtherCalls();
+        deferredMessageProcessorContext.VerifyNoOtherCalls();
     }
 
     [Test]
     public async Task Should_be_able_to_defer_message_to_work_transport_async()
     {
-        var deferredMessageProcessor = new Mock<IDeferredMessageProcessor>();
+        var deferredMessageProcessorContext = new Mock<IDeferredMessageProcessorContext>();
         var workTransport = new Mock<ITransport>();
 
-        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
+        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessorContext.Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(observer);
@@ -83,17 +83,17 @@ public class DeferTransportMessageObserverFixture
         Assert.That(pipeline.Aborted, Is.True);
 
         workTransport.VerifyNoOtherCalls();
-        deferredMessageProcessor.VerifyNoOtherCalls();
+        deferredMessageProcessorContext.VerifyNoOtherCalls();
     }
 
     [Test]
     public async Task Should_be_able_to_defer_message_to_deferred_transport_async()
     {
-        var deferredMessageProcessor = new Mock<IDeferredMessageProcessor>();
+        var deferredMessageProcessorContext = new Mock<IDeferredMessageProcessorContext>();
         var workTransport = new Mock<ITransport>();
         var deferredTransport = new Mock<ITransport>();
 
-        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessor.Object);
+        var observer = new DeferTransportMessageObserver(Options.Create(new HopperOptions()), deferredMessageProcessorContext.Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(observer);
@@ -114,7 +114,7 @@ public class DeferTransportMessageObserverFixture
 
         deferredTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
-        deferredMessageProcessor.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Once);
+        deferredMessageProcessorContext.Verify(m => m.MessageDeferredAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.Verify(m => m.Type, Times.Once);
 
@@ -122,6 +122,6 @@ public class DeferTransportMessageObserverFixture
 
         workTransport.VerifyNoOtherCalls();
         deferredTransport.VerifyNoOtherCalls();
-        deferredMessageProcessor.VerifyNoOtherCalls();
+        deferredMessageProcessorContext.VerifyNoOtherCalls();
     }
 }

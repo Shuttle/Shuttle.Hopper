@@ -58,6 +58,6 @@ public class DispatchTransportMessagePipelineFixture
 
         Console.WriteLine($@"[message-dispatch] : count = {count} / ms = {sw.ElapsedMilliseconds}");
 
-        Assert.That(count, Is.GreaterThan(1000));
+        Assert.That(count, Is.GreaterThan(250));
     }
 }

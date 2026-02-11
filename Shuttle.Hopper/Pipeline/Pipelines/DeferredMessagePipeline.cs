@@ -27,6 +27,6 @@ public class DeferredMessagePipeline : Pipeline
 
         AddObserver<IReceiveDeferredMessageObserver>();
         AddObserver<IDeserializeTransportMessageObserver>();
-        AddObserver< IProcessDeferredMessageObserver>();
+        AddObserver<IProcessDeferredMessageObserver>();
     }
 }

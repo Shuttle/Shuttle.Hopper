@@ -23,7 +23,6 @@ public class ReceiveDeferredMessageObserver : IReceiveDeferredMessageObserver
         }
         else
         {
-            state.SetWorking();
             state.SetReceivedMessage(receivedMessage);
         }
     }

@@ -7,7 +7,6 @@ namespace Shuttle.Hopper;
 
 public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 {
-    private IPipelineFactory? _pipelineFactory;
     private CancellationTokenSource _cancellationTokenSource = new();
 
     private IProcessorThreadPool? _controlInboxThreadPool;
@@ -16,7 +15,6 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
     private bool _disposed;
     private IProcessorThreadPool? _inboxThreadPool;
     private IProcessorThreadPool? _outboxThreadPool;
-    private IServiceScope? _serviceScope;
 
     public async Task<IBusControl> StartAsync(CancellationToken cancellationToken = default)
     {
@@ -25,13 +23,11 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
             throw new ApplicationException(Resources.BusInstanceAlreadyStarted);
         }
 
-        _serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
-
-        _pipelineFactory = _serviceScope.ServiceProvider.GetRequiredService<IPipelineFactory>();
-
         _cancellationTokenSource = new();
 
-        var startupPipeline = await _pipelineFactory.GetPipelineAsync<StartupPipeline>(cancellationToken);
+        using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
+        var pipelineFactory = serviceScope.ServiceProvider.GetRequiredService<IPipelineFactory>();
+        var startupPipeline = await pipelineFactory.GetPipelineAsync<StartupPipeline>(cancellationToken);
 
         Started = true; // required for using Bus in OnStarted event
 
@@ -69,7 +65,9 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 
         try
         {
-            var shutdownPipeline = await _pipelineFactory!.GetPipelineAsync<ShutdownPipeline>(CancellationToken.None);
+            using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
+            var pipelineFactory = serviceScope.ServiceProvider.GetRequiredService<IPipelineFactory>();
+            var shutdownPipeline = await pipelineFactory.GetPipelineAsync<ShutdownPipeline>(CancellationToken.None);
 
             await shutdownPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
         }
@@ -82,8 +80,6 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
         Outbox = null;
 
         Started = false;
-        
-        _serviceScope?.Dispose();
     }
 
     public bool Started { get; private set; }
