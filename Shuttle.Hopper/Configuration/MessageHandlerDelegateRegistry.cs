@@ -2,7 +2,7 @@
 
 namespace Shuttle.Hopper;
 
-public class MessageHandlerDelegateRegistry(IDictionary<Type, MessageHandlerDelegate> contextHandlerDelegates) : IMessageHandlerDelegateRegistry
+public class ContextMessageHandlerDelegateRegistry(IDictionary<Type, MessageHandlerDelegate> contextHandlerDelegates) : IContextMessageHandlerDelegateRegistry
 {
     private readonly IReadOnlyDictionary<Type, MessageHandlerDelegate> _delegates = new ReadOnlyDictionary<Type, MessageHandlerDelegate>(contextHandlerDelegates);
 

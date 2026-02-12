@@ -1,6 +1,6 @@
 ﻿namespace Shuttle.Hopper.Tests.MessageHandling;
 
-public class WorkHandler : IDirectMessageHandler<WorkMessage>
+public class WorkHandler : IMessageHandler<WorkMessage>
 {
     public async Task ProcessMessageAsync(WorkMessage message, CancellationToken cancellationToken = default)
     {

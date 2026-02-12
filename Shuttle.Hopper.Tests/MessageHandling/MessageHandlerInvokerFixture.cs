@@ -14,7 +14,7 @@ public class MessageHandlerInvokerFixture
     public async Task Should_be_able_to_invoke_message_handler_async()
     {
         var serviceProvider = new ServiceCollection()
-            .AddSingleton(typeof(IDirectMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler))
+            .AddSingleton(typeof(IMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler))
             .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
@@ -22,7 +22,7 @@ public class MessageHandlerInvokerFixture
             .AddSingleton(new Mock<IPipelineFactory>().Object)
             .BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, DirectMessageHandlerDelegate>()));
+        var invoker = new MessageHandlerInvoker(new ContextMessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new MessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, DirectMessageHandlerDelegate>()));
 
         var transportMessage = new TransportMessage
         {
@@ -59,7 +59,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
+        var invoker = new MessageHandlerInvoker(new ContextMessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new MessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
 
         var transportMessage = new TransportMessage
         {
@@ -96,7 +96,7 @@ public class MessageHandlerInvokerFixture
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var invoker = new MessageHandlerInvoker(new MessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new DirectMessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
+        var invoker = new MessageHandlerInvoker(new ContextMessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new MessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
 
         var transportMessage = new TransportMessage
         {

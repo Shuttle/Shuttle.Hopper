@@ -9,8 +9,8 @@ namespace Shuttle.Hopper;
 
 public class HopperBuilder(IServiceCollection services)
 {
-    private static readonly Type MessageHandlerType = typeof(IMessageHandler<>);
-    private static readonly Type DirectMessageHandlerType = typeof(IDirectMessageHandler<>);
+    private static readonly Type ContextMessageHandlerType = typeof(IContextMessageHandler<>);
+    private static readonly Type DirectMessageHandlerType = typeof(IMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
     private readonly Dictionary<Type, DirectMessageHandlerDelegate> _directMessageHandlerDelegates = new();
 
@@ -73,9 +73,9 @@ public class HopperBuilder(IServiceCollection services)
     {
         var type = Guard.AgainstNull(messageHandler).GetType();
 
-        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
+        foreach (var @interface in type.InterfacesCastableTo(ContextMessageHandlerType))
         {
-            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = ContextMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
 
             if (Services.Contains(serviceDescriptor))
@@ -88,7 +88,7 @@ public class HopperBuilder(IServiceCollection services)
 
         foreach (var @interface in type.InterfacesCastableTo(DirectMessageHandlerType))
         {
-            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = ContextMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, ServiceLifetime.Singleton);
 
             if (Services.Contains(serviceDescriptor))
@@ -111,9 +111,9 @@ public class HopperBuilder(IServiceCollection services)
     {
         Guard.AgainstNull(type);
 
-        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
+        foreach (var @interface in type.InterfacesCastableTo(ContextMessageHandlerType))
         {
-            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = ContextMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, serviceLifetime);
 
             if (Services.Contains(serviceDescriptor))
@@ -146,10 +146,10 @@ public class HopperBuilder(IServiceCollection services)
 
         getServiceLifetime ??= _ => ServiceLifetime.Scoped;
 
-        foreach (var type in assembly.GetTypesCastableToAsync(MessageHandlerType).GetAwaiter().GetResult())
-        foreach (var @interface in type.InterfacesCastableTo(MessageHandlerType))
+        foreach (var type in assembly.GetTypesCastableToAsync(ContextMessageHandlerType).GetAwaiter().GetResult())
+        foreach (var @interface in type.InterfacesCastableTo(ContextMessageHandlerType))
         {
-            var genericType = MessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
+            var genericType = ContextMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
             var serviceDescriptor = new ServiceDescriptor(genericType, type, getServiceLifetime(genericType));
 
             if (Services.Contains(serviceDescriptor))

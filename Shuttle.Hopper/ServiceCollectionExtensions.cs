@@ -95,8 +95,8 @@ public static class ServiceCollectionExtensions
                 options.Subscription = hopperBuilder.Options.Subscription;
             });
 
-            services.TryAddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(hopperBuilder.GetMessageHandlerDelegates()));
-            services.TryAddSingleton<IDirectMessageHandlerDelegateRegistry>(_ => new DirectMessageHandlerDelegateRegistry(hopperBuilder.GetDirectMessageHandlerDelegates()));
+            services.TryAddSingleton<IContextMessageHandlerDelegateRegistry>(_ => new ContextMessageHandlerDelegateRegistry(hopperBuilder.GetMessageHandlerDelegates()));
+            services.TryAddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(hopperBuilder.GetDirectMessageHandlerDelegates()));
 
             if (hopperBuilder.Options.AddMessageHandlers)
             {

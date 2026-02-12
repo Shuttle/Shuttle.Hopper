@@ -3,11 +3,11 @@ using System.Reflection.Emit;
 
 namespace Shuttle.Hopper;
 
-internal class DirectMessageHandlerMethodInvoker
+internal class MessageHandlerMethodInvoker
 {
     private readonly InvokeHandler _invoker;
 
-    public DirectMessageHandlerMethodInvoker(MethodInfo methodInfo)
+    public MessageHandlerMethodInvoker(MethodInfo methodInfo)
     {
         var dynamicMethod = new DynamicMethod(string.Empty, typeof(Task), [typeof(object), typeof(object), typeof(CancellationToken)], GetType().Module);
 

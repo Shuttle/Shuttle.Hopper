@@ -2,5 +2,5 @@
 
 public interface IMessageHandlerDelegateRegistry
 {
-    bool TryGetValue(Type messageType, out MessageHandlerDelegate? handler);
+    bool TryGetValue(Type messageType, out DirectMessageHandlerDelegate? handler);
 }
