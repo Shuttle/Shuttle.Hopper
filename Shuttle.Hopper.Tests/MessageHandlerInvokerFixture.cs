@@ -34,7 +34,7 @@ public class MessageHandlerInvokerFixture
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
-        public async Task ProcessMessageAsync(IHandlerContext<Message> context, CancellationToken cancellationToken = default)
+        public async Task HandleAsync(IHandlerContext<Message> context, CancellationToken cancellationToken = default)
         {
             Console.WriteLine($@"[handled] : name = {context.Message.Name}");
 
@@ -61,7 +61,7 @@ public class MessageHandlerInvokerFixture
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
 
-        public async Task ProcessMessageAsync(Message message, CancellationToken cancellationToken = default)
+        public async Task HandleAsync(Message message, CancellationToken cancellationToken = default)
         {
             Console.WriteLine($@"[handled] : name = {message.Name}");
 

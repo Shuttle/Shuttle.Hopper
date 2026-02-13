@@ -2,7 +2,7 @@
 
 public class SimpleCommandHandler : IMessageHandler<SimpleCommand>
 {
-    public async Task ProcessMessageAsync(SimpleCommand message, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(SimpleCommand message, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($@"Handled SimpleCommand with name '{message.Name}.");
 
