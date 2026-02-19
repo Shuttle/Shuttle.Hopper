@@ -14,13 +14,6 @@ public static class TransportMessageExtensions
             Guard.AgainstEmpty(transportMessage.AssemblyQualifiedName);
         }
 
-        public bool IsCompressionEnabled()
-        {
-            return !string.IsNullOrEmpty(transportMessage.CompressionAlgorithm)
-                   &&
-                   !transportMessage.CompressionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
-        }
-
         public bool HasExpired()
         {
             return transportMessage.ExpiresAt < DateTimeOffset.UtcNow;
@@ -57,13 +50,6 @@ public static class TransportMessageExtensions
 
             transportMessage.FailureMessages.Add($"[{DateTimeOffset.UtcNow:O}] : {message}");
             transportMessage.IgnoreUntil = DateTimeOffset.UtcNow.Add(timeSpanToIgnore);
-        }
-
-        public bool IsEncryptionEnabled()
-        {
-            return !string.IsNullOrEmpty(transportMessage.EncryptionAlgorithm)
-                   &&
-                   !transportMessage.EncryptionAlgorithm.Equals("none", StringComparison.InvariantCultureIgnoreCase);
         }
 
         public void StopIgnoring()

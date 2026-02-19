@@ -14,7 +14,5 @@ public class HopperOptionsFixture : OptionsFixture
 
         Assert.That(options.RemoveMessagesNotHandled, Is.True);
         Assert.That(options.RemoveCorruptMessages, Is.True);
-        Assert.That(options.CompressionAlgorithm, Is.EqualTo("GZip"));
-        Assert.That(options.EncryptionAlgorithm, Is.EqualTo("3DES"));
     }
 }

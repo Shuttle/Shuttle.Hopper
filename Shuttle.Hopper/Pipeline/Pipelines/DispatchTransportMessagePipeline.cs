@@ -5,7 +5,12 @@ using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
-public class DispatchTransportMessagePipeline : Pipeline
+public interface IDispatchTransportMessagePipeline : IPipeline
+{
+    Task<bool> ExecuteAsync(TransportMessage transportMessage, CancellationToken cancellationToken = default);
+}
+
+public class DispatchTransportMessagePipeline : Pipeline, IDispatchTransportMessagePipeline
 {
     private readonly IMessageSenderContext _messageSenderContext;
 

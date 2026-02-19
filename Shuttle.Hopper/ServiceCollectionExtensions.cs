@@ -2,9 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Shuttle.Core.Compression;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Encryption;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.System;
@@ -34,8 +32,6 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<ITransportFactoryService, TransportFactoryService>();
             services.TryAddSingleton<ISubscriptionService, SubscriptionService>();
             services.TryAddSingleton<ISubscriptionQuery, NullSubscriptionQuery>();
-            services.TryAddSingleton<IEncryptionService, EncryptionService>();
-            services.TryAddSingleton<ICompressionService, CompressionService>();
             services.TryAddSingleton<IBusConfiguration, BusConfiguration>();
             services.TryAddSingleton<IMemoryCache, MemoryCache>();
 
@@ -85,9 +81,7 @@ public static class ServiceCollectionExtensions
 
                 options.AddMessageHandlers = hopperBuilder.Options.AddMessageHandlers;
                 options.CacheIdentity = hopperBuilder.Options.CacheIdentity;
-                options.CompressionAlgorithm = hopperBuilder.Options.CompressionAlgorithm;
                 options.CreatePhysicalTransports = hopperBuilder.Options.CreatePhysicalTransports;
-                options.EncryptionAlgorithm = hopperBuilder.Options.EncryptionAlgorithm;
                 options.RemoveCorruptMessages = hopperBuilder.Options.RemoveCorruptMessages;
 
                 options.UriMappings = hopperBuilder.Options.UriMappings;

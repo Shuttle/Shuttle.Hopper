@@ -64,9 +64,7 @@ public class DeserializeTransportMessageObserver(IOptions<HopperOptions> hopperO
                 transportMessage = new()
                 {
                     AssemblyQualifiedName = obsolete.AssemblyQualifiedName,
-                    CompressionAlgorithm = obsolete.CompressionAlgorithm,
                     CorrelationId = obsolete.CorrelationId,
-                    EncryptionAlgorithm = obsolete.EncryptionAlgorithm,
                     ExpiresAt = new(obsolete.ExpiryDate),
                     FailureMessages = obsolete.FailureMessages,
                     Headers = obsolete.Headers,

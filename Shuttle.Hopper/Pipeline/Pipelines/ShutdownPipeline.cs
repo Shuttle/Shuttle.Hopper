@@ -4,7 +4,9 @@ using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
-public class ShutdownPipeline : Pipeline
+public interface IShutdownPipeline : IPipeline;
+
+public class ShutdownPipeline : Pipeline, IShutdownPipeline
 {
     public ShutdownPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)

@@ -5,7 +5,9 @@ using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
-public class DeferredMessagePipeline : Pipeline
+public interface IDeferredMessagePipeline : IPipeline;
+
+public class DeferredMessagePipeline : Pipeline, IDeferredMessagePipeline
 {
     public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IBusConfiguration busConfiguration)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)

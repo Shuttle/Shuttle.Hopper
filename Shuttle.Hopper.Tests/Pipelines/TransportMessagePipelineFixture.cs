@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -18,7 +17,6 @@ public class TransportMessagePipelineFixture
         var serviceProvider = services.BuildServiceProvider();
 
         var bus = serviceProvider.GetRequiredService<IBusControl>();
-        var pipelineFactory = serviceProvider.GetRequiredService<IPipelineFactory>();
 
         var sw = new Stopwatch();
         var count = 0;
@@ -29,7 +27,7 @@ public class TransportMessagePipelineFixture
 
             while (sw.ElapsedMilliseconds < 1000)
             {
-                var pipeline = await pipelineFactory.GetPipelineAsync<TransportMessagePipeline>();
+                var pipeline = serviceProvider.GetRequiredService<ITransportMessagePipeline>();
 
                 pipeline.State.Replace(StateKeys.Message, new());
 

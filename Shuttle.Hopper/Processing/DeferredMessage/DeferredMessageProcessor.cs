@@ -1,14 +1,12 @@
 using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class DeferredMessageProcessor(IPipelineFactory pipelineFactory, IDeferredMessageProcessorContext deferredMessageProcessorContext)
+public class DeferredMessageProcessor(IDeferredMessagePipeline deferredMessagePipeline, IDeferredMessageProcessorContext deferredMessageProcessorContext)
     : IProcessor
 {
     private readonly IDeferredMessageProcessorContext _deferredMessageProcessorContext = Guard.AgainstNull(deferredMessageProcessorContext);
-    private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
 
     public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
@@ -17,14 +15,14 @@ public class DeferredMessageProcessor(IPipelineFactory pipelineFactory, IDeferre
             return false;
         }
 
-        var pipeline = await _pipelineFactory.GetPipelineAsync<DeferredMessagePipeline>(cancellationToken);
+        Guard.AgainstNull(deferredMessagePipeline);
 
-        pipeline.State.ResetReceivedMessage();
-        pipeline.State.ResetDeferredMessageReturned();
-        pipeline.State.SetTransportMessage(null);
+        deferredMessagePipeline.State.ResetReceivedMessage();
+        deferredMessagePipeline.State.ResetDeferredMessageReturned();
+        deferredMessagePipeline.State.SetTransportMessage(null);
 
-        await pipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+        await deferredMessagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
-        return await _deferredMessageProcessorContext.GetResultAsync(pipeline.State, cancellationToken);
+        return await _deferredMessageProcessorContext.GetResultAsync(deferredMessagePipeline.State, cancellationToken);
     }
 }

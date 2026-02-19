@@ -69,23 +69,9 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         return this;
     }
 
-    public TransportMessageBuilder WithCompression(string algorithm)
-    {
-        _transportMessage.CompressionAlgorithm = algorithm;
-
-        return this;
-    }
-
     public TransportMessageBuilder WithCorrelationId(string correlationId)
     {
         _transportMessage.CorrelationId = correlationId;
-
-        return this;
-    }
-
-    public TransportMessageBuilder WithEncryption(string algorithm)
-    {
-        _transportMessage.EncryptionAlgorithm = algorithm;
 
         return this;
     }

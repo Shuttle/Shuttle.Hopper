@@ -4,9 +4,7 @@ namespace Shuttle.Hopper;
 public class TransportMessage
 {
     public string AssemblyQualifiedName { get; set; } = string.Empty;
-    public string CompressionAlgorithm { get; set; } = string.Empty;
     public string CorrelationId { get; set; } = string.Empty;
-    public string EncryptionAlgorithm { get; set; } = string.Empty;
     public DateTimeOffset ExpiresAt { get; set; } = DateTimeOffset.MaxValue;
     public List<string> FailureMessages { get; set; } = [];
     public List<TransportHeader> Headers { get; set; } = [];

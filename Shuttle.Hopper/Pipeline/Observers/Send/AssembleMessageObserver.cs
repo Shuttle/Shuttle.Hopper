@@ -30,8 +30,6 @@ public class AssembleMessageObserver(IOptions<HopperOptions> hopperOptions, IBus
             PrincipalIdentityName = Guard.AgainstNull(Guard.AgainstNull(identity).Name),
             MessageType = Guard.AgainstEmpty(message.GetType().FullName),
             AssemblyQualifiedName = Guard.AgainstEmpty(message.GetType().AssemblyQualifiedName),
-            EncryptionAlgorithm = _hopperOptions.EncryptionAlgorithm,
-            CompressionAlgorithm = _hopperOptions.CompressionAlgorithm,
             SentAt = DateTimeOffset.UtcNow
         };
 

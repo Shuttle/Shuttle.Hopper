@@ -18,8 +18,9 @@ public class MessageHandlerInvokerFixture
             .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
+            .AddScoped<ITransportMessagePipeline>(_ => new Mock<ITransportMessagePipeline>().Object)
+            .AddScoped<IDispatchTransportMessagePipeline>(_ => new Mock<IDispatchTransportMessagePipeline>().Object)
             .AddSingleton<ISubscriptionService>(_ => new Mock<ISubscriptionService>().Object)
-            .AddSingleton(new Mock<IPipelineFactory>().Object)
             .BuildServiceProvider();
 
         var invoker = new MessageHandlerInvoker(new ContextMessageHandlerDelegateRegistry(new Dictionary<Type, MessageHandlerDelegate>()), new MessageHandlerDelegateRegistry(new ConcurrentDictionary<Type, DirectMessageHandlerDelegate>()));
@@ -54,8 +55,9 @@ public class MessageHandlerInvokerFixture
             .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
-            .AddSingleton<ISubscriptionService>(_ => new Mock<ISubscriptionService>().Object)
-            .AddSingleton(new Mock<IPipelineFactory>().Object);
+            .AddScoped<ITransportMessagePipeline>(_ => new Mock<ITransportMessagePipeline>().Object)
+            .AddScoped<IDispatchTransportMessagePipeline>(_ => new Mock<IDispatchTransportMessagePipeline>().Object)
+            .AddSingleton<ISubscriptionService>(_ => new Mock<ISubscriptionService>().Object);
 
         var serviceProvider = services.BuildServiceProvider();
 
@@ -91,8 +93,9 @@ public class MessageHandlerInvokerFixture
             .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
-            .AddSingleton<ISubscriptionService>(_ => new Mock<ISubscriptionService>().Object)
-            .AddSingleton(new Mock<IPipelineFactory>().Object);
+            .AddScoped<ITransportMessagePipeline>(_ => new Mock<ITransportMessagePipeline>().Object)
+            .AddScoped<IDispatchTransportMessagePipeline>(_ => new Mock<IDispatchTransportMessagePipeline>().Object)
+            .AddSingleton<ISubscriptionService>(_ => new Mock<ISubscriptionService>().Object);
 
         var serviceProvider = services.BuildServiceProvider();
 

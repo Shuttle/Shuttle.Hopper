@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -27,7 +26,6 @@ public class DispatchTransportMessagePipelineFixture
         var serviceProvider = services.BuildServiceProvider();
 
         var bus = serviceProvider.GetRequiredService<IBusControl>();
-        var pipelineFactory = serviceProvider.GetRequiredService<IPipelineFactory>();
 
         var transportMessage = new TransportMessage
         {
@@ -44,7 +42,7 @@ public class DispatchTransportMessagePipelineFixture
 
             while (sw.ElapsedMilliseconds < 1000)
             {
-                var pipeline = await pipelineFactory.GetPipelineAsync<DispatchTransportMessagePipeline>();
+                var pipeline = serviceProvider.GetRequiredService<IDispatchTransportMessagePipeline>();
 
                 pipeline.State.Replace(StateKeys.TransportMessage, transportMessage);
 

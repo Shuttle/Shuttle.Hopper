@@ -1,21 +1,15 @@
 using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class MessageSender(IPipelineFactory pipelineFactory, ISubscriptionService subscriptionService)
+public class MessageSender(ITransportMessagePipeline transportMessagePipeline, IDispatchTransportMessagePipeline dispatchTransportMessagePipeline, ISubscriptionService subscriptionService)
     : IMessageSender
 {
-    private readonly IPipelineFactory _pipelineFactory = Guard.AgainstNull(pipelineFactory);
     private readonly ISubscriptionService _subscriptionService = Guard.AgainstNull(subscriptionService);
 
     public async Task DispatchAsync(TransportMessage transportMessage, CancellationToken cancellationToken = default)
     {
-        Guard.AgainstNull(transportMessage);
-
-        var messagePipeline = await _pipelineFactory.GetPipelineAsync<DispatchTransportMessagePipeline>(cancellationToken);
-
-        await messagePipeline.ExecuteAsync(transportMessage, cancellationToken).ConfigureAwait(false);
+        await Guard.AgainstNull(dispatchTransportMessagePipeline).ExecuteAsync(Guard.AgainstNull(transportMessage), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default)
@@ -56,12 +50,11 @@ public class MessageSender(IPipelineFactory pipelineFactory, ISubscriptionServic
 
     private async Task<TransportMessage> GetTransportMessageAsync(object message, Action<TransportMessageBuilder>? builder, CancellationToken cancellationToken)
     {
+        Guard.AgainstNull(transportMessagePipeline);
         Guard.AgainstNull(message);
 
-        var messagePipeline = await _pipelineFactory.GetPipelineAsync<TransportMessagePipeline>(cancellationToken);
+        await transportMessagePipeline.ExecuteAsync(message, builder, cancellationToken).ConfigureAwait(false);
 
-        await messagePipeline.ExecuteAsync(message, builder, cancellationToken).ConfigureAwait(false);
-
-        return messagePipeline.State.GetTransportMessage()!;
+        return transportMessagePipeline.State.GetTransportMessage()!;
     }
 }

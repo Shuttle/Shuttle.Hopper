@@ -5,7 +5,12 @@ using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
-public class TransportMessagePipeline : Pipeline
+public interface ITransportMessagePipeline : IPipeline
+{
+    Task<bool> ExecuteAsync(object message, Action<TransportMessageBuilder>? builder, CancellationToken cancellationToken = default);
+}
+
+public class TransportMessagePipeline : Pipeline, ITransportMessagePipeline
 {
     private readonly IMessageSenderContext _messageSenderContext;
 
@@ -18,16 +23,10 @@ public class TransportMessagePipeline : Pipeline
             .WithEvent<AssembleMessage>()
             .WithEvent<MessageAssembled>()
             .WithEvent<SerializeMessage>()
-            .WithEvent<MessageSerialized>()
-            .WithEvent<EncryptMessage>()
-            .WithEvent<MessageEncrypted>()
-            .WithEvent<CompressMessage>()
-            .WithEvent<MessageCompressed>();
+            .WithEvent<MessageSerialized>();
 
         AddObserver<IAssembleMessageObserver>();
         AddObserver<ISerializeMessageObserver>();
-        AddObserver<ICompressMessageObserver>();
-        AddObserver<IEncryptMessageObserver>();
     }
 
     public async Task<bool> ExecuteAsync(object message, Action<TransportMessageBuilder>? builder, CancellationToken cancellationToken = default)

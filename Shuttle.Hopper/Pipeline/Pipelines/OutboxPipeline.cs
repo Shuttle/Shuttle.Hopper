@@ -5,7 +5,9 @@ using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
-public class OutboxPipeline : Pipeline
+public interface IOutboxPipeline : IPipeline;
+
+public class OutboxPipeline : Pipeline, IOutboxPipeline
 {
     public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
@@ -38,6 +40,6 @@ public class OutboxPipeline : Pipeline
         AddObserver<IDeserializeTransportMessageObserver>();
         AddObserver<ISendOutboxMessageObserver>();
         AddObserver<IAcknowledgeMessageObserver>();
-        AddObserver<IOutboxExceptionObserver>(); // must be last
+        AddObserver<IOutboxExceptionObserver>(ObserverPosition.End);
     }
 }

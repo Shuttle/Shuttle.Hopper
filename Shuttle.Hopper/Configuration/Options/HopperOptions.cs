@@ -28,11 +28,9 @@ public class HopperOptions
     public bool SuppressBusHostedService { get; internal set; }
     public bool AddMessageHandlers { get; set; } = true;
     public bool CacheIdentity { get; set; } = true;
-    public string CompressionAlgorithm { get; set; } = string.Empty;
     public bool CreatePhysicalTransports { get; set; } = true;
     public AsyncEvent<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted { get; set; } = new();
     public AsyncEvent<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted { get; set; } = new();
-    public string EncryptionAlgorithm { get; set; } = string.Empty;
     public AsyncEvent<HandlerExceptionEventArgs> HandlerException { get; set; } = new();
     public InboxOptions Inbox { get; set; } = new();
     public AsyncEvent<MessageAcknowledgedEventArgs> MessageAcknowledged { get; set; } = new();

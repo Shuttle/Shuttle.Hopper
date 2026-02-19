@@ -1,25 +1,24 @@
 using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
 using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class InboxProcessor(IPipelineFactory pipelineFactory) : IProcessor
+public class InboxProcessor(IInboxMessagePipeline inboxMessagePipeline) : IProcessor
 {
     public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
-        var messagePipeline = await Guard.AgainstNull(pipelineFactory).GetPipelineAsync<InboxMessagePipeline>(cancellationToken);
+        Guard.AgainstNull(inboxMessagePipeline);
 
-        messagePipeline.State.SetTransportMessage(null);
-        messagePipeline.State.ResetReceivedMessage();
+        inboxMessagePipeline.State.SetTransportMessage(null);
+        inboxMessagePipeline.State.ResetReceivedMessage();
 
         if (cancellationToken.IsCancellationRequested)
         {
             return false;
         }
 
-        await messagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+        await inboxMessagePipeline.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
-        return messagePipeline.State.HasReceivedMessage();
+        return inboxMessagePipeline.State.HasReceivedMessage();
     }
 }

@@ -5,7 +5,7 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
+public class BusControl(IStartupPipeline startupPipeline, IShutdownPipeline shutdownPipeline, IServiceScopeFactory serviceScopeFactory) : IBusControl
 {
     private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -18,6 +18,8 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 
     public async Task<IBusControl> StartAsync(CancellationToken cancellationToken = default)
     {
+        Guard.AgainstNull(startupPipeline);
+
         if (Started)
         {
             throw new ApplicationException(Resources.BusInstanceAlreadyStarted);
@@ -26,9 +28,7 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
         _cancellationTokenSource = new();
 
         using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
-        var pipelineFactory = serviceScope.ServiceProvider.GetRequiredService<IPipelineFactory>();
-        var startupPipeline = await pipelineFactory.GetPipelineAsync<StartupPipeline>(cancellationToken);
-
+        
         Started = true; // required for using Bus in OnStarted event
 
         try
@@ -51,6 +51,8 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
     {
+        Guard.AgainstNull(shutdownPipeline);
+
         if (!Started)
         {
             return;
@@ -66,8 +68,6 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
         try
         {
             using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
-            var pipelineFactory = serviceScope.ServiceProvider.GetRequiredService<IPipelineFactory>();
-            var shutdownPipeline = await pipelineFactory.GetPipelineAsync<ShutdownPipeline>(CancellationToken.None);
 
             await shutdownPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
         }

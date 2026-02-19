@@ -16,14 +16,6 @@ public class SerializeTransportMessage;
 
 public class TransportMessageSerialized;
 
-public class CompressMessage;
-
-public class MessageCompressed;
-
-public class EncryptMessage;
-
-public class MessageEncrypted;
-
 public class DispatchTransportMessage;
 
 public class TransportMessageDispatched;

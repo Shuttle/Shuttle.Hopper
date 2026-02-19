@@ -5,7 +5,9 @@ using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
-public class InboxMessagePipeline : Pipeline
+public interface IInboxMessagePipeline : IPipeline;
+
+public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
 {
     public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
         : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
@@ -15,10 +17,6 @@ public class InboxMessagePipeline : Pipeline
             .WithEvent<MessageReceived>()
             .WithEvent<DeserializeTransportMessage>()
             .WithEvent<TransportMessageDeserialized>()
-            .WithEvent<DecompressMessage>()
-            .WithEvent<MessageDecompressed>()
-            .WithEvent<DecryptMessage>()
-            .WithEvent<MessageDecrypted>()
             .WithEvent<DeserializeMessage>()
             .WithEvent<MessageDeserialized>()
             .WithTransactionScope();
@@ -36,12 +34,10 @@ public class InboxMessagePipeline : Pipeline
         AddObserver<IDeserializeTransportMessageObserver>();
         AddObserver<IDeferTransportMessageObserver>();
         AddObserver<IDeserializeMessageObserver>();
-        AddObserver<IDecryptMessageObserver>();
-        AddObserver<IDecompressMessageObserver>();
         AddObserver<IHandleMessageObserver>();
         AddObserver<IAcknowledgeMessageObserver>();
 
-        AddObserver<IReceivePipelineFailedObserver>(); // must be last
+        AddObserver<IReceivePipelineFailedObserver>(ObserverPosition.End);
 
         Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
         Guard.AgainstNull(busConfiguration);
