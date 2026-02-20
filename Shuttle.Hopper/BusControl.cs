@@ -5,7 +5,7 @@ using Shuttle.Core.Threading;
 
 namespace Shuttle.Hopper;
 
-public class BusControl(IStartupPipeline startupPipeline, IShutdownPipeline shutdownPipeline, IServiceScopeFactory serviceScopeFactory) : IBusControl
+public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 {
     private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -18,8 +18,6 @@ public class BusControl(IStartupPipeline startupPipeline, IShutdownPipeline shut
 
     public async Task<IBusControl> StartAsync(CancellationToken cancellationToken = default)
     {
-        Guard.AgainstNull(startupPipeline);
-
         if (Started)
         {
             throw new ApplicationException(Resources.BusInstanceAlreadyStarted);
@@ -28,6 +26,8 @@ public class BusControl(IStartupPipeline startupPipeline, IShutdownPipeline shut
         _cancellationTokenSource = new();
 
         using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
+
+        var startupPipeline = serviceScope.ServiceProvider.GetRequiredService<IStartupPipeline>();
         
         Started = true; // required for using Bus in OnStarted event
 
@@ -51,8 +51,6 @@ public class BusControl(IStartupPipeline startupPipeline, IShutdownPipeline shut
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
     {
-        Guard.AgainstNull(shutdownPipeline);
-
         if (!Started)
         {
             return;
@@ -68,6 +66,8 @@ public class BusControl(IStartupPipeline startupPipeline, IShutdownPipeline shut
         try
         {
             using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
+
+            var shutdownPipeline = serviceScope.ServiceProvider.GetRequiredService<IShutdownPipeline>();
 
             await shutdownPipeline.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
         }
