@@ -22,7 +22,7 @@ public class OutboxPipeline : Pipeline, IOutboxPipeline
         State.SetWorkTransport(Guard.AgainstNull(busConfiguration.Outbox.WorkTransport));
         State.SetErrorTransport(busConfiguration.Outbox.ErrorTransport);
 
-        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Outbox.IgnoreOnFailureDurations);
+        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Outbox.IgnoreOnFailureDurations.Any() ? hopperOptions.Value.Outbox.IgnoreOnFailureDurations  : HopperOptions.DefaultIgnoreOnFailureDurations );
         State.SetMaximumFailureCount(hopperOptions.Value.Outbox.MaximumFailureCount);
 
         AddStage("Read")

@@ -9,18 +9,47 @@ namespace Shuttle.Hopper;
 
 public class HopperBuilder(IServiceCollection services)
 {
+    private readonly List<Action<HopperOptions>> _configureActions = [];
     private static readonly Type ContextMessageHandlerType = typeof(IContextMessageHandler<>);
     private static readonly Type DirectMessageHandlerType = typeof(IMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
     private readonly Dictionary<Type, DirectMessageHandlerDelegate> _directMessageHandlerDelegates = new();
 
-    public HopperOptions Options
-    {
-        get;
-        set => field = value ?? throw new ArgumentNullException(nameof(value));
-    } = new();
-
     public IServiceCollection Services { get; } = Guard.AgainstNull(services);
+
+    internal bool ShouldRegisterMessageHandler { get; private set; } = true;
+    internal List<string> SubscriptionMessageTypes { get; } = [];
+
+    public HopperBuilder Configure(Action<HopperOptions> configureOptions)
+    {
+        _configureActions.Add(Guard.AgainstNull(configureOptions));
+        return this;
+    }
+
+    public HopperBuilder SuppressBusHostedService()
+    {
+        _configureActions.Add(o => o.SuppressBusHostedService = true);
+        return this;
+    }
+
+    public HopperBuilder SuppressMessageHandlerRegistration()
+    {
+        ShouldRegisterMessageHandler = false;
+        return this;
+    }
+
+    internal void ApplyOptions()
+    {
+        Services.AddOptions<HopperOptions>().Configure(options =>
+        {
+            foreach (var action in _configureActions)
+            {
+                action(options);
+            }
+
+            options.Subscription.MessageTypes.AddRange(SubscriptionMessageTypes);
+        });
+    }
 
     public HopperBuilder AddMessageHandler<TDelegate>(TDelegate handler) where TDelegate : Delegate
     {
@@ -195,16 +224,9 @@ public class HopperBuilder(IServiceCollection services)
     {
         Guard.AgainstEmpty(messageType);
 
-        var messageTypes = Options.Subscription.MessageTypes;
-
-        if (messageTypes == null)
+        if (!SubscriptionMessageTypes.Contains(messageType))
         {
-            throw new InvalidOperationException(Resources.AddSubscriptionException);
-        }
-
-        if (!messageTypes.Contains(messageType))
-        {
-            messageTypes.Add(messageType);
+            SubscriptionMessageTypes.Add(messageType);
         }
 
         return this;
@@ -218,12 +240,5 @@ public class HopperBuilder(IServiceCollection services)
     public IDictionary<Type, DirectMessageHandlerDelegate> GetDirectMessageHandlerDelegates()
     {
         return new ReadOnlyDictionary<Type, DirectMessageHandlerDelegate>(_directMessageHandlerDelegates);
-    }
-
-    public HopperBuilder SuppressBusHostedService()
-    {
-        Options.SuppressBusHostedService = true;
-
-        return this;
     }
 }

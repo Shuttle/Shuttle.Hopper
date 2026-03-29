@@ -26,7 +26,6 @@ public class HopperOptions
     }.AsReadOnly();
 
     public bool SuppressBusHostedService { get; internal set; }
-    public bool AddMessageHandlers { get; set; } = true;
     public bool CacheIdentity { get; set; } = true;
     public bool CreatePhysicalTransports { get; set; } = true;
     public AsyncEvent<DeferredMessageProcessingAdjustedEventArgs> DeferredMessageProcessingAdjusted { get; set; } = new();

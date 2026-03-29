@@ -46,7 +46,7 @@ public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
         State.SetDeferredTransport(busConfiguration.Inbox.DeferredTransport);
         State.SetErrorTransport(busConfiguration.Inbox.ErrorTransport);
 
-        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Inbox.IgnoreOnFailureDurations);
+        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Inbox.IgnoreOnFailureDurations.Any() ? hopperOptions.Value.Inbox.IgnoreOnFailureDurations : HopperOptions.DefaultIgnoreOnFailureDurations);
         State.SetMaximumFailureCount(hopperOptions.Value.Inbox.MaximumFailureCount);
     }
 }

@@ -89,20 +89,23 @@ public class MessageHandlerInvokerFixture
 
         services.AddHopper(builder =>
         {
-            builder.Options.Inbox.ThreadCount = 1;
-            builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-            builder.Options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
-            builder.Options.MessageRoutes.Add(new()
+            builder.Configure(options =>
             {
-                Uri = "memory://configuration/inbox",
-                Specifications =
-                [
-                    new()
-                    {
-                        Name = "StartsWith",
-                        Value = "Shuttle"
-                    }
-                ]
+                options.Inbox.ThreadCount = 1;
+                options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
+                options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
+                options.MessageRoutes.Add(new()
+                {
+                    Uri = "memory://configuration/inbox",
+                    Specifications =
+                    [
+                        new()
+                        {
+                            Name = "StartsWith",
+                            Value = "Shuttle"
+                        }
+                    ]
+                });
             });
         });
 
@@ -148,25 +151,28 @@ public class MessageHandlerInvokerFixture
 
         services.AddHopper(builder =>
         {
-            builder.Options.Inbox.ThreadCount = 1;
-            builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-            builder.Options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
-            builder.Options.MessageRoutes.Add(new()
+            builder.Configure(options =>
             {
-                Uri = "memory://configuration/inbox",
-                Specifications =
-                [
-                    new()
-                    {
-                        Name = "StartsWith",
-                        Value = "Shuttle"
-                    }
-                ]
+                options.Inbox.ThreadCount = 1;
+                options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
+                options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
+                options.MessageRoutes.Add(new()
+                {
+                    Uri = "memory://configuration/inbox",
+                    Specifications =
+                    [
+                        new()
+                        {
+                            Name = "StartsWith",
+                            Value = "Shuttle"
+                        }
+                    ]
+                });
             });
 
-            builder.Options.AddMessageHandlers = false;
-
-            builder.AddMessageHandler(contextHandler);
+            builder
+                .SuppressMessageHandlerRegistration()
+                .AddMessageHandler(contextHandler);
         });
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
@@ -208,23 +214,26 @@ public class MessageHandlerInvokerFixture
 
         services.AddHopper(builder =>
         {
-            builder.Options.Inbox.ThreadCount = 1;
-            builder.Options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-            builder.Options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
-            builder.Options.MessageRoutes.Add(new()
+            builder.Configure(options =>
             {
-                Uri = "memory://configuration/inbox",
-                Specifications =
-                [
-                    new()
-                    {
-                        Name = "StartsWith",
-                        Value = "Shuttle"
-                    }
-                ]
+                options.Inbox.ThreadCount = 1;
+                options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
+                options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
+                options.MessageRoutes.Add(new()
+                {
+                    Uri = "memory://configuration/inbox",
+                    Specifications =
+                    [
+                        new()
+                        {
+                            Name = "StartsWith",
+                            Value = "Shuttle"
+                        }
+                    ]
+                });
             });
 
-            builder.Options.AddMessageHandlers = false;
+            builder.SuppressMessageHandlerRegistration();
         });
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();

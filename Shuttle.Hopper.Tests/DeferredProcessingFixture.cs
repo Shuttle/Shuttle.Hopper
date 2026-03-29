@@ -14,27 +14,27 @@ public class DeferredProcessingFixture
         var serviceProvider = new ServiceCollection()
             .AddHopper(builder =>
             {
-                builder.Options.Inbox = new()
+                builder.Configure(options =>
                 {
-                    WorkTransportUri = new("memory://memory/work-transport"),
-                    DeferredTransportUri = new("memory://memory/deferred-transport"),
-                    ErrorTransportUri = new("memory://memory/error-transport"),
-                    DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(500)
-                };
+                    options.Inbox.WorkTransportUri = new("memory://memory/work-transport");
+                    options.Inbox.DeferredTransportUri = new("memory://memory/deferred-transport");
+                    options.Inbox.ErrorTransportUri = new("memory://memory/error-transport");
+                    options.Inbox.DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(500);
 
-                builder.Options.DeferredMessageProcessingHalted += async (_, _) =>
-                {
-                    Console.WriteLine(@"[deferred processing halted]");
+                    options.DeferredMessageProcessingHalted += async (_, _) =>
+                    {
+                        Console.WriteLine(@"[deferred processing halted]");
 
-                    await Task.CompletedTask;
-                };
+                        await Task.CompletedTask;
+                    };
 
-                builder.Options.MessageReturned += async (e, _) =>
-                {
-                    messagesReturned.Add(e.TransportMessage);
+                    options.MessageReturned += async (e, _) =>
+                    {
+                        messagesReturned.Add(e.TransportMessage);
 
-                    await Task.CompletedTask;
-                };
+                        await Task.CompletedTask;
+                    };
+                });
             })
             .AddSingleton<ITransportFactory, MemoryTransportFactory>()
             .BuildServiceProvider();

@@ -33,12 +33,15 @@ public class BusFixture
         services.AddScoped<IMessageHandlerInvoker>(_ => handlerInvoker);
         services.AddHopper(builder =>
         {
-            builder.Options.Inbox = new()
+            builder.Configure(options =>
             {
-                WorkTransportUri = new ("fake://work"),
-                ErrorTransportUri = new("fake://error"),
-                ThreadCount = 1
-            };
+                options.Inbox = new()
+                {
+                    WorkTransportUri = new("fake://work"),
+                    ErrorTransportUri = new("fake://error"),
+                    ThreadCount = 1
+                };
+            });
         });
 
         var bus = services.BuildServiceProvider().GetRequiredService<IBusControl>();
