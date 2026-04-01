@@ -57,6 +57,7 @@ public class MessageHandlerInvokerFixture
             }, cancellationToken);
         }
     }
+
     public class MessageHandler(IBus bus, IMessageHandlerTracker messageHandlerTracker) : IMessageHandler<Message>
     {
         private readonly IMessageHandlerTracker _messageHandlerTracker = Guard.AgainstNull(messageHandlerTracker);
@@ -87,9 +88,7 @@ public class MessageHandlerInvokerFixture
 
         var services = new ServiceCollection();
 
-        services.AddHopper(builder =>
-        {
-            builder.Configure(options =>
+        services.AddHopper(options =>
             {
                 options.Inbox.ThreadCount = 1;
                 options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
@@ -106,8 +105,8 @@ public class MessageHandlerInvokerFixture
                         }
                     ]
                 });
-            });
-        });
+            })
+            .AddMessageHandlers();
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
         services.AddSingleton<IMessageHandlerTracker, MessageHandlerTracker>();
@@ -119,7 +118,7 @@ public class MessageHandlerInvokerFixture
         await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
         var bus = serviceProvider.GetRequiredService<IBus>();
-        
+
         for (var i = 0; i < count; i++)
         {
             await bus.SendAsync(new Message
@@ -149,31 +148,27 @@ public class MessageHandlerInvokerFixture
         var messageHandlerTracker = new MessageHandlerTracker();
         var contextHandler = new ContextMessageHandler(messageHandlerTracker);
 
-        services.AddHopper(builder =>
-        {
-            builder.Configure(options =>
-            {
-                options.Inbox.ThreadCount = 1;
-                options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
-                options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
-                options.MessageRoutes.Add(new()
+        services.AddHopper(options =>
                 {
-                    Uri = "memory://configuration/inbox",
-                    Specifications =
-                    [
-                        new()
-                        {
-                            Name = "StartsWith",
-                            Value = "Shuttle"
-                        }
-                    ]
-                });
-            });
+                    options.Inbox.ThreadCount = 1;
+                    options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
+                    options.Inbox.IdleDurations = [TimeSpan.FromMilliseconds(5)];
+                    options.MessageRoutes.Add(new()
+                    {
+                        Uri = "memory://configuration/inbox",
+                        Specifications =
+                        [
+                            new()
+                            {
+                                Name = "StartsWith",
+                                Value = "Shuttle"
+                            }
+                        ]
+                    });
 
-            builder
-                .SuppressMessageHandlerRegistration()
+                    options.AutoStart = false;
+                })
                 .AddMessageHandler(contextHandler);
-        });
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
         services.AddSingleton<IMessageHandlerTracker>(messageHandlerTracker);
@@ -183,7 +178,7 @@ public class MessageHandlerInvokerFixture
         await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
         var bus = serviceProvider.GetRequiredService<IBus>();
-        
+
         for (var i = 0; i < count; i++)
         {
             await bus.SendAsync(new Message
@@ -212,9 +207,7 @@ public class MessageHandlerInvokerFixture
             .AddSingleton<IMessageHandlerTracker, MessageHandlerTracker>()
             .AddSingleton<IMessageHandler<Message>, MessageHandler>();
 
-        services.AddHopper(builder =>
-        {
-            builder.Configure(options =>
+        services.AddHopper(options =>
             {
                 options.Inbox.ThreadCount = 1;
                 options.Inbox.WorkTransportUri = new("memory://configuration/inbox");
@@ -231,10 +224,8 @@ public class MessageHandlerInvokerFixture
                         }
                     ]
                 });
-            });
-
-            builder.SuppressMessageHandlerRegistration();
-        });
+            })
+            .AddMessageHandlers();
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
 
@@ -245,7 +236,7 @@ public class MessageHandlerInvokerFixture
         await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
 
         var bus = serviceProvider.GetRequiredService<IBus>();
-        
+
         for (var i = 0; i < count; i++)
         {
             await bus.SendAsync(new Message

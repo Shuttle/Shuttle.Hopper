@@ -12,41 +12,40 @@ public class DeferredProcessingFixture
         var messagesReturned = new List<TransportMessage>();
 
         var serviceProvider = new ServiceCollection()
-            .AddHopper(builder =>
+            .AddHopper(options =>
             {
-                builder.Configure(options =>
+                options.Inbox.WorkTransportUri = new("memory://memory/work-transport");
+                options.Inbox.DeferredTransportUri = new("memory://memory/deferred-transport");
+                options.Inbox.ErrorTransportUri = new("memory://memory/error-transport");
+                options.Inbox.DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(500);
+
+                options.DeferredMessageProcessingHalted += async (_, _) =>
                 {
-                    options.Inbox.WorkTransportUri = new("memory://memory/work-transport");
-                    options.Inbox.DeferredTransportUri = new("memory://memory/deferred-transport");
-                    options.Inbox.ErrorTransportUri = new("memory://memory/error-transport");
-                    options.Inbox.DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(500);
+                    Console.WriteLine(@"[deferred processing halted]");
 
-                    options.DeferredMessageProcessingHalted += async (_, _) =>
-                    {
-                        Console.WriteLine(@"[deferred processing halted]");
+                    await Task.CompletedTask;
+                };
 
-                        await Task.CompletedTask;
-                    };
+                options.MessageReturned += async (e, _) =>
+                {
+                    messagesReturned.Add(e.TransportMessage);
 
-                    options.MessageReturned += async (e, _) =>
-                    {
-                        messagesReturned.Add(e.TransportMessage);
-
-                        await Task.CompletedTask;
-                    };
-                });
+                    await Task.CompletedTask;
+                };
             })
+            .AddMessageHandlers()
+            .Services
             .AddSingleton<ITransportFactory, MemoryTransportFactory>()
             .BuildServiceProvider();
 
         await using var busControl = await serviceProvider.GetRequiredService<IBusControl>().StartAsync();
-        
+
         var bus = serviceProvider.GetRequiredService<IBus>();
 
         await bus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(1))));
         await bus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(2))));
         await bus.SendAsync(new SimpleCommand(), builder => builder.ToSelf().DeferUntil(DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(3))));
-        
+
         var timeout = DateTimeOffset.UtcNow.AddMilliseconds(3500);
 
         while (messagesReturned.Count < 3 && DateTimeOffset.UtcNow < timeout)

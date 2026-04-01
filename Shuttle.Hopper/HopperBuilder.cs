@@ -1,15 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Reflection;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Shuttle.Hopper;
 
 public class HopperBuilder(IServiceCollection services)
 {
-    private readonly List<Action<HopperOptions>> _configureActions = [];
     private static readonly Type ContextMessageHandlerType = typeof(IContextMessageHandler<>);
     private static readonly Type DirectMessageHandlerType = typeof(IMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
@@ -17,39 +16,7 @@ public class HopperBuilder(IServiceCollection services)
 
     public IServiceCollection Services { get; } = Guard.AgainstNull(services);
 
-    internal bool ShouldRegisterMessageHandler { get; private set; } = true;
     internal List<string> SubscriptionMessageTypes { get; } = [];
-
-    public HopperBuilder Configure(Action<HopperOptions> configureOptions)
-    {
-        _configureActions.Add(Guard.AgainstNull(configureOptions));
-        return this;
-    }
-
-    public HopperBuilder SuppressBusHostedService()
-    {
-        _configureActions.Add(o => o.SuppressBusHostedService = true);
-        return this;
-    }
-
-    public HopperBuilder SuppressMessageHandlerRegistration()
-    {
-        ShouldRegisterMessageHandler = false;
-        return this;
-    }
-
-    internal void ApplyOptions()
-    {
-        Services.AddOptions<HopperOptions>().Configure(options =>
-        {
-            foreach (var action in _configureActions)
-            {
-                action(options);
-            }
-
-            options.Subscription.MessageTypes.AddRange(SubscriptionMessageTypes);
-        });
-    }
 
     public HopperBuilder AddMessageHandler<TDelegate>(TDelegate handler) where TDelegate : Delegate
     {
@@ -201,6 +168,16 @@ public class HopperBuilder(IServiceCollection services)
             }
 
             Services.TryAdd(serviceDescriptor);
+        }
+
+        return this;
+    }
+
+    public HopperBuilder AddMessageHandlers()
+    {
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            AddMessageHandlers(assembly);
         }
 
         return this;

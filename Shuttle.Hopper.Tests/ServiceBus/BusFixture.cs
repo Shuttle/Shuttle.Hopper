@@ -31,17 +31,14 @@ public class BusFixture
         });
         services.AddSingleton(transportService.Object);
         services.AddScoped<IMessageHandlerInvoker>(_ => handlerInvoker);
-        services.AddHopper(builder =>
+        services.AddHopper(options =>
         {
-            builder.Configure(options =>
+            options.Inbox = new()
             {
-                options.Inbox = new()
-                {
-                    WorkTransportUri = new("fake://work"),
-                    ErrorTransportUri = new("fake://error"),
-                    ThreadCount = 1
-                };
-            });
+                WorkTransportUri = new("fake://work"),
+                ErrorTransportUri = new("fake://error"),
+                ThreadCount = 1
+            };
         });
 
         var bus = services.BuildServiceProvider().GetRequiredService<IBusControl>();

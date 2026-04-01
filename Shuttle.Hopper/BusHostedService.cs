@@ -7,13 +7,12 @@ namespace Shuttle.Hopper;
 
 public class BusHostedService(IOptions<HopperOptions> hopperOptions, IServiceScopeFactory serviceScopeFactory) : IHostedService
 {
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
     private IBusControl? _bus;
     private IServiceScope? _serviceScope;
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_hopperOptions.SuppressBusHostedService)
+        if (!hopperOptions.Value.AutoStart)
         {
             return;
         }
@@ -26,7 +25,7 @@ public class BusHostedService(IOptions<HopperOptions> hopperOptions, IServiceSco
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        if (_hopperOptions.SuppressBusHostedService)
+        if (!hopperOptions.Value.AutoStart)
         {
             return;
         }
