@@ -61,9 +61,7 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
 
                 if (retry)
                 {
-                    retry =
-                        _messageContext.ExceptionHandling == ExceptionHandling.Retry ||
-                        _messageContext.ExceptionHandling == ExceptionHandling.Default;
+                    retry = _messageContext.ExceptionHandling is ExceptionHandling.Retry or ExceptionHandling.Default;
                 }
 
                 var poison = errorTransport != null;
@@ -72,9 +70,7 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
 
                 if (poison)
                 {
-                    poison =
-                        _messageContext.ExceptionHandling == ExceptionHandling.Poison ||
-                        _messageContext.ExceptionHandling == ExceptionHandling.Default;
+                    poison = _messageContext.ExceptionHandling is ExceptionHandling.Poison or ExceptionHandling.Default;
                 }
 
                 Guard.AgainstNull(receivedMessage);

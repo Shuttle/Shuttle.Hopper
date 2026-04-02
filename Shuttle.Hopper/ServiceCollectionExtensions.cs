@@ -50,25 +50,25 @@ public static class ServiceCollectionExtensions
             services.AddTransactionScope();
             services.AddPipelines().AddAssembly(typeof(Bus).Assembly);
             services.AddThreading()
-                    .ConfigureProcessor("InboxProcessor", (options, serviceProvider) =>
-                    {
-                        var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
-                        options.Durations = hopperOptions.Inbox.IdleDurations.Count > 0
-                            ? hopperOptions.Inbox.IdleDurations
-                            : HopperOptions.DefaultIdleDurations.ToList();
-                    })
-                    .ConfigureProcessor("OutboxProcessor", (options, serviceProvider) =>
-                    {
-                        var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
-                        options.Durations = hopperOptions.Outbox.IdleDurations.Count > 0
-                            ? hopperOptions.Outbox.IdleDurations
-                            : HopperOptions.DefaultIdleDurations.ToList();
-                    })
+                .ConfigureProcessor("InboxProcessor", (options, serviceProvider) =>
+                {
+                    var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
+                    options.Durations = hopperOptions.Inbox.IdleDurations.Count > 0
+                        ? hopperOptions.Inbox.IdleDurations
+                        : HopperOptions.DefaultIdleDurations.ToList();
+                })
+                .ConfigureProcessor("OutboxProcessor", (options, serviceProvider) =>
+                {
+                    var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
+                    options.Durations = hopperOptions.Outbox.IdleDurations.Count > 0
+                        ? hopperOptions.Outbox.IdleDurations
+                        : HopperOptions.DefaultIdleDurations.ToList();
+                })
                 .ConfigureProcessor("DeferredMessageProcessor", (options, serviceProvider) =>
-                    {
-                        var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
-                        options.Durations = [hopperOptions.Inbox.DeferredMessageProcessorIdleDuration];
-                    });
+                {
+                    var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
+                    options.Durations = [hopperOptions.Inbox.DeferredMessageProcessorIdleDuration];
+                });
 
             services.TryAddSingleton<IContextMessageHandlerDelegateRegistry>(_ => new ContextMessageHandlerDelegateRegistry(builder.GetMessageHandlerDelegates()));
             services.TryAddSingleton<IMessageHandlerDelegateRegistry>(_ => new MessageHandlerDelegateRegistry(builder.GetDirectMessageHandlerDelegates()));
