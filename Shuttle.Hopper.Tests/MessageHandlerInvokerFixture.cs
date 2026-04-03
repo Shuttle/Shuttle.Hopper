@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shuttle.Core.Contract;
 
@@ -106,7 +107,7 @@ public class MessageHandlerInvokerFixture
                     ]
                 });
             })
-            .AddMessageHandlers();
+            .AddMessageHandlersFrom(Assembly.GetExecutingAssembly());
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
         services.AddSingleton<IMessageHandlerTracker, MessageHandlerTracker>();
@@ -224,8 +225,7 @@ public class MessageHandlerInvokerFixture
                         }
                     ]
                 });
-            })
-            .AddMessageHandlers();
+            });
 
         services.AddSingleton<ITransportFactory, MemoryTransportFactory>();
 

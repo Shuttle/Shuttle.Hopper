@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Shuttle.Hopper.Tests;
@@ -33,7 +34,6 @@ public class DeferredProcessingFixture
                     await Task.CompletedTask;
                 };
             })
-            .AddMessageHandlers()
             .Services
             .AddSingleton<ITransportFactory, MemoryTransportFactory>()
             .BuildServiceProvider();

@@ -136,13 +136,16 @@ public class HopperBuilder(IServiceCollection services)
         return this;
     }
 
-    public HopperBuilder AddMessageHandlers(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
+    public HopperBuilder AddMessageHandlersFrom(Assembly assembly, Func<Type, ServiceLifetime>? getServiceLifetime = null)
     {
-        Guard.AgainstNull(assembly);
+        return AddMessageHandlersFrom([Guard.AgainstNull(assembly)], getServiceLifetime);
+    }
 
+    public HopperBuilder AddMessageHandlersFrom(Assembly[] assemblies, Func<Type, ServiceLifetime>? getServiceLifetime = null)
+    {
         getServiceLifetime ??= _ => ServiceLifetime.Scoped;
 
-        foreach (var type in assembly.GetTypesCastableToAsync(ContextMessageHandlerType).GetAwaiter().GetResult())
+        foreach (var type in assemblies.SelectMany(assembly => assembly.FindTypesCastableTo(ContextMessageHandlerType)))
         foreach (var @interface in type.InterfacesCastableTo(ContextMessageHandlerType))
         {
             var genericType = ContextMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
@@ -156,7 +159,7 @@ public class HopperBuilder(IServiceCollection services)
             Services.TryAdd(serviceDescriptor);
         }
 
-        foreach (var type in assembly.GetTypesCastableToAsync(DirectMessageHandlerType).GetAwaiter().GetResult())
+        foreach (var type in assemblies.SelectMany(assembly => assembly.FindTypesCastableTo(DirectMessageHandlerType)))
         foreach (var @interface in type.InterfacesCastableTo(DirectMessageHandlerType))
         {
             var genericType = DirectMessageHandlerType.MakeGenericType(@interface.GetGenericArguments()[0]);
@@ -168,16 +171,6 @@ public class HopperBuilder(IServiceCollection services)
             }
 
             Services.TryAdd(serviceDescriptor);
-        }
-
-        return this;
-    }
-
-    public HopperBuilder AddMessageHandlers()
-    {
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            AddMessageHandlers(assembly);
         }
 
         return this;

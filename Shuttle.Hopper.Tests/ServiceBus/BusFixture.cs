@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
@@ -39,7 +40,7 @@ public class BusFixture
                 ErrorTransportUri = new("fake://error"),
                 ThreadCount = 1
             };
-        });
+        }); 
 
         var bus = services.BuildServiceProvider().GetRequiredService<IBusControl>();
 

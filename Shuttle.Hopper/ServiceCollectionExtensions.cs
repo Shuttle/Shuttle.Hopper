@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
             services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
 
             services.AddTransactionScope();
-            services.AddPipelines().AddAssembly(typeof(Bus).Assembly);
+            services.AddPipelines().AddPipelinesFrom(typeof(Bus).Assembly);
             services.AddThreading()
                 .ConfigureProcessor("InboxProcessor", (options, serviceProvider) =>
                 {
