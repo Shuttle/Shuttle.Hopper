@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
@@ -14,8 +13,8 @@ public class DispatchTransportMessagePipeline : Pipeline, IDispatchTransportMess
 {
     private readonly IMessageSenderContext _messageSenderContext;
 
-    public DispatchTransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IMessageSenderContext messageSenderContext)
-        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
+    public DispatchTransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IMessageSenderContext messageSenderContext)
+        : base(pipelineOptions, serviceProvider)
     {
         _messageSenderContext = Guard.AgainstNull(messageSenderContext);
 

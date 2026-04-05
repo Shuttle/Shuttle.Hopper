@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
@@ -9,8 +8,8 @@ public interface IOutboxPipeline : IPipeline;
 
 public class OutboxPipeline : Pipeline, IOutboxPipeline
 {
-    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
+    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, serviceProvider)
     {
         Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
 

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
@@ -8,8 +7,8 @@ public interface IStartupPipeline : IPipeline;
 
 public class StartupPipeline : Pipeline, IStartupPipeline
 {
-    public StartupPipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider)
-        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
+    public StartupPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider)
+        : base(pipelineOptions, serviceProvider)
     {
         AddStage("Start")
             .WithEvent<Starting>()

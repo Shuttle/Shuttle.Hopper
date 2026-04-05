@@ -8,7 +8,6 @@ using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.System;
 using Shuttle.Core.Threading;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
@@ -47,7 +46,6 @@ public static class ServiceCollectionExtensions
             services.TryAddKeyedScoped<IProcessor, InboxProcessor>("InboxProcessor");
             services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
 
-            services.AddTransactionScope();
             services.AddPipelines().AddPipelinesFrom(typeof(Bus).Assembly);
             services.AddThreading()
                 .ConfigureProcessor("InboxProcessor", (options, serviceProvider) =>

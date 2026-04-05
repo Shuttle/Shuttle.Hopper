@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
@@ -9,8 +8,8 @@ public interface IDeferredMessagePipeline : IPipeline;
 
 public class DeferredMessagePipeline : Pipeline, IDeferredMessagePipeline
 {
-    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
+    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, serviceProvider)
     {
         Guard.AgainstNull(busConfiguration);
         Guard.AgainstNull(busConfiguration.Inbox);

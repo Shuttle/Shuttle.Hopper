@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper;
 
@@ -9,8 +8,8 @@ public interface IInboxMessagePipeline : IPipeline;
 
 public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
 {
-    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IOptions<TransactionScopeOptions> transactionScopeOptions, ITransactionScopeFactory transactionScopeFactory, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, transactionScopeOptions, transactionScopeFactory, serviceProvider)
+    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, serviceProvider)
     {
         AddStage("Read")
             .WithEvent<ReceiveMessage>()
@@ -18,17 +17,13 @@ public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
             .WithEvent<DeserializeTransportMessage>()
             .WithEvent<TransportMessageDeserialized>()
             .WithEvent<DeserializeMessage>()
-            .WithEvent<MessageDeserialized>()
-            .WithTransactionScope();
+            .WithEvent<MessageDeserialized>();
 
         AddStage("Handle")
             .WithEvent<HandleMessage>()
             .WithEvent<MessageHandled>()
-            .WithEvent<CompleteTransactionScope>()
-            .WithEvent<DisposeTransactionScope>()
             .WithEvent<AcknowledgeMessage>()
-            .WithEvent<MessageAcknowledged>()
-            .WithTransactionScope();
+            .WithEvent<MessageAcknowledged>();
 
         AddObserver<IReceiveWorkMessageObserver>();
         AddObserver<IDeserializeTransportMessageObserver>();

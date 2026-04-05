@@ -1,9 +1,7 @@
-﻿using System.Reflection;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.TransactionScope;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -23,13 +21,6 @@ public class BusFixture
         var services = new ServiceCollection();
 
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
-        services.AddTransactionScope(builder =>
-        {
-            builder.Configure(options =>
-            {
-                options.Enabled = false;
-            });
-        });
         services.AddSingleton(transportService.Object);
         services.AddScoped<IMessageHandlerInvoker>(_ => handlerInvoker);
         services.AddHopper(options =>
