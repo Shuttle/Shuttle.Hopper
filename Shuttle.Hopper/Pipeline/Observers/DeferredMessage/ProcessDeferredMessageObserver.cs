@@ -8,7 +8,7 @@ public interface IProcessDeferredMessageObserver : IPipelineObserver<ProcessDefe
 
 public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOptions) : IProcessDeferredMessageObserver
 {
-    public async Task ExecuteAsync(IPipelineContext<ProcessDeferredMessage> pipelineContext, CancellationToken cancellation = default)
+    public async Task ExecuteAsync(IPipelineContext<ProcessDeferredMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
@@ -18,18 +18,18 @@ public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOption
 
         if (transportMessage.IsIgnoring())
         {
-            await deferredTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellation).ConfigureAwait(false);
+            await deferredTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
 
             state.ResetDeferredMessageReturned();
 
             return;
         }
 
-        await workTransport.SendAsync(transportMessage, receivedMessage.Stream, cancellation).ConfigureAwait(false);
-        await deferredTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellation).ConfigureAwait(false);
+        await workTransport.SendAsync(receivedMessage.Stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+        await deferredTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
 
         state.DeferredMessageReturned();
 
-        await hopperOptions.Value.MessageReturned.InvokeAsync(new(transportMessage, receivedMessage), cancellation);
+        await hopperOptions.Value.MessageReturned.InvokeAsync(new(transportMessage, receivedMessage), cancellationToken);
     }
 }

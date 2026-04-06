@@ -8,11 +8,10 @@ namespace Shuttle.Hopper;
 
 public interface IReceivePipelineFailedObserver : IPipelineObserver<PipelineFailed>;
 
-public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serializer, IMessageContext messageContext) : IReceivePipelineFailedObserver
+public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serializer) : IReceivePipelineFailedObserver
 {
     private readonly IBusPolicy _policy = Guard.AgainstNull(policy);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
-    private readonly IMessageContext _messageContext = Guard.AgainstNull(messageContext);
 
     public async Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -54,24 +53,11 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
 
                 transportMessage.RegisterFailure(exception.AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
 
-                var retry = workTransport.Type == TransportType.Queue;
+                var retry = workTransport.Type == TransportType.Queue
+                            && !exception.Contains<UnrecoverableHandlerException>()
+                            && action.Retry;
 
-                retry = retry && !exception.Contains<UnrecoverableHandlerException>();
-                retry = retry && action.Retry;
-
-                if (retry)
-                {
-                    retry = _messageContext.ExceptionHandling is ExceptionHandling.Retry or ExceptionHandling.Default;
-                }
-
-                var poison = errorTransport != null;
-
-                poison = poison && !retry;
-
-                if (poison)
-                {
-                    poison = _messageContext.ExceptionHandling is ExceptionHandling.Poison or ExceptionHandling.Default;
-                }
+                var poison = errorTransport != null && !retry;
 
                 Guard.AgainstNull(receivedMessage);
 
@@ -81,12 +67,12 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
                     {
                         if (retry)
                         {
-                            await workTransport.SendAsync(transportMessage, stream, cancellationToken).ConfigureAwait(false);
+                            await workTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
                         }
 
                         if (poison)
                         {
-                            await errorTransport!.SendAsync(transportMessage, stream, cancellationToken).ConfigureAwait(false);
+                            await errorTransport!.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
                         }
                     }
 

@@ -1,3 +1,5 @@
+using Shuttle.Core.Pipelines;
+
 namespace Shuttle.Hopper;
 
 public interface ITransport
@@ -8,5 +10,5 @@ public interface ITransport
     Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default);
     Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default);
     Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default);
-    Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default);
+    Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default);
 }

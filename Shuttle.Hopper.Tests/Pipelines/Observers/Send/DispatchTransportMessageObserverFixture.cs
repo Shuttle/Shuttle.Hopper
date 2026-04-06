@@ -39,7 +39,7 @@ public class DispatchTransportMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        outboxTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        outboxTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
 
         busConfiguration.VerifyNoOtherCalls();
         transportService.VerifyNoOtherCalls();
@@ -78,7 +78,7 @@ public class DispatchTransportMessageObserverFixture
         await pipeline.ExecuteAsync();
 
         transportService.Verify(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
-        recipientTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        recipientTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
 
         transportService.VerifyNoOtherCalls();
         recipientTransport.VerifyNoOtherCalls();

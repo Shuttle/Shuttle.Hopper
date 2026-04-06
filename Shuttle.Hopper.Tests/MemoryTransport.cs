@@ -1,4 +1,5 @@
 ﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
 namespace Shuttle.Hopper.Tests;
@@ -13,9 +14,10 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
     public TransportType Type { get; } = TransportType.Queue;
     public TransportUri Uri { get; } = new(Guard.AgainstNull(uri));
 
-    public async Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default)
+    public async Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
     {
-        var copy = await stream.CopyAsync().ConfigureAwait(false);
+        var copy = await Guard.AgainstNull(stream).CopyAsync().ConfigureAwait(false);
+        var transportMessage = Guard.AgainstNull(Guard.AgainstNull(state).GetTransportMessage());
 
         await _lock.WaitAsync(cancellationToken);
 

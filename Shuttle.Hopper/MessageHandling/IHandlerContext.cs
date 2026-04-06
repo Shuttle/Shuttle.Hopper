@@ -1,9 +1,10 @@
+using Shuttle.Core.Pipelines;
+
 namespace Shuttle.Hopper;
 
 public interface IHandlerContext
 {
-    ExceptionHandling ExceptionHandling { get; set; }
-    TransportMessage TransportMessage { get; }
+    public IState State { get; }
     Task<IEnumerable<TransportMessage>> PublishAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default);
     Task<TransportMessage> SendAsync(object message, Action<TransportMessageBuilder>? builder = null, CancellationToken cancellationToken = default);
 }

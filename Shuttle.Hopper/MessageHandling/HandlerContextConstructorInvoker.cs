@@ -1,4 +1,5 @@
 ﻿using System.Reflection.Emit;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
@@ -13,8 +14,7 @@ internal class HandlerContextConstructorInvoker
         var dynamicMethod = new DynamicMethod(string.Empty, typeof(object),
         [
             typeof(IMessageSender),
-            typeof(IMessageContext),
-            typeof(TransportMessage),
+            typeof(IState),
             typeof(object)
         ], HandlerContextType.Module);
 
@@ -23,14 +23,13 @@ internal class HandlerContextConstructorInvoker
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldarg_1);
         il.Emit(OpCodes.Ldarg_2);
-        il.Emit(OpCodes.Ldarg_3);
+        il.Emit(OpCodes.Castclass, messageType);
 
         var contextType = HandlerContextType.MakeGenericType(messageType);
         var constructorInfo = contextType.GetConstructor(
         [
             typeof(IMessageSender),
-            typeof(IMessageContext),
-            typeof(TransportMessage),
+            typeof(IState),
             messageType
         ]);
 
@@ -45,10 +44,10 @@ internal class HandlerContextConstructorInvoker
         _constructorInvoker = (ConstructorInvokeHandler)dynamicMethod.CreateDelegate(typeof(ConstructorInvokeHandler));
     }
 
-    public object CreateHandlerContext(IMessageSender messageSender, IMessageContext messageContext, TransportMessage transportMessage, object message)
+    public object CreateHandlerContext(IMessageSender messageSender, IState state, object message)
     {
-        return _constructorInvoker(messageSender, messageContext, transportMessage, message);
+        return _constructorInvoker(messageSender, state, message);
     }
 
-    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, IMessageContext messageContext, TransportMessage transportMessage, object message);
+    private delegate object ConstructorInvokeHandler(IMessageSender messageSender, IState state, object message);
 }

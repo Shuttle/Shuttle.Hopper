@@ -43,7 +43,7 @@ public class MessageHandlerInvokerFixture
 
             if (context.Message.Replied)
             {
-                Assert.That(!context.TransportMessage.MessageReceivedId.Equals(Guid.Empty), "Should have a `MessageReceivedId` value since the message is handled after being sent from a related message.");
+                Assert.That(!Guard.AgainstNull(context.State.GetTransportMessage()).MessageReceivedId.Equals(Guid.Empty), "Should have a `MessageReceivedId` value since the message is handled after being sent from a related message.");
 
                 return;
             }

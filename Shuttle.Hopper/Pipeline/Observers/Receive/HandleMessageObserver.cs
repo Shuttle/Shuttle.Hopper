@@ -63,7 +63,7 @@ public class HandleMessageObserver(IOptions<HopperOptions> hopperOptions, IMessa
 
             await using var stream = await _serializer.SerializeAsync(transportMessage, cancellation).ConfigureAwait(false);
 
-            await errorTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
+            await errorTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellation).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

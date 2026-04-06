@@ -24,11 +24,9 @@ public class MessageHandlerInvoker(IContextMessageHandlerDelegateRegistry contex
         var transportMessage = Guard.AgainstNull(state.GetTransportMessage());
         var serviceProvider = pipelineContext.Pipeline.ServiceProvider;
 
-        var messageContext = serviceProvider.GetRequiredService<IMessageContext>();
         var messageSenderContext = serviceProvider.GetRequiredService<IMessageSenderContext>();
         var messageSender = serviceProvider.GetRequiredService<IMessageSender>();
 
-        messageContext.TransportMessage = transportMessage;
         messageSenderContext.TransportMessage = transportMessage;
         
         var contextHandler = serviceProvider.GetService(ContextMessageHandlerType.MakeGenericType(messageType));
@@ -68,7 +66,7 @@ public class MessageHandlerInvoker(IContextMessageHandlerDelegateRegistry contex
                 _lock.Release();
             }
 
-            var handlerContext = await GetHandlerContextAsync(state, messageSender, messageContext, messageType, transportMessage, message, cancellationToken);
+            var handlerContext = await GetHandlerContextAsync(state, messageSender, messageType, message, cancellationToken);
 
             await contextHandlerMethodInvoker.InvokeAsync(contextHandler, handlerContext, cancellationToken).ConfigureAwait(false);
 
@@ -119,7 +117,7 @@ public class MessageHandlerInvoker(IContextMessageHandlerDelegateRegistry contex
 
         if (_contextMessageHandlerDelegateRegistry.TryGetValue(messageType, out var contextHandlerDelegate))
         {
-            var handlerContext = await GetHandlerContextAsync(state, messageSender, messageContext, messageType, transportMessage, message, cancellationToken);
+            var handlerContext = await GetHandlerContextAsync(state, messageSender, messageType, message, cancellationToken);
 
             await (Task)contextHandlerDelegate!.Handler.DynamicInvoke(contextHandlerDelegate.GetParameters(serviceProvider, handlerContext, cancellationToken))!;
 
@@ -136,7 +134,7 @@ public class MessageHandlerInvoker(IContextMessageHandlerDelegateRegistry contex
         return false;
     }
 
-    private async ValueTask<object> GetHandlerContextAsync(IState state, IMessageSender messageSender, IMessageContext messageContext, Type messageType, TransportMessage transportMessage, object message, CancellationToken cancellationToken)
+    private async ValueTask<object> GetHandlerContextAsync(IState state, IMessageSender messageSender, Type messageType, object message, CancellationToken cancellationToken)
     {
         HandlerContextConstructorInvoker? handlerContextConstructor;
 
@@ -156,7 +154,7 @@ public class MessageHandlerInvoker(IContextMessageHandlerDelegateRegistry contex
             _lock.Release();
         }
 
-        var handlerContext = handlerContextConstructor.CreateHandlerContext(messageSender, messageContext, transportMessage, message);
+        var handlerContext = handlerContextConstructor.CreateHandlerContext(messageSender, state, message);
 
         state.SetHandlerContext(handlerContext);
 

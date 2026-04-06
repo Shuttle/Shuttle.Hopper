@@ -67,7 +67,7 @@ public class SendOutboxMessageObserverFixture
 
         await pipeline.ExecuteAsync();
 
-        recipientTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()));
+        recipientTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()));
 
         transportService.Verify(m => m.GetAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
 

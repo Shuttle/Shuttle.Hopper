@@ -117,7 +117,7 @@ public class HandleMessageObserverFixture
 
         messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), It.IsAny<CancellationToken>()));
 
-        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        errorTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
         serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
 
         Assert.That(pipeline.State.GetMessageHandlerInvoked(), Is.False);

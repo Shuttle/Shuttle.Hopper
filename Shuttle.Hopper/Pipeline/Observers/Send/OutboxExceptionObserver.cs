@@ -9,7 +9,6 @@ public interface IOutboxExceptionObserver : IPipelineObserver<PipelineFailed>;
 
 public class OutboxExceptionObserver(IBusPolicy policy, ISerializer serializer) : IOutboxExceptionObserver
 {
-    private readonly IBusPolicy _policy = Guard.AgainstNull(policy);
     private readonly ISerializer _serializer = Guard.AgainstNull(serializer);
 
     public async Task ExecuteAsync(IPipelineContext<PipelineFailed> pipelineContext, CancellationToken cancellationToken = default)
@@ -46,17 +45,17 @@ public class OutboxExceptionObserver(IBusPolicy policy, ISerializer serializer) 
 
                 if (workTransport.Type == TransportType.Queue)
                 {
-                    var action = _policy.EvaluateOutboxFailure(pipelineContext);
+                    var action = Guard.AgainstNull(policy).EvaluateOutboxFailure(pipelineContext);
 
                     transportMessage.RegisterFailure(Guard.AgainstNull(pipelineContext.Pipeline.Exception).AllMessages(), action.TimeSpanToIgnoreRetriedMessage);
 
                     if (action.Retry || errorTransport == null)
                     {
-                        await workTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                        await workTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        await errorTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+                        await errorTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
                     }
 
                     await workTransport.AcknowledgeAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);

@@ -81,89 +81,106 @@ public static class PipelineStateExtensions
             return state.Get<ITransport>(StateKeys.WorkTransport);
         }
 
-        public void ResetDeferredMessageReturned()
+        public IState ResetDeferredMessageReturned()
         {
             state.Replace(StateKeys.DeferredMessageReturned, false);
+            return state;
         }
 
-        public void DeferredMessageReturned()
+        public IState DeferredMessageReturned()
         {
             state.Replace(StateKeys.DeferredMessageReturned, true);
+            return state;
         }
 
-        public void SetDeferredTransport(ITransport? transport)
+        public IState SetDeferredTransport(ITransport? transport)
         {
             state.Add(StateKeys.DeferredTransport, transport);
+            return state;
         }
 
-        public void SetDurationToIgnoreOnFailure(IEnumerable<TimeSpan> timeSpans)
+        public IState SetDurationToIgnoreOnFailure(IEnumerable<TimeSpan> timeSpans)
         {
             state.Add(StateKeys.DurationToIgnoreOnFailure, timeSpans);
+            return state;
         }
 
-        public void SetErrorTransport(ITransport? transport)
+        public IState SetErrorTransport(ITransport? transport)
         {
             state.Add(StateKeys.ErrorTransport, transport);
+            return state;
         }
 
-        public void SetHandlerContext(object handlerContext)
+        public IState SetHandlerContext(object handlerContext)
         {
             state.Replace(StateKeys.HandlerContext, handlerContext);
+            return state;
         }
 
-        public void SetMaximumFailureCount(int count)
+        public IState SetMaximumFailureCount(int count)
         {
             state.Add(StateKeys.MaximumFailureCount, count);
+            return state;
         }
 
-        public void SetMessage(object message)
+        public IState SetMessage(object message)
         {
             state.Replace(StateKeys.Message, message);
+            return state;
         }
 
-        public void SetMessageBytes(byte[] bytes)
+        public IState SetMessageBytes(byte[] bytes)
         {
             state.Replace(StateKeys.MessageBytes, bytes);
+            return state;
         }
 
-        public void SetMessageHandlerInvoked(bool value)
+        public IState SetMessageHandlerInvoked(bool value)
         {
             state.Replace(StateKeys.MessageHandlerInvokeResult, value);
+            return state;
         }
 
-        public void ResetReceivedMessage()
+        public IState ResetReceivedMessage()
         {
             state.Remove(StateKeys.ReceivedMessage);
+            return state;
         }
 
-        public void SetReceivedMessage(ReceivedMessage receivedMessage)
+        public IState SetReceivedMessage(ReceivedMessage receivedMessage)
         {
             state.Replace(StateKeys.ReceivedMessage, receivedMessage);
+            return state;
         }
 
-        public void SetTransportMessage(TransportMessage? value)
+        public IState SetTransportMessage(TransportMessage? value)
         {
             state.Replace(StateKeys.TransportMessage, value);
+            return state;
         }
 
-        public void SetTransportMessageBuilder(Action<TransportMessageBuilder>? builder)
+        public IState SetTransportMessageBuilder(Action<TransportMessageBuilder>? builder)
         {
             state.Replace(StateKeys.TransportMessageBuilder, builder);
+            return state;
         }
 
-        public void SetTransportMessageReceived(TransportMessage? value)
+        public IState SetTransportMessageReceived(TransportMessage? value)
         {
             state.Replace(StateKeys.TransportMessageReceived, value);
+            return state;
         }
 
-        public void SetTransportMessageStream(Stream value)
+        public IState SetTransportMessageStream(Stream value)
         {
             state.Replace(StateKeys.TransportMessageStream, value);
+            return state;
         }
 
-        public void SetWorkTransport(ITransport transport)
+        public IState SetWorkTransport(ITransport transport)
         {
             state.Add(StateKeys.WorkTransport, transport);
+            return state;
         }
     }
 }

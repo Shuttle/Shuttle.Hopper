@@ -73,7 +73,6 @@ public static class ServiceCollectionExtensions
 
             services.TryAddSingleton<IMessageHandlerInvoker, MessageHandlerInvoker>();
             services.TryAddScoped<IMessageSender, MessageSender>();
-            services.TryAddScoped<IMessageContext, MessageContext>();
             services.TryAddScoped<IMessageSenderContext, MessageSenderContext>();
             services.TryAddScoped<IBus, Bus>();
             services.TryAddSingleton<IBusControl, BusControl>();

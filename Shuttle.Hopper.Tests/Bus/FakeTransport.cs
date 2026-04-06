@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 using Shuttle.Core.Serialization;
 using Shuttle.Core.Streams;
 using JsonSerializer = Shuttle.Core.Serialization.JsonSerializer;
@@ -17,9 +19,9 @@ public class FakeTransport(HopperOptions hopperOptions, int messagesToReturn) : 
     public TransportType Type { get; } = TransportType.Queue;
     public TransportUri Uri { get; } = new(new Uri("fake://configuration/transport"));
 
-    public async Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default)
+    public async Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
     {
-        await hopperOptions.MessageSent.InvokeAsync(new(this, transportMessage, stream), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageSent.InvokeAsync(new(this, Guard.AgainstNull(Guard.AgainstNull(state).GetTransportMessage()), stream), cancellationToken).ConfigureAwait(false);
     }
 
     public ValueTask<bool> HasPendingAsync(CancellationToken cancellationToken = default)

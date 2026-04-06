@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Contract;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Pipelines;
 using Shuttle.Core.Streams;
 
@@ -10,7 +11,6 @@ public class DispatchTransportMessageObserver(IBusConfiguration busConfiguration
     : IDispatchTransportMessageObserver
 {
     private readonly IBusConfiguration _busConfiguration = Guard.AgainstNull(busConfiguration);
-    private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
     public async Task ExecuteAsync(IPipelineContext<DispatchTransportMessage> pipelineContext, CancellationToken cancellationToken = default)
     {
@@ -20,11 +20,11 @@ public class DispatchTransportMessageObserver(IBusConfiguration busConfiguration
         Guard.AgainstEmpty(transportMessage.RecipientInboxWorkTransportUri);
 
         var transport = !_busConfiguration.HasOutbox()
-            ? await _transportService.GetAsync(transportMessage.RecipientInboxWorkTransportUri, cancellationToken)
+            ? await Guard.AgainstNull(transportService).GetAsync(transportMessage.RecipientInboxWorkTransportUri, cancellationToken)
             : Guard.AgainstNull(_busConfiguration.Outbox!.WorkTransport);
 
         await using var stream = await Guard.AgainstNull(state.GetTransportMessageStream()).CopyAsync().ConfigureAwait(false);
 
-        await transport.SendAsync(transportMessage, stream, cancellationToken).ConfigureAwait(false);
+        await transport.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
     }
 }

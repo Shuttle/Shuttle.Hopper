@@ -43,7 +43,7 @@ public class DeserializeMessageObserver(IOptions<HopperOptions> hopperOptions, I
 
             transportMessage.RegisterFailure(ex.AllMessages(), TimeSpan.Zero);
 
-            await errorTransport.SendAsync(transportMessage, await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+            await errorTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
             await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
 
             pipelineContext.Pipeline.Abort();

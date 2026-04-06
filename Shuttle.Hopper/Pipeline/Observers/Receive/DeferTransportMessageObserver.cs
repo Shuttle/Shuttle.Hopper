@@ -29,11 +29,11 @@ public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions
         {
             if (deferredTransport == null)
             {
-                await workTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
+                await workTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellation).ConfigureAwait(false);
             }
             else
             {
-                await deferredTransport.SendAsync(transportMessage, stream, cancellation).ConfigureAwait(false);
+                await deferredTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellation).ConfigureAwait(false);
 
                 await _deferredMessageProcessorContext.MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
             }

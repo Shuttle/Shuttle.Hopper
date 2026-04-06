@@ -181,7 +181,7 @@ public class OutboxExceptionObserverFixture
         await pipeline.ExecuteAsync();
 
         serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
-        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         busPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
@@ -227,7 +227,7 @@ public class OutboxExceptionObserverFixture
         await pipeline.ExecuteAsync();
 
         serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
-        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        errorTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         busPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);
@@ -271,7 +271,7 @@ public class OutboxExceptionObserverFixture
         await pipeline.ExecuteAsync();
 
         serializer.Verify(m => m.SerializeAsync(transportMessage, It.IsAny<CancellationToken>()));
-        workTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
 
         busPolicy.Verify(m => m.EvaluateOutboxFailure(It.IsAny<IPipelineContext<PipelineFailed>>()), Times.Once);

@@ -7,8 +7,8 @@ public interface IStartupPipeline : IPipeline;
 
 public class StartupPipeline : Pipeline, IStartupPipeline
 {
-    public StartupPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider)
-        : base(pipelineOptions, serviceProvider)
+    public StartupPipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider)
+        : base(pipelineOptions, pipelineState, serviceProvider)
     {
         AddStage("Start")
             .WithEvent<Starting>()

@@ -28,7 +28,7 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
 
         errorTransport.Setup(m => m.Uri).Returns(new TransportUri("transport://configuration/some-transport"));
 
-        var observer = new ReceivePipelineFailedObserver(policy.Object, new Mock<ISerializer>().Object, new Mock<IMessageContext>().Object);
+        var observer = new ReceivePipelineFailedObserver(policy.Object, new Mock<ISerializer>().Object);
 
         var pipeline = Pipeline.Get()
             .AddObserver(this)
@@ -49,6 +49,6 @@ public class ReceiveExceptionObserverFixture : IPipelineObserver<OnException>
         await pipeline.ExecuteAsync(CancellationToken.None);
 
         workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
-        errorTransport.Verify(m => m.SendAsync(transportMessage, It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
+        errorTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

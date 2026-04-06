@@ -8,8 +8,8 @@ public interface IInboxMessagePipeline : IPipeline;
 
 public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
 {
-    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, serviceProvider)
+    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, pipelineState, serviceProvider)
     {
         AddStage("Read")
             .WithEvent<ReceiveMessage>()
@@ -41,7 +41,9 @@ public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
         State.SetDeferredTransport(busConfiguration.Inbox.DeferredTransport);
         State.SetErrorTransport(busConfiguration.Inbox.ErrorTransport);
 
-        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Inbox.IgnoreOnFailureDurations.Any() ? hopperOptions.Value.Inbox.IgnoreOnFailureDurations : HopperOptions.DefaultIgnoreOnFailureDurations);
+        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Inbox.IgnoreOnFailureDurations.Count > 0
+            ? hopperOptions.Value.Inbox.IgnoreOnFailureDurations 
+            : HopperOptions.DefaultIgnoreOnFailureDurations);
         State.SetMaximumFailureCount(hopperOptions.Value.Inbox.MaximumFailureCount);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -9,9 +10,9 @@ public class NullTransport(HopperOptions hopperOptions, Uri uri) : ITransport
     public TransportType Type { get; } = TransportType.Queue;
     public TransportUri Uri { get; } = new(uri);
 
-    public async Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default)
+    public async Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
     {
-        await _hopperOptions.MessageSent.InvokeAsync(new(this, transportMessage, stream), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageSent.InvokeAsync(new(this, Guard.AgainstNull(state.GetTransportMessage()), stream), cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)

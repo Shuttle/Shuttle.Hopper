@@ -1,4 +1,5 @@
 ﻿using Shuttle.Core.Contract;
+using Shuttle.Core.Pipelines;
 
 namespace Shuttle.Hopper;
 
@@ -16,9 +17,9 @@ public class ResolvedTransport : ITransport
     public TransportType Type { get; }
     public TransportUri Uri { get; }
 
-    public Task SendAsync(TransportMessage transportMessage, Stream stream, CancellationToken cancellationToken = default)
+    public Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
     {
-        return _transport.SendAsync(transportMessage, stream, cancellationToken);
+        return _transport.SendAsync(stream, Guard.AgainstNull(state), cancellationToken);
     }
 
     public Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)

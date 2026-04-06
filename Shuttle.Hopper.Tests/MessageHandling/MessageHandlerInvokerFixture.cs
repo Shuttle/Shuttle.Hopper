@@ -15,7 +15,6 @@ public class MessageHandlerInvokerFixture
     {
         var serviceProvider = new ServiceCollection()
             .AddSingleton(typeof(IMessageHandler<>).MakeGenericType(typeof(WorkMessage)), typeof(WorkHandler))
-            .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
             .AddScoped<ITransportMessagePipeline>(_ => new Mock<ITransportMessagePipeline>().Object)
@@ -52,7 +51,6 @@ public class MessageHandlerInvokerFixture
             });
 
         services
-            .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
             .AddScoped<ITransportMessagePipeline>(_ => new Mock<ITransportMessagePipeline>().Object)
@@ -90,7 +88,6 @@ public class MessageHandlerInvokerFixture
             });
 
         services
-            .AddScoped<IMessageContext, MessageContext>()
             .AddScoped<IMessageSenderContext, MessageSenderContext>()
             .AddScoped<IMessageSender, MessageSender>()
             .AddScoped<ITransportMessagePipeline>(_ => new Mock<ITransportMessagePipeline>().Object)

@@ -13,7 +13,7 @@ public static class PipelineExtensions
         {
             var pipelineOptions = Options.Create(new PipelineOptions());
 
-            return new(pipelineOptions, serviceProvider ?? new Mock<IServiceProvider>().Object);
+            return new(pipelineOptions, new PipelineState(), serviceProvider ?? new Mock<IServiceProvider>().Object);
         }
     }
 }
