@@ -8,8 +8,8 @@ public interface IInboxMessagePipeline : IPipeline;
 
 public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
 {
-    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, pipelineState, serviceProvider)
+    public InboxMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, serviceProvider)
     {
         AddStage("Read")
             .WithEvent<ReceiveMessage>()

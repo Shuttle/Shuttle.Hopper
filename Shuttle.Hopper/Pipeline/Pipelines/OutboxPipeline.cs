@@ -8,8 +8,8 @@ public interface IOutboxPipeline : IPipeline;
 
 public class OutboxPipeline : Pipeline, IOutboxPipeline
 {
-    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, pipelineState, serviceProvider)
+    public OutboxPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IOptions<HopperOptions> hopperOptions, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, serviceProvider)
     {
         Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
 

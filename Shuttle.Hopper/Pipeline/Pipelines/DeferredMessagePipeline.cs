@@ -8,8 +8,8 @@ public interface IDeferredMessagePipeline : IPipeline;
 
 public class DeferredMessagePipeline : Pipeline, IDeferredMessagePipeline
 {
-    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider, IBusConfiguration busConfiguration)
-        : base(pipelineOptions, pipelineState, serviceProvider)
+    public DeferredMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IBusConfiguration busConfiguration)
+        : base(pipelineOptions, serviceProvider)
     {
         Guard.AgainstNull(busConfiguration);
         Guard.AgainstNull(busConfiguration.Inbox);

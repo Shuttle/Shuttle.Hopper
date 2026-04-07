@@ -7,8 +7,8 @@ public interface IShutdownPipeline : IPipeline;
 
 public class ShutdownPipeline : Pipeline, IShutdownPipeline
 {
-    public ShutdownPipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider)
-        : base(pipelineOptions, pipelineState, serviceProvider)
+    public ShutdownPipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider)
+        : base(pipelineOptions, serviceProvider)
     {
         AddStage("Shutdown")
             .WithEvent<Stopping>();

@@ -13,8 +13,8 @@ public class DispatchTransportMessagePipeline : Pipeline, IDispatchTransportMess
 {
     private readonly IMessageSenderContext _messageSenderContext;
 
-    public DispatchTransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IPipelineState pipelineState, IServiceProvider serviceProvider, IMessageSenderContext messageSenderContext)
-        : base(pipelineOptions, pipelineState, serviceProvider)
+    public DispatchTransportMessagePipeline(IOptions<PipelineOptions> pipelineOptions, IServiceProvider serviceProvider, IMessageSenderContext messageSenderContext)
+        : base(pipelineOptions, serviceProvider)
     {
         _messageSenderContext = Guard.AgainstNull(messageSenderContext);
 
