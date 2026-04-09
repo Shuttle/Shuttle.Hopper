@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Serialization;
+using Shuttle.Pipelines;
+using Shuttle.Serialization;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -229,7 +229,7 @@ public class HandleMessageObserverFixture
 
         messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult(false));
 
-        Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
+        Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
         messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
 

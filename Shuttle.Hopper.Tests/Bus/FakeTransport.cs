@@ -1,10 +1,10 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Options;
-using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Serialization;
-using Shuttle.Core.Streams;
-using JsonSerializer = Shuttle.Core.Serialization.JsonSerializer;
+using Shuttle.Contract;
+using Shuttle.Pipelines;
+using Shuttle.Serialization;
+using Shuttle.Streams;
+using JsonSerializer = Shuttle.Serialization.JsonSerializer;
 
 namespace Shuttle.Hopper.Tests;
 

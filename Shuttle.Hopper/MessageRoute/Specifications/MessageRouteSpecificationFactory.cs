@@ -1,4 +1,4 @@
-using Shuttle.Core.Specification;
+using Shuttle.Specification;
 
 namespace Shuttle.Hopper;
 

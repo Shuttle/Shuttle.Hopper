@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Serialization;
+using Shuttle.Pipelines;
+using Shuttle.Serialization;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -23,7 +23,7 @@ public class DeserializeMessageObserverFixture
             .AddStage(".")
             .WithEvent<DeserializeMessage>();
 
-        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.TransportMessage));

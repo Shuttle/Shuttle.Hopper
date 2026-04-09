@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Shuttle.Core.Contract;
-using Shuttle.Core.Reflection;
+using Shuttle.Contract;
+using Shuttle.Reflection;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
@@ -24,7 +24,7 @@ public class HopperBuilder(IServiceCollection services)
 
         if (!typeof(Task).IsAssignableFrom(returnType) && !typeof(ValueTask).IsAssignableFrom(returnType))
         {
-            throw new ApplicationException(Core.Pipelines.Resources.AsyncDelegateRequiredException);
+            throw new ApplicationException(Pipelines.Resources.AsyncDelegateRequiredException);
         }
 
         var parameters = handler.Method.GetParameters();

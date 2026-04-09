@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
-using Shuttle.Core.Contract;
-using Shuttle.Core.Specification;
+using Shuttle.Contract;
+using Shuttle.Specification;
 
 namespace Shuttle.Hopper;
 

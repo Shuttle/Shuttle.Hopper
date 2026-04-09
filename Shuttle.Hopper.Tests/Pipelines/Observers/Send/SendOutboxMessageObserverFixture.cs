@@ -1,6 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -21,21 +21,21 @@ public class SendOutboxMessageObserverFixture
             .AddStage(".")
             .WithEvent<DispatchTransportMessage>();
 
-        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(async () => await pipeline.ExecuteAsync())!;
+        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(async () => await pipeline.ExecuteAsync())!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.TransportMessage));
 
         pipeline.State.SetTransportMessage(new());
 
-        exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.ReceivedMessage));
 
         pipeline.State.SetReceivedMessage(new(Stream.Null, Guid.NewGuid()));
 
-        exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(nameof(TransportMessage.RecipientInboxWorkTransportUri)));

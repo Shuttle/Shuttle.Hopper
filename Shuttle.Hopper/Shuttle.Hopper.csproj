@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -16,14 +16,14 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
-    <PackageReference Include="Shuttle.Core.Contract" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.Pipelines" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.Reflection" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.Serialization" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.Specification" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.Streams" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.System" Version="21.0.1-rc3" />
-    <PackageReference Include="Shuttle.Core.Threading" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Contract" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Pipelines" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Platform" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Reflection" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Serialization" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Specification" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Streams" Version="21.0.1-rc3" />
+    <PackageReference Include="Shuttle.Threading" Version="21.0.1-rc3" />
   </ItemGroup>
 
   <ItemGroup>

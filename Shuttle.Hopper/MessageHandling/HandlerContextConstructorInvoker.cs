@@ -1,5 +1,5 @@
 ﻿using System.Reflection.Emit;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
 

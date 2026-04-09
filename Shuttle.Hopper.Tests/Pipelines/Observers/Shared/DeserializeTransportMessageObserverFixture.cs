@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Serialization;
-using Shuttle.Core.System;
+using Shuttle.Pipelines;
+using Shuttle.Serialization;
+using Shuttle.Platform;
 
 namespace Shuttle.Hopper.Tests;
 

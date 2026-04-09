@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using Shuttle.Core.Contract;
+using Shuttle.Contract;
 
 namespace Shuttle.Hopper.Tests;
 

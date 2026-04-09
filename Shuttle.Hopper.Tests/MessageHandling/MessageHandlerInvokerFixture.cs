@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Streams;
+using Shuttle.Pipelines;
+using Shuttle.Streams;
 
 namespace Shuttle.Hopper.Tests.MessageHandling;
 

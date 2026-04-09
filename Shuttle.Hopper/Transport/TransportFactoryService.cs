@@ -1,5 +1,5 @@
-using Shuttle.Core.Contract;
-using Shuttle.Core.Reflection;
+using Shuttle.Contract;
+using Shuttle.Reflection;
 
 namespace Shuttle.Hopper;
 

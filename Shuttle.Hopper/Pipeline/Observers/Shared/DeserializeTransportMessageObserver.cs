@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
-using Shuttle.Core.Contract;
-using Shuttle.Core.Pipelines;
-using Shuttle.Core.Serialization;
-using Shuttle.Core.Streams;
-using Shuttle.Core.System;
+using Shuttle.Contract;
+using Shuttle.Pipelines;
+using Shuttle.Serialization;
+using Shuttle.Streams;
+using Shuttle.Platform;
 
 namespace Shuttle.Hopper;
 

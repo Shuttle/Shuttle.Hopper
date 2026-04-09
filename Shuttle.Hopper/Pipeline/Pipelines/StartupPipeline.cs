@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
 

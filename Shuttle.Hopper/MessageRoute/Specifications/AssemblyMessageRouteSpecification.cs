@@ -1,5 +1,5 @@
 using System.Reflection;
-using Shuttle.Core.Contract;
+using Shuttle.Contract;
 
 namespace Shuttle.Hopper;
 

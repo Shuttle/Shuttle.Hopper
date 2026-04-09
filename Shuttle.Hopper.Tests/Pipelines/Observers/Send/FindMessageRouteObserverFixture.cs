@@ -1,6 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -49,7 +49,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
         messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, It.IsAny<CancellationToken>()), Times.Once);
 
@@ -81,7 +81,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
+        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
         messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, It.IsAny<CancellationToken>()), Times.Once);
 

@@ -1,6 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -19,7 +19,7 @@ public class GetWorkMessageObserverFixture
             .AddStage(".")
             .WithEvent<ReceiveMessage>();
 
-        var exception = Assert.ThrowsAsync<Core.Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.WorkTransport));

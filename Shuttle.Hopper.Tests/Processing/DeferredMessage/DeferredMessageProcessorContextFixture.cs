@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 

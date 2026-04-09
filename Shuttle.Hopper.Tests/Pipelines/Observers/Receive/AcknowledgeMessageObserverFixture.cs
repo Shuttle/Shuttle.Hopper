@@ -1,6 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Pipelines;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper.Tests;
 
