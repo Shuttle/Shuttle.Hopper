@@ -5,8 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Shuttle.Contract;
 using Shuttle.Pipelines;
-using Shuttle.Serialization;
 using Shuttle.Platform;
+using Shuttle.Serialization;
 using Shuttle.Threading;
 
 namespace Shuttle.Hopper;
@@ -46,8 +46,13 @@ public static class ServiceCollectionExtensions
             services.TryAddKeyedScoped<IProcessor, InboxProcessor>("InboxProcessor");
             services.TryAddKeyedScoped<IProcessor, OutboxProcessor>("OutboxProcessor");
 
-            services.AddPipelines().AddPipelinesFrom(typeof(Bus).Assembly);
-            services.AddThreading()
+            services
+                .AddPipelines()
+                .AddPipelinesFrom(typeof(Bus).Assembly)
+                .AddObserversFrom(typeof(Bus).Assembly);
+
+            services
+                .AddThreading()
                 .ConfigureProcessor("InboxProcessor", (options, serviceProvider) =>
                 {
                     var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
