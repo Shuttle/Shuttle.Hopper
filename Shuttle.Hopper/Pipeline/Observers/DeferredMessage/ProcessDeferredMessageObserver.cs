@@ -18,18 +18,18 @@ public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOption
 
         if (transportMessage.IsIgnoring())
         {
-            await deferredTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+            await deferredTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
             state.ResetDeferredMessageReturned();
 
             return;
         }
 
-        await workTransport.SendAsync(receivedMessage.Stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
-        await deferredTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+        await workTransport.SendAsync(receivedMessage.Stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
+        await deferredTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
         state.DeferredMessageReturned();
 
-        await hopperOptions.Value.MessageReturned.InvokeAsync(new(transportMessage, receivedMessage), cancellationToken);
+        await hopperOptions.Value.DeferredMessageReturned.InvokeAsync(new(pipelineContext.Pipeline), cancellationToken);
     }
 }

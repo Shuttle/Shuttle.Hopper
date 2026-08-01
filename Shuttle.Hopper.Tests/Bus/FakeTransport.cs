@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Options;
-using Shuttle.Contract;
 using Shuttle.Pipelines;
 using Shuttle.Serialization;
 using Shuttle.Streams;
@@ -19,9 +18,9 @@ public class FakeTransport(HopperOptions hopperOptions, int messagesToReturn) : 
     public TransportType Type { get; } = TransportType.Queue;
     public TransportUri Uri { get; } = new(new Uri("fake://configuration/transport"));
 
-    public async Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
+    public async Task SendAsync(Stream stream, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await hopperOptions.MessageSent.InvokeAsync(new(this, Guard.AgainstNull(Guard.AgainstNull(state).GetTransportMessage()), stream), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageSent.InvokeAsync(new(this, stream, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
     public ValueTask<bool> HasPendingAsync(CancellationToken cancellationToken = default)
@@ -29,17 +28,17 @@ public class FakeTransport(HopperOptions hopperOptions, int messagesToReturn) : 
         return new(false);
     }
 
-    public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
+    public async Task AcknowledgeAsync(object acknowledgementToken, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
+    public async Task ReleaseAsync(object acknowledgementToken, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
+    public async Task<ReceivedMessage?> ReceiveAsync(IPipeline pipeline, CancellationToken cancellationToken = default)
     {
         if (MessageCount == MessagesToReturn)
         {
@@ -63,7 +62,7 @@ public class FakeTransport(HopperOptions hopperOptions, int messagesToReturn) : 
 
         var result = new ReceivedMessage(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), string.Empty);
 
-        await hopperOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
+        await hopperOptions.MessageReceived.InvokeAsync(new(this, result, pipeline), cancellationToken).ConfigureAwait(false);
 
         return result;
     }

@@ -14,7 +14,7 @@ public class ReceiveDeferredMessageObserver : IReceiveDeferredMessageObserver
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transport = Guard.AgainstNull(state.GetDeferredTransport());
 
-        var receivedMessage = await transport.ReceiveAsync(cancellationToken).ConfigureAwait(false);
+        var receivedMessage = await transport.ReceiveAsync(pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
         // Abort the pipeline if there is no message on the transport
         if (receivedMessage == null)

@@ -38,7 +38,7 @@ public class ProcessDeferredMessageObserverFixture
 
         Assert.That(pipeline.State.HasDeferredMessageReturned, Is.False);
 
-        deferredTransport.Verify(m => m.ReleaseAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+        deferredTransport.Verify(m => m.ReleaseAsync(It.IsAny<object>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
 
         deferredTransport.VerifyNoOtherCalls();
         workTransport.VerifyNoOtherCalls();
@@ -58,8 +58,8 @@ public class ProcessDeferredMessageObserverFixture
 
         Assert.That(pipeline.State.HasDeferredMessageReturned, Is.True);
 
-        deferredTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
-        workTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
+        deferredTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
 
         deferredTransport.VerifyNoOtherCalls();
         workTransport.VerifyNoOtherCalls();

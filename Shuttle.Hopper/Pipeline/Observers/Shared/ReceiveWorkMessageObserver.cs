@@ -12,7 +12,7 @@ public class ReceiveWorkMessageObserver : IReceiveWorkMessageObserver
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var transport = Guard.AgainstNull(state.GetWorkTransport());
 
-        var receivedMessage = await transport.ReceiveAsync(cancellationToken).ConfigureAwait(false);
+        var receivedMessage = await transport.ReceiveAsync(pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
         if (receivedMessage == null)
         {

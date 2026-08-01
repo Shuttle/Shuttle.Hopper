@@ -51,7 +51,7 @@ public class DeserializeTransportMessageObserverFixture
 
         process.Verify(m => m.Kill(), Times.Never);
 
-        workTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]

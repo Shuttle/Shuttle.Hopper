@@ -10,14 +10,14 @@ public class NullTransport(HopperOptions hopperOptions, Uri uri) : ITransport
     public TransportType Type { get; } = TransportType.Queue;
     public TransportUri Uri { get; } = new(uri);
 
-    public async Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
+    public async Task SendAsync(Stream stream, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await _hopperOptions.MessageSent.InvokeAsync(new(this, Guard.AgainstNull(state.GetTransportMessage()), stream), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageSent.InvokeAsync(new(this, stream, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
+    public async Task<ReceivedMessage?> ReceiveAsync(IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await _hopperOptions.MessageReceived.InvokeAsync(new(this, new(Stream.Null, "token")), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageReceived.InvokeAsync(new(this, new(Stream.Null, "token"), pipeline), cancellationToken).ConfigureAwait(false);
 
         return null;
     }
@@ -29,13 +29,13 @@ public class NullTransport(HopperOptions hopperOptions, Uri uri) : ITransport
         return false;
     }
 
-    public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
+    public async Task AcknowledgeAsync(object acknowledgementToken, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await _hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
+    public async Task ReleaseAsync(object acknowledgementToken, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        await _hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken, pipeline), cancellationToken).ConfigureAwait(false);
     }
 }

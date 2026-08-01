@@ -18,6 +18,6 @@ public class AcknowledgeMessageObserver : IAcknowledgeMessageObserver
 
         var acknowledgementToken = Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken;
 
-        await Guard.AgainstNull(state.GetWorkTransport()).AcknowledgeAsync(acknowledgementToken, cancellationToken).ConfigureAwait(false);
+        await Guard.AgainstNull(state.GetWorkTransport()).AcknowledgeAsync(acknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
     }
 }

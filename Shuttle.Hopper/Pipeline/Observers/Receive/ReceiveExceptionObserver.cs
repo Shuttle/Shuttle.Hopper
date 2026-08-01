@@ -41,7 +41,7 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
                         return;
                     }
 
-                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
                     return;
                 }
@@ -67,20 +67,20 @@ public class ReceivePipelineFailedObserver(IBusPolicy policy, ISerializer serial
                     {
                         if (retry)
                         {
-                            await workTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+                            await workTransport.SendAsync(stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                         }
 
                         if (poison)
                         {
-                            await errorTransport!.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+                            await errorTransport!.SendAsync(stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                         }
                     }
 
-                    await workTransport.AcknowledgeAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                    await workTransport.AcknowledgeAsync(receivedMessage!.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally

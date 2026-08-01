@@ -1,9 +1,10 @@
 using Shuttle.Contract;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class MessageAcknowledgedEventArgs(ITransport transport, object acknowledgementToken)
+public class MessageAcknowledgedEventArgs(ITransport transport, object acknowledgementToken, IPipeline pipeline) : PipelineEventArgs(pipeline)
 {
-    public ITransport Transport { get; } = Guard.AgainstNull(transport);
     public object AcknowledgementToken { get; } = Guard.AgainstNull(acknowledgementToken);
+    public ITransport Transport { get; } = Guard.AgainstNull(transport);
 }

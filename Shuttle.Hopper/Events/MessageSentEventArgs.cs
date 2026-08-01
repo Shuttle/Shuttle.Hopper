@@ -1,10 +1,10 @@
 using Shuttle.Contract;
+using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class MessageSentEventArgs(ITransport transport, TransportMessage message, Stream stream)
+public class MessageSentEventArgs(ITransport transport, Stream stream, IPipeline pipeline) : PipelineEventArgs(pipeline)
 {
-    public ITransport Transport { get; } = Guard.AgainstNull(transport);
     public Stream Stream { get; } = Guard.AgainstNull(stream);
-    public TransportMessage TransportMessage { get; } = Guard.AgainstNull(message);
+    public ITransport Transport { get; } = Guard.AgainstNull(transport);
 }

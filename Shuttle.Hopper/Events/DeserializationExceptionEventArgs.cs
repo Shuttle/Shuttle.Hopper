@@ -2,8 +2,8 @@ using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class DeserializationExceptionEventArgs(IPipelineContext pipelineContext, ITransport workTransport, ITransport errorTransport, Exception exception)
-    : PipelineContextEventArgs(pipelineContext)
+public class DeserializationExceptionEventArgs(ITransport workTransport, ITransport errorTransport, Exception exception, IPipeline pipeline)
+    : PipelineEventArgs(pipeline)
 {
     public ITransport ErrorTransport { get; } = errorTransport;
     public Exception Exception { get; } = exception;

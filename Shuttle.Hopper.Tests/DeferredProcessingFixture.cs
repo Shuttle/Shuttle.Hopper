@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Shuttle.Contract;
 
 namespace Shuttle.Hopper.Tests;
 
@@ -27,9 +28,9 @@ public class DeferredProcessingFixture
                     await Task.CompletedTask;
                 };
 
-                options.MessageReturned += async (e, _) =>
+                options.DeferredMessageReturned += async (e, _) =>
                 {
-                    messagesReturned.Add(e.TransportMessage);
+                    messagesReturned.Add(Guard.AgainstNull(e.Pipeline.State.GetTransportMessage()));
 
                     await Task.CompletedTask;
                 };

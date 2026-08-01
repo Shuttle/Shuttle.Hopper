@@ -25,21 +25,21 @@ public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions
         var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage());
         var deferredTransport = state.GetDeferredTransport();
 
-        await using (var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false))
+        await using (var stream = await receivedMessage.Stream.CopyAsync(cancellation).ConfigureAwait(false))
         {
             if (deferredTransport == null)
             {
-                await workTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellation).ConfigureAwait(false);
+                await workTransport.SendAsync(stream, pipelineContext.Pipeline, cancellation).ConfigureAwait(false);
             }
             else
             {
-                await deferredTransport.SendAsync(stream, pipelineContext.Pipeline.State, cancellation).ConfigureAwait(false);
+                await deferredTransport.SendAsync(stream, pipelineContext.Pipeline, cancellation).ConfigureAwait(false);
 
                 await _deferredMessageProcessorContext.MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
             }
         }
 
-        await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellation).ConfigureAwait(false);
+        await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellation).ConfigureAwait(false);
 
         await hopperOptions.Value.TransportMessageDeferred.InvokeAsync(new(transportMessage), cancellation);
 

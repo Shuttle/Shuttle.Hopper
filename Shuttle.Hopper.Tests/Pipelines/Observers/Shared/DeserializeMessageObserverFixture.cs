@@ -106,8 +106,8 @@ public class DeserializeMessageObserverFixture
 
         serializer.Verify(m => m.DeserializeAsync(typeof(TransportMessage), It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
         serializer.Verify(m => m.SerializeAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
-        errorTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
-        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, It.IsAny<CancellationToken>()), Times.Once);
+        errorTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.AcknowledgeAsync(receivedMessage.AcknowledgementToken, pipeline, It.IsAny<CancellationToken>()), Times.Once);
 
         workTransport.Verify(m => m.Type, Times.Once);
 

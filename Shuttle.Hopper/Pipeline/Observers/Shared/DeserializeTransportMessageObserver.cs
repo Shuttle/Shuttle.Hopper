@@ -49,7 +49,7 @@ public class DeserializeTransportMessageObserver(IOptions<HopperOptions> hopperO
 
         try
         {
-            await using var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false);
+            await using var stream = await receivedMessage.Stream.CopyAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -83,11 +83,11 @@ public class DeserializeTransportMessageObserver(IOptions<HopperOptions> hopperO
         }
         catch (Exception ex)
         {
-            await _hopperOptions.TransportMessageDeserializationException.InvokeAsync(new(pipelineContext, workTransport, Guard.AgainstNull(state.GetErrorTransport()), ex), cancellationToken);
+            await _hopperOptions.TransportMessageDeserializationException.InvokeAsync(new(workTransport, Guard.AgainstNull(state.GetErrorTransport()), ex, pipelineContext.Pipeline), cancellationToken);
 
             if (_hopperOptions.RemoveCorruptMessages)
             {
-                await workTransport.AcknowledgeAsync(Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                await workTransport.AcknowledgeAsync(Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
             }
             else
             {

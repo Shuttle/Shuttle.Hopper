@@ -23,8 +23,8 @@ public class DispatchTransportMessageObserver(IBusConfiguration busConfiguration
             ? await Guard.AgainstNull(transportService).GetAsync(transportMessage.RecipientInboxWorkTransportUri, cancellationToken)
             : Guard.AgainstNull(_busConfiguration.Outbox!.WorkTransport);
 
-        await using var stream = await Guard.AgainstNull(state.GetTransportMessageStream()).CopyAsync().ConfigureAwait(false);
+        await using var stream = await Guard.AgainstNull(state.GetTransportMessageStream()).CopyAsync(cancellationToken).ConfigureAwait(false);
 
-        await transport.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+        await transport.SendAsync(stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
     }
 }
