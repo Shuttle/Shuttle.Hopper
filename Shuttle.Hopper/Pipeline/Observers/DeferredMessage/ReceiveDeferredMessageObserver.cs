@@ -24,6 +24,7 @@ public class ReceiveDeferredMessageObserver : IReceiveDeferredMessageObserver
         else
         {
             state.SetReceivedMessage(receivedMessage);
+            state.SetReceivedTransport(transport);
         }
     }
 }

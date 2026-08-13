@@ -12,6 +12,7 @@ public static class StateKeys
     public const string MessageBytes = "MessageBytes";
     public const string MessageHandlerInvokeResult = "MessageHandlerInvokeResult";
     public const string ReceivedMessage = "ReceivedMessage";
+    public const string ReceivedTransport = "ReceivedTransport";
     public const string TransportMessage = "TransportMessage";
     public const string TransportMessageBuilder = "TransportMessageBuilder";
     public const string TransportMessageReceived = "TransportMessageReceived";

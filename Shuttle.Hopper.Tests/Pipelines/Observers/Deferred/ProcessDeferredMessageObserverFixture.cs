@@ -43,7 +43,9 @@ public class ProcessDeferredMessageObserverFixture
         deferredTransport.VerifyNoOtherCalls();
         workTransport.VerifyNoOtherCalls();
 
-        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        // Comfortably beyond the `IgnoreUntil` above; waiting for exactly the ignore duration is a coin flip given the
+        // resolution of the system timer.
+        await Task.Delay(TimeSpan.FromMilliseconds(500));
 
         workTransport = new();
         deferredTransport = new();

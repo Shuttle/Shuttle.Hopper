@@ -22,5 +22,6 @@ public class ReceiveWorkMessageObserver : IReceiveWorkMessageObserver
         }
 
         state.SetReceivedMessage(receivedMessage);
+        state.SetReceivedTransport(transport);
     }
 }

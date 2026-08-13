@@ -43,7 +43,10 @@ public class DeserializeTransportMessageObserver(IOptions<HopperOptions> hopperO
     {
         var state = Guard.AgainstNull(pipelineContext).Pipeline.State;
         var receivedMessage = Guard.AgainstNull(state.GetReceivedMessage());
-        var workTransport = Guard.AgainstNull(state.GetWorkTransport());
+
+        // This observer is shared between the inbox and deferred message pipelines, so a corrupt message has to be
+        // acknowledged against the transport it was received from and not against the work transport.
+        var receivedTransport = Guard.AgainstNull(state.GetReceivedTransport() ?? state.GetWorkTransport());
 
         TransportMessage transportMessage;
 
@@ -83,11 +86,11 @@ public class DeserializeTransportMessageObserver(IOptions<HopperOptions> hopperO
         }
         catch (Exception ex)
         {
-            await _hopperOptions.TransportMessageDeserializationException.InvokeAsync(new(workTransport, Guard.AgainstNull(state.GetErrorTransport()), ex, pipelineContext.Pipeline), cancellationToken);
+            await _hopperOptions.TransportMessageDeserializationException.InvokeAsync(new(receivedTransport, Guard.AgainstNull(state.GetErrorTransport()), ex, pipelineContext.Pipeline), cancellationToken);
 
             if (_hopperOptions.RemoveCorruptMessages)
             {
-                await workTransport.AcknowledgeAsync(Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
+                await receivedTransport.AcknowledgeAsync(Guard.AgainstNull(state.GetReceivedMessage()).AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
             }
             else
             {
