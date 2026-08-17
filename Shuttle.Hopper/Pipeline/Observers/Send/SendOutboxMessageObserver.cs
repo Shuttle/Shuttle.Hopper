@@ -20,7 +20,7 @@ public class SendOutboxMessageObserver(ITransportService transportService) : ISe
 
         var transport = await _transportService.GetAsync(transportMessage.RecipientInboxWorkTransportUri, cancellationToken);
 
-        await using var stream = await receivedMessage.Stream.CopyAsync().ConfigureAwait(false);
-        await transport.SendAsync(stream, pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+        await using var stream = await receivedMessage.Stream.CopyAsync(cancellationToken).ConfigureAwait(false);
+        await transport.SendAsync(stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
     }
 }

@@ -51,6 +51,16 @@ public static class PipelineStateExtensions
             return state.Get<ReceivedMessage>(StateKeys.ReceivedMessage);
         }
 
+        /// <summary>
+        ///     Returns the transport that the current `ReceivedMessage` was taken from.  The inbox message pipeline
+        ///     receives from the work transport whereas the deferred message pipeline receives from the deferred
+        ///     transport, so observers that are shared between the two may not assume the work transport.
+        /// </summary>
+        public ITransport? GetReceivedTransport()
+        {
+            return state.Get<ITransport>(StateKeys.ReceivedTransport);
+        }
+
         public TransportMessage? GetTransportMessage()
         {
             return state.Get<TransportMessage>(StateKeys.TransportMessage);
@@ -150,6 +160,12 @@ public static class PipelineStateExtensions
         public IState SetReceivedMessage(ReceivedMessage receivedMessage)
         {
             state.Replace(StateKeys.ReceivedMessage, receivedMessage);
+            return state;
+        }
+
+        public IState SetReceivedTransport(ITransport transport)
+        {
+            state.Replace(StateKeys.ReceivedTransport, transport);
             return state;
         }
 

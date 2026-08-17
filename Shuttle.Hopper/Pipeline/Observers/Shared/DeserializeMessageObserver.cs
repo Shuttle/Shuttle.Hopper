@@ -34,7 +34,7 @@ public class DeserializeMessageObserver(IOptions<HopperOptions> hopperOptions, I
             var errorTransport = Guard.AgainstNull(state.GetErrorTransport());
             var receivedMessage = state.GetReceivedMessage();
 
-            await _hopperOptions.MessageDeserializationException.InvokeAsync(new(pipelineContext, workTransport, errorTransport, ex), cancellationToken);
+            await _hopperOptions.MessageDeserializationException.InvokeAsync(new(workTransport, errorTransport, ex, pipelineContext.Pipeline), cancellationToken);
 
             if (workTransport == null || errorTransport == null || receivedMessage == null || workTransport.Type == TransportType.Stream)
             {
@@ -43,8 +43,8 @@ public class DeserializeMessageObserver(IOptions<HopperOptions> hopperOptions, I
 
             transportMessage.RegisterFailure(ex.AllMessages(), TimeSpan.Zero);
 
-            await errorTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
-            await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+            await errorTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
+            await workTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
             pipelineContext.Pipeline.Abort();
 

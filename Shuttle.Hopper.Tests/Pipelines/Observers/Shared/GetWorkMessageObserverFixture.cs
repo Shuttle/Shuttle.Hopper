@@ -38,13 +38,13 @@ public class GetWorkMessageObserverFixture
             .AddStage(".")
             .WithEvent<ReceiveMessage>();
 
-        workTransport.Setup(m => m.ReceiveAsync(CancellationToken.None)).Returns(Task.FromResult(null as ReceivedMessage));
+        workTransport.Setup(m => m.ReceiveAsync(pipeline, CancellationToken.None)).Returns(Task.FromResult(null as ReceivedMessage));
 
         pipeline.State.SetWorkTransport(workTransport.Object);
 
         await pipeline.ExecuteAsync();
 
-        workTransport.Verify(m => m.ReceiveAsync(CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.ReceiveAsync(pipeline, CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.Aborted, Is.True);
         Assert.That(pipeline.State.HasReceivedMessage(), Is.False);
@@ -67,13 +67,13 @@ public class GetWorkMessageObserverFixture
 
         var receivedMessage = new ReceivedMessage(Stream.Null, Guid.NewGuid());
 
-        workTransport.Setup(m => m.ReceiveAsync(CancellationToken.None)).Returns(Task.FromResult(receivedMessage)!);
+        workTransport.Setup(m => m.ReceiveAsync(pipeline, CancellationToken.None)).Returns(Task.FromResult(receivedMessage)!);
 
         pipeline.State.SetWorkTransport(workTransport.Object);
 
         await pipeline.ExecuteAsync();
 
-        workTransport.Verify(m => m.ReceiveAsync(CancellationToken.None), Times.Once);
+        workTransport.Verify(m => m.ReceiveAsync(pipeline, CancellationToken.None), Times.Once);
 
         Assert.That(pipeline.Aborted, Is.False);
         Assert.That(pipeline.State.HasReceivedMessage(), Is.True);

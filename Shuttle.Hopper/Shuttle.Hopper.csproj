@@ -13,17 +13,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
     <PackageReference Include="Shuttle.Contract" Version="21.0.1" />
-    <PackageReference Include="Shuttle.Pipelines" Version="21.0.2" />
+    <PackageReference Include="Shuttle.Pipelines" Version="21.0.3" />
     <PackageReference Include="Shuttle.Platform" Version="21.0.1" />
     <PackageReference Include="Shuttle.Reflection" Version="21.0.1" />
     <PackageReference Include="Shuttle.Serialization" Version="21.0.1" />
     <PackageReference Include="Shuttle.Specification" Version="21.0.1" />
     <PackageReference Include="Shuttle.Streams" Version="21.0.1" />
-    <PackageReference Include="Shuttle.Threading" Version="21.0.1" />
+    <PackageReference Include="Shuttle.Threading" Version="21.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <Description>Hopper is a flexible enterprise service bus which works with Azure Storage Queues, Amazon SQS, RabbitMQ, Kafka, and Event Hubs through a provider plugin API.</Description>
-    <Version>21.0.2</Version>
+    <Version>22.0.0</Version>
     <PackageProjectUrl>https://github.com/shuttle/Shuttle.Hopper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/shuttle/Shuttle.Hopper.git</RepositoryUrl>
     <PackageTags>shuttle</PackageTags>

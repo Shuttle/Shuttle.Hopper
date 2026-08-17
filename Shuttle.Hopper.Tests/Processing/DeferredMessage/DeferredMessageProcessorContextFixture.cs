@@ -70,4 +70,33 @@ public class DeferredMessageProcessorContextFixture
         Assert.That(deferredMessageProcessorContext.CheckpointMessageId, Is.EqualTo(Guid.Empty));
         Assert.That(deferredMessageProcessorContext.IgnoreUntil, Is.GreaterThan(now));
     }
+
+    [Test]
+    public async Task Should_observe_a_message_deferred_while_a_scan_is_in_progress_async()
+    {
+        var resetInterval = TimeSpan.FromMinutes(1);
+
+        var deferredMessageProcessorContext = new DeferredMessageProcessorContext(Options.Create(new HopperOptions
+        {
+            Inbox = new()
+            {
+                DeferredTransportUri = new("null://."),
+                DeferredMessageProcessorResetInterval = resetInterval
+            }
+        }));
+
+        var now = DateTimeOffset.UtcNow;
+        var ignoreUntil = now.AddSeconds(2);
+
+        // An inbox thread defers a message that the scan currently in progress will not observe, since it was placed
+        // on the deferred transport after that scan had already passed it by.
+        await deferredMessageProcessorContext.MessageDeferredAsync(ignoreUntil);
+
+        // The scan then completes without having found anything.
+        var result = await deferredMessageProcessorContext.GetResultAsync(new State());
+
+        Assert.That(result, Is.True);
+        Assert.That(deferredMessageProcessorContext.NextProcessingAt, Is.LessThanOrEqualTo(ignoreUntil), $"The deferred message would only be processed at '{deferredMessageProcessorContext.NextProcessingAt:O}' rather than at '{ignoreUntil:O}', so it is delayed by up to the reset interval of '{resetInterval}'.");
+        Assert.That(deferredMessageProcessorContext.ShouldCheckDeferredMessages, Is.False);
+    }
 }

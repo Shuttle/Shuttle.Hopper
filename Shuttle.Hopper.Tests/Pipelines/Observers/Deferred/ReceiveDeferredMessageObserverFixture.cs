@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using Shuttle.Pipelines;
 
@@ -22,7 +21,7 @@ public class ReceiveDeferredMessageObserverFixture
         var deferredTransport = new Mock<ITransport>();
         var receivedMessage = new ReceivedMessage(new MemoryStream(), Guid.NewGuid());
 
-        deferredTransport.SetupSequence(m => m.ReceiveAsync(CancellationToken.None))
+        deferredTransport.SetupSequence(m => m.ReceiveAsync(pipeline, CancellationToken.None))
             .Returns(Task.FromResult<ReceivedMessage?>(receivedMessage))
             .Returns(Task.FromResult<ReceivedMessage?>(null));
 

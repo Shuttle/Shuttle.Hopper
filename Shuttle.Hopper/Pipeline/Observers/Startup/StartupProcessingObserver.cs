@@ -38,7 +38,9 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
     {
         if (_busConfiguration.HasInbox() && _busConfiguration.Inbox!.HasDeferredTransport())
         {
-            pipelineContext.Pipeline.State.Add("DeferredMessageThread", new ProcessorThread("DeferredMessageProcessor", _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
+            // A pool of one so that the deferred message thread shares the lifecycle handling that `BusControl`
+            // applies to the other thread pools; a bare `ProcessorThread` is never stopped.
+            pipelineContext.Pipeline.State.Add("DeferredMessageThreadPool", new ProcessorThreadPool("DeferredMessageProcessor", 1, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
         }
 
         if (_busConfiguration.HasInbox())
@@ -60,7 +62,7 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
 
         var inboxThreadPool = state.Get<IProcessorThreadPool>("InboxThreadPool");
         var outboxThreadPool = state.Get<IProcessorThreadPool>("OutboxThreadPool");
-        var deferredMessageThread = state.Get<ProcessorThread>("DeferredMessageThread");
+        var deferredMessageThreadPool = state.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
 
         if (inboxThreadPool != null)
         {
@@ -72,9 +74,9 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
             await outboxThreadPool.StartAsync(cancellationToken);
         }
 
-        if (deferredMessageThread != null)
+        if (deferredMessageThreadPool != null)
         {
-            await deferredMessageThread.StartAsync(cancellationToken);
+            await deferredMessageThreadPool.StartAsync(cancellationToken);
         }
     }
 

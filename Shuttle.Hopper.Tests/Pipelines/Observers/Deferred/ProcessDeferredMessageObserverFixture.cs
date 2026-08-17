@@ -38,12 +38,14 @@ public class ProcessDeferredMessageObserverFixture
 
         Assert.That(pipeline.State.HasDeferredMessageReturned, Is.False);
 
-        deferredTransport.Verify(m => m.ReleaseAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
+        deferredTransport.Verify(m => m.ReleaseAsync(It.IsAny<object>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
 
         deferredTransport.VerifyNoOtherCalls();
         workTransport.VerifyNoOtherCalls();
 
-        await Task.Delay(TimeSpan.FromMilliseconds(200));
+        // Comfortably beyond the `IgnoreUntil` above; waiting for exactly the ignore duration is a coin flip given the
+        // resolution of the system timer.
+        await Task.Delay(TimeSpan.FromMilliseconds(500));
 
         workTransport = new();
         deferredTransport = new();
@@ -58,8 +60,8 @@ public class ProcessDeferredMessageObserverFixture
 
         Assert.That(pipeline.State.HasDeferredMessageReturned, Is.True);
 
-        deferredTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()), Times.Once);
-        workTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), It.IsAny<IState>(), It.IsAny<CancellationToken>()), Times.Once);
+        deferredTransport.Verify(m => m.AcknowledgeAsync(It.IsAny<object>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
+        workTransport.Verify(m => m.SendAsync(It.IsAny<Stream>(), pipeline, It.IsAny<CancellationToken>()), Times.Once);
 
         deferredTransport.VerifyNoOtherCalls();
         workTransport.VerifyNoOtherCalls();

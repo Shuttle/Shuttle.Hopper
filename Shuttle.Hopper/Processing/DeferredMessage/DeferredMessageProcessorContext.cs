@@ -82,13 +82,24 @@ public class DeferredMessageProcessorContext(IOptions<HopperOptions> hopperOptio
 
     public async Task MessageDeferredAsync(DateTimeOffset ignoreUntil, CancellationToken cancellationToken = default)
     {
+        var ignoreUntilUtc = ignoreUntil.ToUniversalTime();
+
         await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
         try
         {
-            if (ignoreUntil.ToUniversalTime() < NextProcessingAt)
+            // Always recorded, even when the next processing date/time is not adjusted below.  The deferred message
+            // processor may be part-way through a scan that cannot observe this message, and that scan would then
+            // push the next processing date/time out by the full reset interval; folding the value into `IgnoreUntil`
+            // has `GetResultAsync` clamp the next processing date/time to this message instead.
+            if (ignoreUntilUtc < IgnoreUntil)
             {
-                await AdjustNextProcessingDateTimeAsync(ignoreUntil.ToUniversalTime(), cancellationToken);
+                IgnoreUntil = ignoreUntilUtc;
+            }
+
+            if (ignoreUntilUtc < NextProcessingAt)
+            {
+                await AdjustNextProcessingDateTimeAsync(ignoreUntilUtc, cancellationToken);
             }
         }
         finally

@@ -14,10 +14,10 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
     public TransportType Type { get; } = TransportType.Queue;
     public TransportUri Uri { get; } = new(Guard.AgainstNull(uri));
 
-    public async Task SendAsync(Stream stream, IState state, CancellationToken cancellationToken = default)
+    public async Task SendAsync(Stream stream, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
-        var copy = await Guard.AgainstNull(stream).CopyAsync().ConfigureAwait(false);
-        var transportMessage = Guard.AgainstNull(Guard.AgainstNull(state).GetTransportMessage());
+        var copy = await Guard.AgainstNull(stream).CopyAsync(cancellationToken).ConfigureAwait(false);
+        var transportMessage = Guard.AgainstNull(pipeline.State.GetTransportMessage());
 
         await _lock.WaitAsync(cancellationToken);
 
@@ -30,10 +30,10 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
             _lock.Release();
         }
 
-        await _hopperOptions.MessageSent.InvokeAsync(new(this, transportMessage, copy), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageSent.InvokeAsync(new(this, copy, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<ReceivedMessage?> ReceiveAsync(CancellationToken cancellationToken = default)
+    public async Task<ReceivedMessage?> ReceiveAsync(IPipeline pipeline, CancellationToken cancellationToken = default)
     {
         Message message;
 
@@ -57,7 +57,7 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
 
         var result = new ReceivedMessage(message.Stream, message.TransportMessage.MessageId);
 
-        await _hopperOptions.MessageReceived.InvokeAsync(new(this, result), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageReceived.InvokeAsync(new(this, result, pipeline), cancellationToken).ConfigureAwait(false);
 
         return result;
     }
@@ -67,7 +67,7 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
         return new(_queue.Count > 0);
     }
 
-    public async Task AcknowledgeAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
+    public async Task AcknowledgeAsync(object acknowledgementToken, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
         await _lock.WaitAsync(cancellationToken);
 
@@ -80,10 +80,10 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
             _lock.Release();
         }
 
-        await _hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken), cancellationToken).ConfigureAwait(false);
+        await _hopperOptions.MessageAcknowledged.InvokeAsync(new(this, acknowledgementToken, pipeline), cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ReleaseAsync(object acknowledgementToken, CancellationToken cancellationToken = default)
+    public async Task ReleaseAsync(object acknowledgementToken, IPipeline pipeline, CancellationToken cancellationToken = default)
     {
         await _lock.WaitAsync(cancellationToken);
 
@@ -99,7 +99,7 @@ public class MemoryTransport(HopperOptions hopperOptions, Uri uri) : ITransport
             _lock.Release();
         }
 
-        await _hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken), cancellationToken);
+        await _hopperOptions.MessageReleased.InvokeAsync(new(this, acknowledgementToken, pipeline), cancellationToken);
     }
 
     private class Message(TransportMessage transportMessage, Stream stream)

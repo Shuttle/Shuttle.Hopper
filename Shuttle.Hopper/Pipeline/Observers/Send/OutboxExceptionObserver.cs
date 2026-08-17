@@ -36,7 +36,7 @@ public class OutboxExceptionObserver(IBusPolicy policy, ISerializer serializer) 
                         return;
                     }
 
-                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
                     return;
                 }
@@ -51,18 +51,18 @@ public class OutboxExceptionObserver(IBusPolicy policy, ISerializer serializer) 
 
                     if (action.Retry || errorTransport == null)
                     {
-                        await workTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+                        await workTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                     }
                     else
                     {
-                        await errorTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline.State, cancellationToken).ConfigureAwait(false);
+                        await errorTransport.SendAsync(await _serializer.SerializeAsync(transportMessage, cancellationToken).ConfigureAwait(false), pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                     }
 
-                    await workTransport.AcknowledgeAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                    await workTransport.AcknowledgeAsync(receivedMessage!.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken, cancellationToken).ConfigureAwait(false);
+                    await workTransport.ReleaseAsync(receivedMessage!.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
                 }
             }
             finally
