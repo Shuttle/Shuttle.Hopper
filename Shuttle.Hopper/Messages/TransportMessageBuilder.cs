@@ -13,6 +13,11 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     public bool ShouldSendToSelf { get; private set; }
 
+    /// <summary>
+    ///     The name of the additional inbox of this endpoint that the message should be sent to, if any.
+    /// </summary>
+    public string? InboxName { get; private set; }
+
     public TransportMessageBuilder DeferUntil(DateTimeOffset ignoreUntil)
     {
         _transportMessage.IgnoreUntil = ignoreUntil;
@@ -29,7 +34,7 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
 
     private void GuardAgainstMultipleRecipients()
     {
-        if (!HasRecipient && !ShouldSendToSelf && !ShouldReply)
+        if (!HasRecipient && !ShouldSendToSelf && !ShouldReply && InboxName == null)
         {
             return;
         }
@@ -42,6 +47,15 @@ public class TransportMessageBuilder(TransportMessage transportMessage)
         GuardAgainstMultipleRecipients();
 
         ShouldSendToSelf = true;
+
+        return this;
+    }
+
+    public TransportMessageBuilder ToInbox(string name)
+    {
+        GuardAgainstMultipleRecipients();
+
+        InboxName = Guard.AgainstEmpty(name);
 
         return this;
     }

@@ -19,9 +19,12 @@ public class ProcessorResilienceFixture
     private const string DeferredUri = "resilience://resilience/deferred";
     private const string ErrorUri = "resilience://resilience/error";
     private const string InboxServiceKey = "InboxProcessor";
+    private const string PriorityServiceKey = "InboxProcessor:priority";
+    private const string PriorityWorkUri = "resilience://resilience/work-priority";
     private const string WorkUri = "resilience://resilience/work";
 
     private const int MaximumFailureCount = 3;
+    private const int PriorityThreadCount = 3;
     private const int ThreadCount = 5;
 
     [Test]
@@ -184,6 +187,70 @@ public class ProcessorResilienceFixture
         });
     }
 
+    [Test]
+    public async Task Should_process_all_messages_on_the_primary_and_an_additional_inbox_with_retries_and_deferred_messages()
+    {
+        var tracker = new ResilienceTracker();
+
+        var context = await ResilienceContext.StartAsync(async message =>
+        {
+            var attempt = tracker.Attempted(message);
+
+            await Task.CompletedTask;
+
+            switch (message.Behaviour)
+            {
+                case ResilienceBehaviour.AlwaysFail:
+                {
+                    throw new InvalidOperationException($"[simulated permanent failure] : id = '{message.Id}' / attempt = {attempt}");
+                }
+                case ResilienceBehaviour.RetryThenSucceed when attempt < MaximumFailureCount:
+                {
+                    throw new InvalidOperationException($"[simulated transient failure] : id = '{message.Id}' / attempt = {attempt}");
+                }
+            }
+
+            tracker.Handled(message);
+        }, true);
+
+        const int messageCount = 8;
+
+        foreach (var recipientUri in new[] { WorkUri, PriorityWorkUri })
+        {
+            await context.SendToAsync(recipientUri, messageCount, ResilienceBehaviour.Succeed);
+            await context.SendToAsync(recipientUri, messageCount, ResilienceBehaviour.Succeed, builder => builder.DeferFor(TimeSpan.FromMilliseconds(Random.Shared.Next(100, 500))));
+            await context.SendToAsync(recipientUri, messageCount, ResilienceBehaviour.RetryThenSucceed);
+            await context.SendToAsync(recipientUri, messageCount, ResilienceBehaviour.AlwaysFail);
+        }
+
+        const int expectedHandledCount = messageCount * 3 * 2;
+        const int expectedErrorCount = messageCount * 2;
+
+        var completed = await context.WaitAsync(() => tracker.HandledCount >= expectedHandledCount && context.ErrorTransport.SendCount >= expectedErrorCount);
+
+        // Captured before stopping, since threads that exit while stopping are expected.
+        var orphanedThreads = context.OrphanedThreads;
+        var processorExceptions = context.ProcessorExceptions;
+
+        await context.DisposeAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(orphanedThreads, Is.Empty, $"One or more processor threads exited while the endpoint was still running:{Environment.NewLine}{string.Join(Environment.NewLine, orphanedThreads)}");
+            Assert.That(completed, Is.True, $"Processing stalled: handled = {tracker.HandledCount} / expected = {expectedHandledCount}; error transport = {context.ErrorTransport.SendCount} / expected = {expectedErrorCount}.");
+            Assert.That(processorExceptions, Is.Empty, $"The processor threads reported exceptions that the pipelines should have handled:{Environment.NewLine}{string.Join(Environment.NewLine, processorExceptions)}");
+            Assert.That(context.WorkTransport.Count, Is.Zero, "The inbox work transport still contains messages.");
+            Assert.That(context.WorkTransport.UnacknowledgedCount, Is.Zero, "The inbox work transport still has unacknowledged messages.");
+            Assert.That(context.PriorityWorkTransport.Count, Is.Zero, "The additional inbox work transport still contains messages.");
+            Assert.That(context.PriorityWorkTransport.UnacknowledgedCount, Is.Zero, "The additional inbox work transport still has unacknowledged messages.");
+            Assert.That(context.DeferredTransport.Count, Is.Zero, "The deferred transport still contains messages.");
+            Assert.That(context.DeferredTransport.UnacknowledgedCount, Is.Zero, "The deferred transport still has unacknowledged messages.");
+            Assert.That(context.InboxThreadIds, Has.Count.EqualTo(ThreadCount), "Not every inbox thread took part in the processing.");
+            Assert.That(context.PriorityThreadIds, Has.Count.EqualTo(PriorityThreadCount), "Not every additional inbox thread took part in the processing.");
+            Assert.That(context.StoppedThreads.Count(serviceKey => serviceKey.Equals(PriorityServiceKey)), Is.EqualTo(PriorityThreadCount), "Not every additional inbox thread was stopped.");
+        });
+    }
+
     /// <summary>
     ///     Records what the processor threads are doing so that a test can tell the difference between "still working"
     ///     and "the thread is gone".
@@ -192,6 +259,7 @@ public class ProcessorResilienceFixture
     {
         private readonly ConcurrentDictionary<int, byte> _inboxThreadIds = new();
         private readonly ConcurrentBag<string> _orphanedThreads = [];
+        private readonly ConcurrentDictionary<int, byte> _priorityThreadIds = new();
         private readonly ConcurrentBag<string> _processorExceptions = [];
         private readonly ConcurrentBag<string> _stoppedThreads = [];
 
@@ -201,6 +269,7 @@ public class ProcessorResilienceFixture
         public int DeferredExecutionCount => Volatile.Read(ref _deferredExecutionCount);
         public IReadOnlyCollection<int> InboxThreadIds => _inboxThreadIds.Keys.ToList();
         public IReadOnlyCollection<string> OrphanedThreads => _orphanedThreads.ToList();
+        public IReadOnlyCollection<int> PriorityThreadIds => _priorityThreadIds.Keys.ToList();
         public IReadOnlyCollection<string> ProcessorExceptions => _processorExceptions.ToList();
 
         /// <summary>
@@ -219,6 +288,11 @@ public class ProcessorResilienceFixture
             if (serviceKey.Equals(InboxServiceKey))
             {
                 _inboxThreadIds.TryAdd(managedThreadId, 0);
+            }
+
+            if (serviceKey.Equals(PriorityServiceKey))
+            {
+                _priorityThreadIds.TryAdd(managedThreadId, 0);
             }
 
             if (serviceKey.Equals(DeferredServiceKey))
@@ -259,23 +333,25 @@ public class ProcessorResilienceFixture
         public ResilienceTransport DeferredTransport { get; } = transportFactory.Get(DeferredUri);
         public ResilienceTransport ErrorTransport { get; } = transportFactory.Get(ErrorUri);
         public ResilienceTransport WorkTransport { get; } = transportFactory.Get(WorkUri);
+        public ResilienceTransport PriorityWorkTransport => transportFactory.Get(PriorityWorkUri);
 
         public int DeferredExecutionCount => monitor.DeferredExecutionCount;
         public IReadOnlyCollection<int> InboxThreadIds => monitor.InboxThreadIds;
         public IReadOnlyCollection<string> OrphanedThreads => monitor.OrphanedThreads;
+        public IReadOnlyCollection<int> PriorityThreadIds => monitor.PriorityThreadIds;
         public IReadOnlyCollection<string> ProcessorExceptions => monitor.ProcessorExceptions;
         public IReadOnlyCollection<string> StoppedThreads => monitor.StoppedThreads;
 
         public string OrphanedThreadsText => string.Join(Environment.NewLine, OrphanedThreads);
         public string ProcessorExceptionsText => string.Join(Environment.NewLine, ProcessorExceptions);
 
-        public static async Task<ResilienceContext> StartAsync(Func<ResilienceCommand, Task> handler)
+        public static async Task<ResilienceContext> StartAsync(Func<ResilienceCommand, Task> handler, bool withAdditionalInbox = false)
         {
             var monitor = new ResilienceMonitor();
 
             var services = new ServiceCollection();
 
-            services
+            var builder = services
                 .AddHopper(options =>
                 {
                     options.Inbox.WorkTransportUri = new(WorkUri);
@@ -289,6 +365,18 @@ public class ProcessorResilienceFixture
                     options.Inbox.DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(250);
                 })
                 .AddMessageHandler(handler);
+
+            if (withAdditionalInbox)
+            {
+                builder.AddInbox("priority", options =>
+                {
+                    options.WorkTransportUri = new(PriorityWorkUri);
+                    options.ThreadCount = PriorityThreadCount;
+                    options.MaximumFailureCount = MaximumFailureCount;
+                    options.IgnoreOnFailureDurations = [TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(50), TimeSpan.FromMilliseconds(50)];
+                    options.IdleDurations = [TimeSpan.FromMilliseconds(10)];
+                });
+            }
 
             services
                 .AddSingleton<ResilienceTransportFactory>()
@@ -340,11 +428,26 @@ public class ProcessorResilienceFixture
 
         public async Task SendAsync(int count, string behaviour, Action<TransportMessageBuilder>? configure = null)
         {
+            await SendToAsync(null, count, behaviour, configure);
+        }
+
+        /// <summary>
+        ///     Sends to the given recipient, or to the primary inbox when <paramref name="recipientUri" /> is `null`.
+        /// </summary>
+        public async Task SendToAsync(string? recipientUri, int count, string behaviour, Action<TransportMessageBuilder>? configure = null)
+        {
             for (var i = 0; i < count; i++)
             {
                 await bus.SendAsync(new ResilienceCommand(Guid.NewGuid(), behaviour), builder =>
                 {
-                    builder.ToSelf();
+                    if (recipientUri == null)
+                    {
+                        builder.ToSelf();
+                    }
+                    else
+                    {
+                        builder.WithRecipient(recipientUri);
+                    }
 
                     configure?.Invoke(builder);
                 });

@@ -8,6 +8,11 @@ public class DeferredMessageProcessor(IDeferredMessagePipeline deferredMessagePi
 {
     private readonly IDeferredMessageProcessorContext _deferredMessageProcessorContext = Guard.AgainstNull(deferredMessageProcessorContext);
 
+    public static string GetServiceKey(string inboxName)
+    {
+        return $"DeferredMessageProcessor:{Guard.AgainstEmpty(inboxName).ToLowerInvariant()}";
+    }
+
     public async ValueTask<bool> ExecuteAsync(CancellationToken cancellationToken = default)
     {
         if (!_deferredMessageProcessorContext.ShouldCheckDeferredMessages)

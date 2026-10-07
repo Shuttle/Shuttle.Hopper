@@ -23,6 +23,33 @@ public static class PipelineStateExtensions
             return state;
         }
 
+        /// <summary>
+        ///     Binds the transports used by the deferred message pipeline.  Due deferred messages are returned to the
+        ///     given additional inbox work transport that matches their recipient, else to the inbox's work transport.
+        /// </summary>
+        public IState BindDeferredInbox(IInboxConfiguration inboxConfiguration, IEnumerable<ITransport> additionalInboxWorkTransports)
+        {
+            Guard.AgainstNull(inboxConfiguration);
+
+            state.Replace(StateKeys.WorkTransport, Guard.AgainstNull(inboxConfiguration.WorkTransport));
+            state.Replace(StateKeys.ErrorTransport, Guard.AgainstNull(inboxConfiguration.ErrorTransport));
+            state.Replace(StateKeys.DeferredTransport, Guard.AgainstNull(inboxConfiguration.DeferredTransport));
+
+            return state.SetAdditionalInboxWorkTransports(additionalInboxWorkTransports);
+        }
+
+        public IDeferredMessageProcessorContext? GetDeferredMessageProcessorContext()
+        {
+            return state.Get<IDeferredMessageProcessorContext>(StateKeys.DeferredMessageProcessorContext);
+        }
+
+        public IState SetDeferredMessageProcessorContext(IDeferredMessageProcessorContext deferredMessageProcessorContext)
+        {
+            state.Replace(StateKeys.DeferredMessageProcessorContext, Guard.AgainstNull(deferredMessageProcessorContext));
+
+            return state;
+        }
+
         public ITransport? FindAdditionalInboxWorkTransport(string? uri)
         {
             if (string.IsNullOrWhiteSpace(uri) || !Uri.TryCreate(uri, UriKind.Absolute, out var candidate))

@@ -49,6 +49,9 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
             pipelineContext.Pipeline.State.Add("InboxThreadPool", new ProcessorThreadPool("InboxProcessor", _hopperOptions.Inbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
             pipelineContext.Pipeline.State.Add("AdditionalInboxThreadPools", _busConfiguration.AdditionalInboxes.Keys
                 .Select(name => (IProcessorThreadPool)new ProcessorThreadPool(InboxProcessor.GetServiceKey(name), _hopperOptions.AdditionalInboxes[name].ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy))
+                .Concat(_busConfiguration.AdditionalInboxes.Keys
+                    .Where(name => _hopperOptions.AdditionalInboxes[name].DeferredTransportUri != null)
+                    .Select(name => (IProcessorThreadPool)new ProcessorThreadPool(DeferredMessageProcessor.GetServiceKey(name), 1, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy)))
                 .ToList());
         }
 

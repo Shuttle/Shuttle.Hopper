@@ -11,6 +11,7 @@ public class AdditionalInboxFixture
 {
     private const string DeferredUri = "resilience://resilience/deferred";
     private const string ErrorUri = "resilience://resilience/error";
+    private const string PriorityDeferredUri = "resilience://resilience/deferred-priority";
     private const string PriorityErrorUri = "resilience://resilience/error-priority";
     private const string PriorityWorkUri = "resilience://resilience/work-priority";
     private const string WorkUri = "resilience://resilience/work";
@@ -171,13 +172,110 @@ public class AdditionalInboxFixture
         }, ErrorUri);
     }
 
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task Should_return_deferred_messages_to_the_additional_inbox_using_its_own_deferred_transport(bool primaryInboxHasDeferredTransport)
+    {
+        var handled = new ConcurrentDictionary<Guid, string>();
+        var serviceKeys = new ConcurrentDictionary<string, byte>();
+
+        await using var context = await AdditionalInboxContext.StartAsync(options =>
+        {
+            if (!primaryInboxHasDeferredTransport)
+            {
+                options.Inbox.DeferredTransportUri = null;
+            }
+
+            options.AdditionalInboxes["priority"].DeferredTransportUri = new(PriorityDeferredUri);
+            options.AdditionalInboxes["priority"].DeferredMessageProcessorIdleDuration = TimeSpan.FromMilliseconds(50);
+            options.AdditionalInboxes["priority"].DeferredMessageProcessorResetInterval = TimeSpan.FromMilliseconds(250);
+        }, async handlerContext =>
+        {
+            handled.TryAdd(handlerContext.Message.Id, handlerContext.State.GetWorkTransport()!.Uri.ToString());
+
+            await Task.CompletedTask;
+        }, threadingOptions =>
+        {
+            threadingOptions.ProcessorExecuting += async (args, _) =>
+            {
+                serviceKeys.TryAdd(args.ServiceKey, 0);
+
+                await Task.CompletedTask;
+            };
+        });
+
+        var id = await context.SendAsync(new(), PriorityWorkUri, builder => builder.DeferFor(TimeSpan.FromMilliseconds(300)));
+
+        var completed = await context.WaitAsync(() => handled.ContainsKey(id));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(completed, Is.True, "The deferred message was never handled.");
+            Assert.That(handled.GetValueOrDefault(id), Is.EqualTo(PriorityWorkUri));
+            Assert.That(context.Transport(PriorityDeferredUri).SendCount, Is.GreaterThanOrEqualTo(1), "The message was never deferred to the additional inbox's deferred transport.");
+            Assert.That(context.Transport(WorkUri).SendCount, Is.Zero, "The deferred message was returned to the primary inbox.");
+            Assert.That(serviceKeys.Keys, Does.Contain("DeferredMessageProcessor:priority"));
+
+            if (primaryInboxHasDeferredTransport)
+            {
+                Assert.That(context.Transport(DeferredUri).SendCount, Is.Zero, "The message was deferred to the primary inbox's deferred transport.");
+            }
+            else
+            {
+                Assert.That(serviceKeys.Keys, Does.Not.Contain("DeferredMessageProcessor"));
+            }
+        });
+    }
+
     [Test]
-    public void Should_fail_to_start_when_an_additional_inbox_specifies_a_deferred_transport_uri()
+    public void Should_fail_to_start_when_an_additional_inbox_uses_a_duplicate_deferred_transport_uri()
     {
         AssertStartFails(options =>
         {
-            options.AdditionalInboxes["priority"].DeferredTransportUri = new("resilience://resilience/deferred-priority");
-        }, "'DeferredTransportUri'");
+            options.AdditionalInboxes["priority"].DeferredTransportUri = new(DeferredUri);
+        }, DeferredUri);
+
+        AssertStartFails(options =>
+        {
+            options.AdditionalInboxes["priority"].DeferredTransportUri = new(PriorityWorkUri);
+        }, PriorityWorkUri);
+    }
+
+    [Test]
+    public void Should_fail_to_start_when_an_additional_inbox_with_its_own_deferred_transport_has_no_error_transport()
+    {
+        AssertStartFails(options =>
+        {
+            options.Inbox.ErrorTransportUri = null;
+            options.AdditionalInboxes["priority"].DeferredTransportUri = new(PriorityDeferredUri);
+        }, "'ErrorTransportUri'");
+    }
+
+    [Test]
+    public async Task Should_send_a_message_to_an_additional_inbox_by_name()
+    {
+        var handled = new ConcurrentDictionary<Guid, string>();
+
+        await using var context = await AdditionalInboxContext.StartAsync(_ => { }, async handlerContext =>
+        {
+            handled.TryAdd(handlerContext.Message.Id, handlerContext.State.GetWorkTransport()!.Uri.ToString());
+
+            await Task.CompletedTask;
+        });
+
+        var id = await context.SendAsync(new(), builder => builder.ToInbox("PRIORITY"));
+
+        var completed = await context.WaitAsync(() => handled.ContainsKey(id));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(completed, Is.True, "The message was never handled.");
+            Assert.That(handled.GetValueOrDefault(id), Is.EqualTo(PriorityWorkUri));
+        });
+
+        var exception = Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () => await context.SendAsync(new(), builder => builder.ToInbox("unknown")));
+
+        Assert.That(exception!.AllMessages(), Does.Contain("'unknown'"));
     }
 
     [Test]
@@ -265,6 +363,13 @@ public class AdditionalInboxFixture
         public ResilienceTransport Transport(string uri)
         {
             return transportFactory.Get(uri);
+        }
+
+        public async Task<Guid> SendAsync(AdditionalInboxCommand message, Action<TransportMessageBuilder> configure)
+        {
+            await bus.SendAsync(message, configure);
+
+            return message.Id;
         }
 
         public async Task<Guid> SendAsync(AdditionalInboxCommand message, string recipientUri, Action<TransportMessageBuilder>? configure = null)

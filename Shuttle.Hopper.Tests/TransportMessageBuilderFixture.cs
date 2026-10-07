@@ -30,4 +30,15 @@ public class TransportMessageBuilderFixture
 
         Assert.That(transportMessage.SenderInboxWorkTransportUri, Is.EqualTo("null-transport://./another-transport"));
     }
+
+    [Test]
+    public void Should_not_allow_an_inbox_name_together_with_another_recipient()
+    {
+        Assert.That(new TransportMessageBuilder(new()).ToInbox("priority").InboxName, Is.EqualTo("priority"));
+
+        Assert.Throws<InvalidOperationException>(() => new TransportMessageBuilder(new()).ToInbox("priority").ToSelf());
+        Assert.Throws<InvalidOperationException>(() => new TransportMessageBuilder(new()).ToSelf().ToInbox("priority"));
+        Assert.Throws<InvalidOperationException>(() => new TransportMessageBuilder(new()).WithRecipient("null-transport://./work-transport").ToInbox("priority"));
+        Assert.Throws<InvalidOperationException>(() => new TransportMessageBuilder(new()).ToInbox("priority").AsReply());
+    }
 }

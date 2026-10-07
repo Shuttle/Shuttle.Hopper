@@ -53,7 +53,9 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
                     ErrorTransport = inboxOptions.ErrorTransportUri == null
                         ? Inbox!.ErrorTransport
                         : await _transportService.GetAsync(inboxOptions.ErrorTransportUri, cancellationToken).ConfigureAwait(false),
-                    DeferredTransport = Inbox!.DeferredTransport
+                    DeferredTransport = inboxOptions.DeferredTransportUri == null
+                        ? Inbox!.DeferredTransport
+                        : await _transportService.GetAsync(inboxOptions.DeferredTransportUri, cancellationToken).ConfigureAwait(false)
                 });
             }
 
@@ -89,11 +91,11 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
         foreach (var (name, inboxOptions) in _hopperOptions.AdditionalInboxes)
         {
             Guard.Against<InvalidOperationException>(inboxOptions.WorkTransportUri == null, string.Format(Resources.AdditionalInboxWorkTransportUriMissingException, name));
-            Guard.Against<InvalidOperationException>(inboxOptions.DeferredTransportUri != null, string.Format(Resources.AdditionalInboxDeferredTransportUriException, name));
+            Guard.Against<InvalidOperationException>(inboxOptions.DeferredTransportUri != null && inboxOptions.ErrorTransportUri == null && _hopperOptions.Inbox.ErrorTransportUri == null, string.Format(Resources.AdditionalInboxErrorTransportUriRequiredException, name));
         }
 
-        // An additional inbox may share an error transport, but its work transport may not be any other transport
-        // used by the endpoint.
+        // An additional inbox may share an error transport, but its work and deferred transports may not be any other
+        // transport used by the endpoint.
         var usedUris = new List<Uri?>
             {
                 _hopperOptions.Inbox.WorkTransportUri,
@@ -108,11 +110,12 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
 
         foreach (var (name, inboxOptions) in _hopperOptions.AdditionalInboxes)
         {
-            var workTransportUri = inboxOptions.WorkTransportUri!;
+            foreach (var transportUri in new[] { inboxOptions.WorkTransportUri, inboxOptions.DeferredTransportUri }.OfType<Uri>())
+            {
+                Guard.Against<InvalidOperationException>(usedUris.Any(uri => uri.Equals(transportUri)), string.Format(Resources.AdditionalInboxDuplicateTransportUriException, name, transportUri));
 
-            Guard.Against<InvalidOperationException>(usedUris.Any(uri => uri.Equals(workTransportUri)), string.Format(Resources.AdditionalInboxDuplicateWorkTransportUriException, name, workTransportUri));
-
-            usedUris.Add(workTransportUri);
+                usedUris.Add(transportUri);
+            }
         }
     }
 }

@@ -54,6 +54,16 @@ public class AssembleMessageObserver(IOptions<HopperOptions> hopperOptions, IBus
             transportMessage.RecipientInboxWorkTransportUri = Guard.AgainstNull(_busConfiguration.Inbox!.WorkTransport).Uri.ToString();
         }
 
+        if (transportMessageBuilder.InboxName != null)
+        {
+            if (!_busConfiguration.AdditionalInboxes.TryGetValue(transportMessageBuilder.InboxName, out var inbox))
+            {
+                throw new InvalidOperationException(string.Format(Resources.SendToInboxException, transportMessageBuilder.InboxName));
+            }
+
+            transportMessage.RecipientInboxWorkTransportUri = Guard.AgainstNull(inbox.WorkTransport).Uri.ToString();
+        }
+
         if (transportMessageBuilder.ShouldReply)
         {
             if (transportMessageReceived == null || string.IsNullOrEmpty(transportMessageReceived.SenderInboxWorkTransportUri))

@@ -266,14 +266,6 @@
   <data name="MessageContextTransportMessageException" xml:space="preserve">
     <value>TransportMessage has already been set and cannot be modified.</value>
   </data>
-  <data name="AdditionalInboxDeferredTransportUriException" xml:space="preserve">
-    <value>Additional inbox '{0}' may not specify a 'DeferredTransportUri'; deferred messages use the primary inbox's deferred transport.</value>
-    <comment>0 = inbox name</comment>
-  </data>
-  <data name="AdditionalInboxDuplicateWorkTransportUriException" xml:space="preserve">
-    <value>Additional inbox '{0}' uses work transport uri '{1}', which is already used by the endpoint.</value>
-    <comment>0 = inbox name, 1 = work transport uri</comment>
-  </data>
   <data name="AdditionalInboxNotRegisteredException" xml:space="preserve">
     <value>Additional inbox '{0}' is configured under 'AdditionalInboxes' but has not been registered using 'AddInbox("{0}")'.</value>
     <comment>0 = inbox name</comment>
@@ -288,6 +280,18 @@
   </data>
   <data name="InboxAlreadyRegisteredException" xml:space="preserve">
     <value>An additional inbox with name '{0}' has already been registered.</value>
+    <comment>0 = inbox name</comment>
+  </data>
+  <data name="AdditionalInboxDuplicateTransportUriException" xml:space="preserve">
+    <value>Additional inbox '{0}' uses transport uri '{1}', which is already used by the endpoint.</value>
+    <comment>0 = inbox name, 1 = transport uri</comment>
+  </data>
+  <data name="AdditionalInboxErrorTransportUriRequiredException" xml:space="preserve">
+    <value>Additional inbox '{0}' has its own 'DeferredTransportUri' and therefore requires an 'ErrorTransportUri', either its own or that of the primary inbox.</value>
+    <comment>0 = inbox name</comment>
+  </data>
+  <data name="SendToInboxException" xml:space="preserve">
+    <value>Cannot send the message to inbox '{0}' as no additional inbox with that name has been configured.</value>
     <comment>0 = inbox name</comment>
   </data>
 </root>

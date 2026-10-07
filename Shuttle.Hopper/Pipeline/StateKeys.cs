@@ -3,6 +3,7 @@ namespace Shuttle.Hopper;
 public static class StateKeys
 {
     public const string AdditionalInboxWorkTransports = "AdditionalInboxWorkTransports";
+    public const string DeferredMessageProcessorContext = "DeferredMessageProcessorContext";
     public const string DeferredMessageReturned = "DeferredMessageReturned";
     public const string DeferredTransport = "DeferredTransport";
     public const string DurationToIgnoreOnFailure = "DurationToIgnoreOnFailure";

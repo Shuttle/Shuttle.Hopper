@@ -430,24 +430,6 @@ namespace Shuttle.Hopper {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; may not specify a &apos;DeferredTransportUri&apos;; deferred messages use the primary inbox&apos;s deferred transport..
-        /// </summary>
-        public static string AdditionalInboxDeferredTransportUriException {
-            get {
-                return ResourceManager.GetString("AdditionalInboxDeferredTransportUriException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; uses work transport uri &apos;{1}&apos;, which is already used by the endpoint..
-        /// </summary>
-        public static string AdditionalInboxDuplicateWorkTransportUriException {
-            get {
-                return ResourceManager.GetString("AdditionalInboxDuplicateWorkTransportUriException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; is configured under &apos;AdditionalInboxes&apos; but has not been registered using &apos;AddInbox(&quot;{0}&quot;)&apos;..
         /// </summary>
         public static string AdditionalInboxNotRegisteredException {
@@ -480,6 +462,33 @@ namespace Shuttle.Hopper {
         public static string InboxAlreadyRegisteredException {
             get {
                 return ResourceManager.GetString("InboxAlreadyRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; uses transport uri &apos;{1}&apos;, which is already used by the endpoint..
+        /// </summary>
+        public static string AdditionalInboxDuplicateTransportUriException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxDuplicateTransportUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; has its own &apos;DeferredTransportUri&apos; and therefore requires an &apos;ErrorTransportUri&apos;, either its own or that of the primary inbox..
+        /// </summary>
+        public static string AdditionalInboxErrorTransportUriRequiredException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxErrorTransportUriRequiredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot send the message to inbox &apos;{0}&apos; as no additional inbox with that name has been configured..
+        /// </summary>
+        public static string SendToInboxException {
+            get {
+                return ResourceManager.GetString("SendToInboxException", resourceCulture);
             }
         }
     }

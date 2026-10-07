@@ -10,7 +10,6 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
     private CancellationTokenSource _cancellationTokenSource = new();
 
     private List<IProcessorThreadPool> _additionalInboxThreadPools = [];
-    private IProcessorThreadPool? _controlInboxThreadPool;
     private IProcessorThreadPool? _deferredMessageThreadPool;
 
     private bool _disposed;
@@ -29,26 +28,60 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
         using var serviceScope = Guard.AgainstNull(serviceScopeFactory).CreateScope();
 
         var startupPipeline = serviceScope.ServiceProvider.GetRequiredService<IStartupPipeline>();
-        
+
         Started = true; // required for using Bus in OnStarted event
 
         try
         {
             await startupPipeline.ExecuteAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
-            _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
-            _additionalInboxThreadPools = startupPipeline.State.Get<List<IProcessorThreadPool>>("AdditionalInboxThreadPools") ?? [];
-            _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
-            _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
-            _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+            SetThreadPools(startupPipeline.State);
+
+            var busConfiguration = serviceScope.ServiceProvider.GetRequiredService<IBusConfiguration>();
+
+            Inbox = busConfiguration.Inbox;
+            Outbox = busConfiguration.Outbox;
         }
         catch
         {
+            // The thread pools that were started before the failure would otherwise keep processing.
+            await _cancellationTokenSource.CancelAsync();
+
+            SetThreadPools(startupPipeline.State);
+            DisposeThreadPools();
+
             Started = false;
+
             throw;
         }
 
         return this;
+    }
+
+    private void SetThreadPools(IState state)
+    {
+        _inboxThreadPool = state.Get<IProcessorThreadPool>("InboxThreadPool");
+        _additionalInboxThreadPools = state.Get<List<IProcessorThreadPool>>("AdditionalInboxThreadPools") ?? [];
+        _outboxThreadPool = state.Get<IProcessorThreadPool>("OutboxThreadPool");
+        _deferredMessageThreadPool = state.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
+    }
+
+    private void DisposeThreadPools()
+    {
+        _deferredMessageThreadPool?.Dispose();
+        _inboxThreadPool?.Dispose();
+
+        foreach (var threadPool in _additionalInboxThreadPools)
+        {
+            threadPool.Dispose();
+        }
+
+        _outboxThreadPool?.Dispose();
+
+        _deferredMessageThreadPool = null;
+        _inboxThreadPool = null;
+        _additionalInboxThreadPools = [];
+        _outboxThreadPool = null;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken = default)
@@ -60,18 +93,7 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 
         await _cancellationTokenSource.CancelAsync();
 
-        _deferredMessageThreadPool?.Dispose();
-        _inboxThreadPool?.Dispose();
-
-        foreach (var threadPool in _additionalInboxThreadPools)
-        {
-            threadPool.Dispose();
-        }
-
-        _additionalInboxThreadPools = [];
-
-        _controlInboxThreadPool?.Dispose();
-        _outboxThreadPool?.Dispose();
+        DisposeThreadPools();
 
         try
         {

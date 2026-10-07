@@ -188,19 +188,26 @@ The options may also be set in code, with or without a configuration entry:
 The following rules apply to an additional inbox:
 
 *   The primary `Inbox.WorkTransportUri` is required whenever additional inboxes exist.
-*   `WorkTransportUri` is required and may not be any other transport uri used by the endpoint (the primary inbox's work, deferred and error transports, the outbox's transports, or another additional inbox's work or error transport).
+*   `WorkTransportUri` is required, and neither it nor `DeferredTransportUri` may be any other transport uri used by the endpoint (the primary inbox's work, deferred and error transports, the outbox's transports, or another additional inbox's work, deferred or error transport).
 *   `ErrorTransportUri` is optional; when it is not set the primary inbox's error transport is used.
-*   `DeferredTransportUri` may not be set; deferred messages are parked on the primary inbox's deferred transport.
+*   `DeferredTransportUri` is optional:
+    *   when it is not set, deferred messages are parked on the primary inbox's deferred transport, and `DeferredMessageProcessorResetInterval` and `DeferredMessageProcessorIdleDuration` are ignored;
+    *   when it is set, the additional inbox gets its own deferred message processor thread that uses its own `DeferredMessageProcessorResetInterval` and `DeferredMessageProcessorIdleDuration`, and an error transport (its own or that of the primary inbox) is required. The primary inbox does not need a deferred transport in this case.
 *   `ThreadCount`, `MaximumFailureCount`, `IdleDurations` and `IgnoreOnFailureDurations` behave as they do for the primary inbox.
-*   `DeferredMessageProcessorResetInterval` and `DeferredMessageProcessorIdleDuration` are ignored.
 *   Inbox names are case-insensitive, and an `AdditionalInboxes` entry that has not been registered using `AddInbox` causes the bus to fail on start.
+
+A message may be sent to an additional inbox of the sending endpoint by name:
+
+```csharp
+await bus.SendAsync(new ProcessOrder(), builder => builder.ToInbox("priority"));
+```
 
 The following semantics apply:
 
 *   `SenderInboxWorkTransportUri` and `ToSelf()` use the primary inbox, which remains the endpoint's identity. Replies to messages taken from an additional inbox therefore arrive on the primary inbox, and a handler that sends a message using `ToSelf()` sends it to the primary inbox.
-*   Subscriptions and published events target the primary inbox only. Additional inboxes are intended for direct sends using `WithRecipient` or message routes.
-*   A deferred message (including a failed message that is retried after an ignore duration) is returned to the additional inbox whose work transport uri matches the message's `RecipientInboxWorkTransportUri`; any other message is returned to the primary inbox. The match is on the uri as configured, so a `resolver://` inbox only matches a recipient using the same `resolver://` uri, and the path is case-sensitive. A message placed on an additional inbox queue with a different or empty recipient moves to the primary inbox after its first deferral.
-*   Additional inbox thread pools use the service key `InboxProcessor:{name}`, with the name lower-cased, which is visible in the `ThreadingOptions` events.
+*   Subscriptions and published events target the primary inbox only. Additional inboxes are intended for direct sends using `ToInbox`, `WithRecipient` or message routes.
+*   A deferred message (including a failed message that is retried after an ignore duration) that is parked on the primary inbox's deferred transport is returned to the additional inbox whose work transport uri matches the message's `RecipientInboxWorkTransportUri`; any other message is returned to the primary inbox. The match is on the work transport's `Uri`, which a transport may normalise (for instance by replacing a `.` host with the machine name), so a recipient written in another form (or, for a `resolver://` inbox, using the resolved uri) does not match, and the path is case-sensitive. `ToInbox` always produces a matching recipient. A message placed on an additional inbox queue with a different or empty recipient moves to the primary inbox after its first deferral. An additional inbox with its own deferred transport always receives its deferred messages back.
+*   Additional inbox thread pools use the service key `InboxProcessor:{name}`, and an additional inbox's own deferred message processor uses `DeferredMessageProcessor:{name}`, with the name lower-cased; these are visible in the `ThreadingOptions` events.
 
 ### Deferred Messages
 

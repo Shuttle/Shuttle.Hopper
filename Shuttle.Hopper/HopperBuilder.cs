@@ -33,16 +33,22 @@ public class HopperBuilder(IServiceCollection services)
         }
 
         var serviceKey = InboxProcessor.GetServiceKey(name);
+        var deferredServiceKey = DeferredMessageProcessor.GetServiceKey(name);
 
         Services.AddKeyedScoped<IProcessor>(serviceKey, (serviceProvider, _) =>
         {
             var inboxMessagePipeline = serviceProvider.GetRequiredService<IInboxMessagePipeline>();
             var busConfiguration = serviceProvider.GetRequiredService<IBusConfiguration>();
-            var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
+            var inboxOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value.AdditionalInboxes[name];
 
             // The pipeline constructor binds the primary inbox; the pipeline instance is scoped, so this is the same
             // instance that the processor executes.
-            inboxMessagePipeline.State.BindInbox(busConfiguration.AdditionalInboxes[name], hopperOptions.AdditionalInboxes[name]);
+            inboxMessagePipeline.State.BindInbox(busConfiguration.AdditionalInboxes[name], inboxOptions);
+
+            if (inboxOptions.DeferredTransportUri != null)
+            {
+                inboxMessagePipeline.State.SetDeferredMessageProcessorContext(serviceProvider.GetRequiredKeyedService<IDeferredMessageProcessorContext>(deferredServiceKey));
+            }
 
             return new InboxProcessor(inboxMessagePipeline);
         });
@@ -54,6 +60,28 @@ public class HopperBuilder(IServiceCollection services)
             options.Durations = inboxOptions.IdleDurations.Count > 0
                 ? inboxOptions.IdleDurations
                 : HopperOptions.DefaultIdleDurations.ToList();
+        });
+
+        // Only used when the additional inbox has its own deferred transport.
+        Services.AddKeyedSingleton<IDeferredMessageProcessorContext>(deferredServiceKey, (serviceProvider, _) =>
+        {
+            var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
+
+            return new DeferredMessageProcessorContext(hopperOptions, hopperOptions.AdditionalInboxes[name]);
+        });
+
+        Services.AddKeyedScoped<IProcessor>(deferredServiceKey, (serviceProvider, _) =>
+        {
+            var deferredMessagePipeline = serviceProvider.GetRequiredService<IDeferredMessagePipeline>();
+
+            deferredMessagePipeline.State.BindDeferredInbox(serviceProvider.GetRequiredService<IBusConfiguration>().AdditionalInboxes[name], []);
+
+            return new DeferredMessageProcessor(deferredMessagePipeline, serviceProvider.GetRequiredKeyedService<IDeferredMessageProcessorContext>(deferredServiceKey));
+        });
+
+        Services.AddOptions<ProcessorIdleOptions>(deferredServiceKey).Configure<IOptions<HopperOptions>>((options, hopperOptions) =>
+        {
+            options.Durations = [hopperOptions.Value.AdditionalInboxes[name].DeferredMessageProcessorIdleDuration];
         });
 
         return this;
