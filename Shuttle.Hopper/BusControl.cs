@@ -9,6 +9,7 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 {
     private CancellationTokenSource _cancellationTokenSource = new();
 
+    private List<IProcessorThreadPool> _additionalInboxThreadPools = [];
     private IProcessorThreadPool? _controlInboxThreadPool;
     private IProcessorThreadPool? _deferredMessageThreadPool;
 
@@ -36,6 +37,7 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
             await startupPipeline.ExecuteAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 
             _inboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("InboxThreadPool");
+            _additionalInboxThreadPools = startupPipeline.State.Get<List<IProcessorThreadPool>>("AdditionalInboxThreadPools") ?? [];
             _controlInboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("ControlInboxThreadPool");
             _outboxThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("OutboxThreadPool");
             _deferredMessageThreadPool = startupPipeline.State.Get<IProcessorThreadPool>("DeferredMessageThreadPool");
@@ -60,6 +62,14 @@ public class BusControl(IServiceScopeFactory serviceScopeFactory) : IBusControl
 
         _deferredMessageThreadPool?.Dispose();
         _inboxThreadPool?.Dispose();
+
+        foreach (var threadPool in _additionalInboxThreadPools)
+        {
+            threadPool.Dispose();
+        }
+
+        _additionalInboxThreadPools = [];
+
         _controlInboxThreadPool?.Dispose();
         _outboxThreadPool?.Dispose();
 

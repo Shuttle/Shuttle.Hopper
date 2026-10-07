@@ -25,6 +25,23 @@ public static class ServiceCollectionExtensions
                 configureOptions?.Invoke(options);
 
                 options.Subscription.MessageTypes.AddRange(builder.SubscriptionMessageTypes);
+
+                // Inbox names are case-insensitive, also when the dictionary has been replaced.
+                if (!Equals(options.AdditionalInboxes.Comparer, StringComparer.OrdinalIgnoreCase))
+                {
+                    options.AdditionalInboxes = new(options.AdditionalInboxes, StringComparer.OrdinalIgnoreCase);
+                }
+
+                foreach (var (name, configureInboxOptions) in builder.AdditionalInboxes)
+                {
+                    if (!options.AdditionalInboxes.TryGetValue(name, out var inboxOptions))
+                    {
+                        inboxOptions = new();
+                        options.AdditionalInboxes.Add(name, inboxOptions);
+                    }
+
+                    configureInboxOptions?.Invoke(inboxOptions);
+                }
             });
 
             services.TryAddSingleton<IEnvironmentService, EnvironmentService>();

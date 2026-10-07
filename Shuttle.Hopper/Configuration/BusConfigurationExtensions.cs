@@ -16,6 +16,11 @@ public static class BusConfigurationExtensions
                 {
                     await busConfiguration.Inbox!.DeferredTransport!.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
+
+                foreach (var inbox in busConfiguration.AdditionalInboxes.Values)
+                {
+                    await inbox.TryCreateAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+                }
             }
 
             if (busConfiguration.HasOutbox())

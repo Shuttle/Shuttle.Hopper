@@ -266,4 +266,28 @@
   <data name="MessageContextTransportMessageException" xml:space="preserve">
     <value>TransportMessage has already been set and cannot be modified.</value>
   </data>
+  <data name="AdditionalInboxDeferredTransportUriException" xml:space="preserve">
+    <value>Additional inbox '{0}' may not specify a 'DeferredTransportUri'; deferred messages use the primary inbox's deferred transport.</value>
+    <comment>0 = inbox name</comment>
+  </data>
+  <data name="AdditionalInboxDuplicateWorkTransportUriException" xml:space="preserve">
+    <value>Additional inbox '{0}' uses work transport uri '{1}', which is already used by the endpoint.</value>
+    <comment>0 = inbox name, 1 = work transport uri</comment>
+  </data>
+  <data name="AdditionalInboxNotRegisteredException" xml:space="preserve">
+    <value>Additional inbox '{0}' is configured under 'AdditionalInboxes' but has not been registered using 'AddInbox("{0}")'.</value>
+    <comment>0 = inbox name</comment>
+  </data>
+  <data name="AdditionalInboxPrimaryInboxRequiredException" xml:space="preserve">
+    <value>Additional inboxes ('{0}') require 'Inbox.WorkTransportUri' to be configured.</value>
+    <comment>0 = comma-separated inbox names</comment>
+  </data>
+  <data name="AdditionalInboxWorkTransportUriMissingException" xml:space="preserve">
+    <value>Additional inbox '{0}' has no 'WorkTransportUri'.</value>
+    <comment>0 = inbox name</comment>
+  </data>
+  <data name="InboxAlreadyRegisteredException" xml:space="preserve">
+    <value>An additional inbox with name '{0}' has already been registered.</value>
+    <comment>0 = inbox name</comment>
+  </data>
 </root>

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Shuttle.Contract;
 using Shuttle.Reflection;
+using Shuttle.Threading;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
@@ -13,10 +15,49 @@ public class HopperBuilder(IServiceCollection services)
     private static readonly Type DirectMessageHandlerType = typeof(IMessageHandler<>);
     private readonly Dictionary<Type, MessageHandlerDelegate> _messageHandlerDelegates = new();
     private readonly Dictionary<Type, DirectMessageHandlerDelegate> _directMessageHandlerDelegates = new();
+    private readonly Dictionary<string, Action<InboxOptions>?> _additionalInboxes = new(StringComparer.OrdinalIgnoreCase);
 
     public IServiceCollection Services { get; } = Guard.AgainstNull(services);
 
     internal List<string> SubscriptionMessageTypes { get; } = [];
+
+    internal IReadOnlyDictionary<string, Action<InboxOptions>?> AdditionalInboxes => _additionalInboxes;
+
+    public HopperBuilder AddInbox(string name, Action<InboxOptions>? configureOptions = null)
+    {
+        Guard.AgainstEmpty(name);
+
+        if (!_additionalInboxes.TryAdd(name, configureOptions))
+        {
+            throw new InvalidOperationException(string.Format(Resources.InboxAlreadyRegisteredException, name));
+        }
+
+        var serviceKey = InboxProcessor.GetServiceKey(name);
+
+        Services.AddKeyedScoped<IProcessor>(serviceKey, (serviceProvider, _) =>
+        {
+            var inboxMessagePipeline = serviceProvider.GetRequiredService<IInboxMessagePipeline>();
+            var busConfiguration = serviceProvider.GetRequiredService<IBusConfiguration>();
+            var hopperOptions = serviceProvider.GetRequiredService<IOptions<HopperOptions>>().Value;
+
+            // The pipeline constructor binds the primary inbox; the pipeline instance is scoped, so this is the same
+            // instance that the processor executes.
+            inboxMessagePipeline.State.BindInbox(busConfiguration.AdditionalInboxes[name], hopperOptions.AdditionalInboxes[name]);
+
+            return new InboxProcessor(inboxMessagePipeline);
+        });
+
+        Services.AddOptions<ProcessorIdleOptions>(serviceKey).Configure<IOptions<HopperOptions>>((options, hopperOptions) =>
+        {
+            var inboxOptions = hopperOptions.Value.AdditionalInboxes[name];
+
+            options.Durations = inboxOptions.IdleDurations.Count > 0
+                ? inboxOptions.IdleDurations
+                : HopperOptions.DefaultIdleDurations.ToList();
+        });
+
+        return this;
+    }
 
     public HopperBuilder AddMessageHandler<TDelegate>(TDelegate handler) where TDelegate : Delegate
     {

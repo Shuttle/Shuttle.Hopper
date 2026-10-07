@@ -17,6 +17,7 @@ public class DeferredMessagePipeline : Pipeline, IDeferredMessagePipeline
         State.SetWorkTransport(Guard.AgainstNull(busConfiguration.Inbox!.WorkTransport));
         State.SetErrorTransport(Guard.AgainstNull(busConfiguration.Inbox.ErrorTransport));
         State.SetDeferredTransport(Guard.AgainstNull(busConfiguration.Inbox.DeferredTransport));
+        State.SetAdditionalInboxWorkTransports(busConfiguration.AdditionalInboxes.Values.Select(item => Guard.AgainstNull(item.WorkTransport)));
 
         AddStage("Process")
             .WithEvent<ReceiveMessage>()

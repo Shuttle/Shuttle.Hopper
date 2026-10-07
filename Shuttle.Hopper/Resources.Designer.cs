@@ -428,5 +428,59 @@ namespace Shuttle.Hopper {
                 return ResourceManager.GetString("UriNameNotFoundException", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; may not specify a &apos;DeferredTransportUri&apos;; deferred messages use the primary inbox&apos;s deferred transport..
+        /// </summary>
+        public static string AdditionalInboxDeferredTransportUriException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxDeferredTransportUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; uses work transport uri &apos;{1}&apos;, which is already used by the endpoint..
+        /// </summary>
+        public static string AdditionalInboxDuplicateWorkTransportUriException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxDuplicateWorkTransportUriException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; is configured under &apos;AdditionalInboxes&apos; but has not been registered using &apos;AddInbox(&quot;{0}&quot;)&apos;..
+        /// </summary>
+        public static string AdditionalInboxNotRegisteredException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxNotRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inboxes (&apos;{0}&apos;) require &apos;Inbox.WorkTransportUri&apos; to be configured..
+        /// </summary>
+        public static string AdditionalInboxPrimaryInboxRequiredException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxPrimaryInboxRequiredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Additional inbox &apos;{0}&apos; has no &apos;WorkTransportUri&apos;..
+        /// </summary>
+        public static string AdditionalInboxWorkTransportUriMissingException {
+            get {
+                return ResourceManager.GetString("AdditionalInboxWorkTransportUriMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An additional inbox with name &apos;{0}&apos; has already been registered..
+        /// </summary>
+        public static string InboxAlreadyRegisteredException {
+            get {
+                return ResourceManager.GetString("InboxAlreadyRegisteredException", resourceCulture);
+            }
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Shuttle.Contract;
 using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
@@ -6,6 +7,39 @@ public static class PipelineStateExtensions
 {
     extension(IState state)
     {
+        public IState BindInbox(IInboxConfiguration inboxConfiguration, ProcessorOptions processorOptions)
+        {
+            Guard.AgainstNull(inboxConfiguration);
+            Guard.AgainstNull(processorOptions);
+
+            state.Replace(StateKeys.WorkTransport, Guard.AgainstNull(inboxConfiguration.WorkTransport));
+            state.Replace(StateKeys.DeferredTransport, inboxConfiguration.DeferredTransport);
+            state.Replace(StateKeys.ErrorTransport, inboxConfiguration.ErrorTransport);
+            state.Replace(StateKeys.DurationToIgnoreOnFailure, processorOptions.IgnoreOnFailureDurations.Count > 0
+                ? processorOptions.IgnoreOnFailureDurations
+                : HopperOptions.DefaultIgnoreOnFailureDurations);
+            state.Replace(StateKeys.MaximumFailureCount, processorOptions.MaximumFailureCount);
+
+            return state;
+        }
+
+        public ITransport? FindAdditionalInboxWorkTransport(string? uri)
+        {
+            if (string.IsNullOrWhiteSpace(uri) || !Uri.TryCreate(uri, UriKind.Absolute, out var candidate))
+            {
+                return null;
+            }
+
+            return state.Get<List<ITransport>>(StateKeys.AdditionalInboxWorkTransports)?.Find(transport => transport.Uri.Uri.Equals(candidate));
+        }
+
+        public IState SetAdditionalInboxWorkTransports(IEnumerable<ITransport> transports)
+        {
+            state.Replace(StateKeys.AdditionalInboxWorkTransports, Guard.AgainstNull(transports).ToList());
+
+            return state;
+        }
+
         public bool HasDeferredMessageReturned()
         {
             return state.Get<bool>(StateKeys.DeferredMessageReturned);

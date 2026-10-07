@@ -146,6 +146,62 @@ The `InboxProcessor` and `OutboxProcessor` can be configured via `HopperOptions`
 }
 ```
 
+### Additional Inboxes
+
+An endpoint may process one or more additional inbox work queues next to its primary `Inbox`, without an extra deployment. Each additional inbox is registered by name using `AddInbox` and gets its own dedicated processor threads and idle back-off, so a busy queue does not starve another. There is no precedence between the queues.
+
+```csharp
+services
+    .AddHopper(options =>
+    {
+        configuration.GetSection(HopperOptions.SectionName).Bind(options);
+    })
+    .AddInbox("priority");
+```
+
+```json
+{
+  "Shuttle": {
+    "Hopper": {
+      "Inbox": {
+        "WorkTransportUri": "azuresq://azure/my-server-work",
+        "DeferredTransportUri": "azuresq://azure/my-server-deferred",
+        "ErrorTransportUri": "azuresq://azure/shuttle-error"
+      },
+      "AdditionalInboxes": {
+        "priority": {
+          "WorkTransportUri": "azuresq://azure/my-server-work-priority",
+          "ThreadCount": 2
+        }
+      }
+    }
+  }
+}
+```
+
+The options may also be set in code, with or without a configuration entry:
+
+```csharp
+.AddInbox("priority", options => options.WorkTransportUri = new("azuresq://azure/my-server-work-priority"));
+```
+
+The following rules apply to an additional inbox:
+
+*   The primary `Inbox.WorkTransportUri` is required whenever additional inboxes exist.
+*   `WorkTransportUri` is required and may not be any other transport uri used by the endpoint (the primary inbox's work, deferred and error transports, the outbox's transports, or another additional inbox's work or error transport).
+*   `ErrorTransportUri` is optional; when it is not set the primary inbox's error transport is used.
+*   `DeferredTransportUri` may not be set; deferred messages are parked on the primary inbox's deferred transport.
+*   `ThreadCount`, `MaximumFailureCount`, `IdleDurations` and `IgnoreOnFailureDurations` behave as they do for the primary inbox.
+*   `DeferredMessageProcessorResetInterval` and `DeferredMessageProcessorIdleDuration` are ignored.
+*   Inbox names are case-insensitive, and an `AdditionalInboxes` entry that has not been registered using `AddInbox` causes the bus to fail on start.
+
+The following semantics apply:
+
+*   `SenderInboxWorkTransportUri` and `ToSelf()` use the primary inbox, which remains the endpoint's identity. Replies to messages taken from an additional inbox therefore arrive on the primary inbox, and a handler that sends a message using `ToSelf()` sends it to the primary inbox.
+*   Subscriptions and published events target the primary inbox only. Additional inboxes are intended for direct sends using `WithRecipient` or message routes.
+*   A deferred message (including a failed message that is retried after an ignore duration) is returned to the additional inbox whose work transport uri matches the message's `RecipientInboxWorkTransportUri`; any other message is returned to the primary inbox. The match is on the uri as configured, so a `resolver://` inbox only matches a recipient using the same `resolver://` uri, and the path is case-sensitive. A message placed on an additional inbox queue with a different or empty recipient moves to the primary inbox after its first deferral.
+*   Additional inbox thread pools use the service key `InboxProcessor:{name}`, with the name lower-cased, which is visible in the `ThreadingOptions` events.
+
 ### Deferred Messages
 
 If an application requires messages to be deferred and processed at a later time, you can configure the `DeferredTransportUri` in your `InboxOptions`. Shuttle.Hopper will actively monitor this endpoint using a `DeferredMessageProcessor` to pick up the deferred messages when appropriate.

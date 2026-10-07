@@ -12,9 +12,10 @@ public interface IStartupProcessingObserver :
     IPipelineObserver<ConfigureThreadPools>,
     IPipelineObserver<StartThreadPools>;
 
-public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IOptions<ThreadingOptions> threadingOptions, IServiceScopeFactory serviceScopeFactory, IBusConfiguration busConfiguration, IProcessorIdleStrategy processorIdleStrategy)
+public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IOptions<ThreadingOptions> threadingOptions, IServiceScopeFactory serviceScopeFactory, IBusConfiguration busConfiguration, IProcessorIdleStrategy processorIdleStrategy, IServiceProviderIsKeyedService serviceProviderIsKeyedService)
     : IStartupProcessingObserver
 {
+    private readonly IServiceProviderIsKeyedService _serviceProviderIsKeyedService = Guard.AgainstNull(serviceProviderIsKeyedService);
     private readonly ThreadingOptions _threadingOptions = Guard.AgainstNull(Guard.AgainstNull(threadingOptions).Value);
     private readonly IServiceScopeFactory _serviceScopeFactory = Guard.AgainstNull(serviceScopeFactory);
     private readonly IBusConfiguration _busConfiguration = Guard.AgainstNull(busConfiguration);
@@ -46,6 +47,9 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
         if (_busConfiguration.HasInbox())
         {
             pipelineContext.Pipeline.State.Add("InboxThreadPool", new ProcessorThreadPool("InboxProcessor", _hopperOptions.Inbox.ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy));
+            pipelineContext.Pipeline.State.Add("AdditionalInboxThreadPools", _busConfiguration.AdditionalInboxes.Keys
+                .Select(name => (IProcessorThreadPool)new ProcessorThreadPool(InboxProcessor.GetServiceKey(name), _hopperOptions.AdditionalInboxes[name].ThreadCount, _serviceScopeFactory, _threadingOptions, _processorIdleStrategy))
+                .ToList());
         }
 
         if (_busConfiguration.HasOutbox())
@@ -69,6 +73,11 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
             await inboxThreadPool.StartAsync(cancellationToken);
         }
 
+        foreach (var threadPool in state.Get<List<IProcessorThreadPool>>("AdditionalInboxThreadPools") ?? [])
+        {
+            await threadPool.StartAsync(cancellationToken);
+        }
+
         if (outboxThreadPool != null)
         {
             await outboxThreadPool.StartAsync(cancellationToken);
@@ -82,6 +91,11 @@ public class StartupProcessingObserver(IOptions<HopperOptions> hopperOptions, IO
 
     public async Task ExecuteAsync(IPipelineContext<Starting> pipelineContext, CancellationToken cancellationToken = default)
     {
+        foreach (var name in _hopperOptions.AdditionalInboxes.Keys)
+        {
+            Guard.Against<InvalidOperationException>(!_serviceProviderIsKeyedService.IsKeyedService(typeof(IProcessor), InboxProcessor.GetServiceKey(name)), string.Format(Resources.AdditionalInboxNotRegisteredException, name));
+        }
+
         await _busConfiguration.ConfigureAsync(cancellationToken);
     }
 }

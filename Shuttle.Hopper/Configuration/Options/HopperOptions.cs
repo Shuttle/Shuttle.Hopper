@@ -32,6 +32,7 @@ public class HopperOptions
     public AsyncEvent<DeferredMessageProcessingHaltedEventArgs> DeferredMessageProcessingHalted { get; set; } = new();
     public AsyncEvent<HandlerExceptionEventArgs> HandlerException { get; set; } = new();
     public InboxOptions Inbox { get; set; } = new();
+    public Dictionary<string, InboxOptions> AdditionalInboxes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     /// <summary>
     /// Called when the message processing completed successfully.
     /// </summary>

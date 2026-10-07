@@ -9,9 +9,11 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
     private readonly ITransportService _transportService = Guard.AgainstNull(transportService);
 
     private readonly SemaphoreSlim _lock = new(1, 1);
+    private readonly Dictionary<string, IInboxConfiguration> _additionalInboxes = new(StringComparer.OrdinalIgnoreCase);
     private bool _configured;
 
     public IInboxConfiguration? Inbox { get; private set; }
+    public IReadOnlyDictionary<string, IInboxConfiguration> AdditionalInboxes => _additionalInboxes;
     public IOutboxConfiguration? Outbox { get; private set; }
 
     public async Task ConfigureAsync(CancellationToken cancellationToken = default)
@@ -24,6 +26,8 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
             {
                 return;
             }
+
+            ValidateAdditionalInboxes();
 
             if (_hopperOptions.Inbox.WorkTransportUri != null)
             {
@@ -39,6 +43,18 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
                             ? null
                             : await _transportService.GetAsync(_hopperOptions.Inbox.ErrorTransportUri, cancellationToken).ConfigureAwait(false)
                 };
+            }
+
+            foreach (var (name, inboxOptions) in _hopperOptions.AdditionalInboxes)
+            {
+                _additionalInboxes.Add(name, new InboxConfiguration
+                {
+                    WorkTransport = await _transportService.GetAsync(inboxOptions.WorkTransportUri!, cancellationToken).ConfigureAwait(false),
+                    ErrorTransport = inboxOptions.ErrorTransportUri == null
+                        ? Inbox!.ErrorTransport
+                        : await _transportService.GetAsync(inboxOptions.ErrorTransportUri, cancellationToken).ConfigureAwait(false),
+                    DeferredTransport = Inbox!.DeferredTransport
+                });
             }
 
             if (_hopperOptions.Outbox.WorkTransportUri != null)
@@ -58,6 +74,45 @@ public class BusConfiguration(IOptions<HopperOptions> hopperOptions, ITransportS
         finally
         {
             _lock.Release();
+        }
+    }
+
+    private void ValidateAdditionalInboxes()
+    {
+        if (_hopperOptions.AdditionalInboxes.Count == 0)
+        {
+            return;
+        }
+
+        Guard.Against<InvalidOperationException>(_hopperOptions.Inbox.WorkTransportUri == null, string.Format(Resources.AdditionalInboxPrimaryInboxRequiredException, string.Join(", ", _hopperOptions.AdditionalInboxes.Keys)));
+
+        foreach (var (name, inboxOptions) in _hopperOptions.AdditionalInboxes)
+        {
+            Guard.Against<InvalidOperationException>(inboxOptions.WorkTransportUri == null, string.Format(Resources.AdditionalInboxWorkTransportUriMissingException, name));
+            Guard.Against<InvalidOperationException>(inboxOptions.DeferredTransportUri != null, string.Format(Resources.AdditionalInboxDeferredTransportUriException, name));
+        }
+
+        // An additional inbox may share an error transport, but its work transport may not be any other transport
+        // used by the endpoint.
+        var usedUris = new List<Uri?>
+            {
+                _hopperOptions.Inbox.WorkTransportUri,
+                _hopperOptions.Inbox.DeferredTransportUri,
+                _hopperOptions.Inbox.ErrorTransportUri,
+                _hopperOptions.Outbox.WorkTransportUri,
+                _hopperOptions.Outbox.ErrorTransportUri
+            }
+            .Concat(_hopperOptions.AdditionalInboxes.Values.Select(item => item.ErrorTransportUri))
+            .OfType<Uri>()
+            .ToList();
+
+        foreach (var (name, inboxOptions) in _hopperOptions.AdditionalInboxes)
+        {
+            var workTransportUri = inboxOptions.WorkTransportUri!;
+
+            Guard.Against<InvalidOperationException>(usedUris.Any(uri => uri.Equals(workTransportUri)), string.Format(Resources.AdditionalInboxDuplicateWorkTransportUriException, name, workTransportUri));
+
+            usedUris.Add(workTransportUri);
         }
     }
 }
