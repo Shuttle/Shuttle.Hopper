@@ -35,7 +35,7 @@ public class DeferTransportMessageObserver(IOptions<HopperOptions> hopperOptions
             {
                 await deferredTransport.SendAsync(stream, pipelineContext.Pipeline, cancellation).ConfigureAwait(false);
 
-                await _deferredMessageProcessorContext.MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
+                await (state.GetDeferredMessageProcessorContext() ?? _deferredMessageProcessorContext).MessageDeferredAsync(transportMessage.IgnoreUntil, cancellation).ConfigureAwait(false);
             }
         }
 

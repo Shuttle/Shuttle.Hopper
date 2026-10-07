@@ -25,7 +25,9 @@ public class ProcessDeferredMessageObserver(IOptions<HopperOptions> hopperOption
             return;
         }
 
-        await workTransport.SendAsync(receivedMessage.Stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
+        var targetTransport = state.FindAdditionalInboxWorkTransport(transportMessage.RecipientInboxWorkTransportUri) ?? workTransport;
+
+        await targetTransport.SendAsync(receivedMessage.Stream, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
         await deferredTransport.AcknowledgeAsync(receivedMessage.AcknowledgementToken, pipelineContext.Pipeline, cancellationToken).ConfigureAwait(false);
 
         state.DeferredMessageReturned();

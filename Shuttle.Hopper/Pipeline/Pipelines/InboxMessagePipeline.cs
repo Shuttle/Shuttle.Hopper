@@ -37,13 +37,6 @@ public class InboxMessagePipeline : Pipeline, IInboxMessagePipeline
         Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
         Guard.AgainstNull(busConfiguration);
 
-        State.SetWorkTransport(Guard.AgainstNull(busConfiguration.Inbox!.WorkTransport));
-        State.SetDeferredTransport(busConfiguration.Inbox.DeferredTransport);
-        State.SetErrorTransport(busConfiguration.Inbox.ErrorTransport);
-
-        State.SetDurationToIgnoreOnFailure(hopperOptions.Value.Inbox.IgnoreOnFailureDurations.Count > 0
-            ? hopperOptions.Value.Inbox.IgnoreOnFailureDurations 
-            : HopperOptions.DefaultIgnoreOnFailureDurations);
-        State.SetMaximumFailureCount(hopperOptions.Value.Inbox.MaximumFailureCount);
+        State.BindInbox(Guard.AgainstNull(busConfiguration.Inbox), hopperOptions.Value.Inbox);
     }
 }

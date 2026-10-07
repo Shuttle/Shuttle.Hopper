@@ -11,7 +11,7 @@ public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportF
     private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
     private readonly ITransportFactoryService _transportFactoryService = Guard.AgainstNull(transportFactoryService);
 
-    private readonly List<ITransport> _transports = [];
+    private readonly Dictionary<Uri, ITransport> _transports = new();
     private readonly IUriResolver _uriResolver = Guard.AgainstNull(uriResolver);
     private bool _disposed;
 
@@ -29,7 +29,14 @@ public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportF
     {
         Guard.AgainstNull(uri);
 
-        return Task.FromResult(_transports.Find(candidate => candidate.Uri.Uri.Equals(uri)));
+        return Task.FromResult(Find(uri));
+    }
+
+    private ITransport? Find(Uri uri)
+    {
+        return _transports.TryGetValue(uri, out var transport)
+            ? transport
+            : _transports.Values.FirstOrDefault(candidate => candidate.Uri.Uri.Equals(uri));
     }
 
     public async ValueTask DisposeAsync()
@@ -39,7 +46,7 @@ public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportF
             return;
         }
 
-        foreach (var transport in _transports)
+        foreach (var transport in _transports.Values.Distinct())
         {
             await _hopperOptions.TransportDisposing.InvokeAsync(new(transport)).ConfigureAwait(false);
 
@@ -66,7 +73,7 @@ public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportF
 
         try
         {
-            transport = _transports.Find(candidate => candidate.Uri.Uri.Equals(uri));
+            transport = Find(uri);
 
             if (transport != null)
             {
@@ -91,7 +98,7 @@ public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportF
                 transport = await CreateAsync(_transportFactoryService.Get(transportUri.Scheme), transportUri, cancellationToken).ConfigureAwait(false); 
             }
 
-            _transports.Add(transport);
+            _transports.Add(uri, transport);
 
             return transport;
         }

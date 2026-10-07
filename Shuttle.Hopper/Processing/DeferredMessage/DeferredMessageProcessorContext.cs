@@ -4,9 +4,15 @@ using Shuttle.Pipelines;
 
 namespace Shuttle.Hopper;
 
-public class DeferredMessageProcessorContext(IOptions<HopperOptions> hopperOptions) : IDeferredMessageProcessorContext
+public class DeferredMessageProcessorContext(HopperOptions hopperOptions, InboxOptions inboxOptions) : IDeferredMessageProcessorContext
 {
-    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value);
+    public DeferredMessageProcessorContext(IOptions<HopperOptions> hopperOptions)
+        : this(Guard.AgainstNull(Guard.AgainstNull(hopperOptions).Value), hopperOptions.Value.Inbox)
+    {
+    }
+
+    private readonly HopperOptions _hopperOptions = Guard.AgainstNull(hopperOptions);
+    private readonly InboxOptions _inboxOptions = Guard.AgainstNull(inboxOptions);
     private readonly SemaphoreSlim _lock = new(1, 1);
     private Guid _checkpointMessageId = Guid.Empty;
     public Guid CheckpointMessageId => _checkpointMessageId;
@@ -14,7 +20,7 @@ public class DeferredMessageProcessorContext(IOptions<HopperOptions> hopperOptio
 
     public DateTimeOffset NextProcessingAt { get; private set; } = DateTimeOffset.MinValue;
 
-    public bool ShouldCheckDeferredMessages => _hopperOptions.Inbox.DeferredTransportUri != null && DateTimeOffset.UtcNow > NextProcessingAt;
+    public bool ShouldCheckDeferredMessages => _inboxOptions.DeferredTransportUri != null && DateTimeOffset.UtcNow > NextProcessingAt;
 
     public async ValueTask<bool> GetResultAsync(IState state, CancellationToken cancellationToken = default)
     {
@@ -62,7 +68,7 @@ public class DeferredMessageProcessorContext(IOptions<HopperOptions> hopperOptio
                 return false;
             }
 
-            var nextProcessingDateTime = DateTimeOffset.UtcNow.Add(_hopperOptions.Inbox.DeferredMessageProcessorResetInterval);
+            var nextProcessingDateTime = DateTimeOffset.UtcNow.Add(_inboxOptions.DeferredMessageProcessorResetInterval);
 
             await AdjustNextProcessingDateTimeAsync(IgnoreUntil < nextProcessingDateTime
                 ? IgnoreUntil

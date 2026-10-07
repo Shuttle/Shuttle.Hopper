@@ -12,11 +12,17 @@ public class DeferredMessagePipeline : Pipeline, IDeferredMessagePipeline
         : base(pipelineOptions, serviceProvider)
     {
         Guard.AgainstNull(busConfiguration);
-        Guard.AgainstNull(busConfiguration.Inbox);
 
-        State.SetWorkTransport(Guard.AgainstNull(busConfiguration.Inbox!.WorkTransport));
-        State.SetErrorTransport(Guard.AgainstNull(busConfiguration.Inbox.ErrorTransport));
-        State.SetDeferredTransport(Guard.AgainstNull(busConfiguration.Inbox.DeferredTransport));
+        var inbox = Guard.AgainstNull(busConfiguration.Inbox);
+
+        // The primary inbox may have no deferred transport while an additional inbox has its own, in which case the
+        // additional inbox's deferred message processor binds the state.
+        if (inbox.HasDeferredTransport())
+        {
+            State.BindDeferredInbox(inbox, busConfiguration.AdditionalInboxes.Values
+                .Where(item => item.DeferredTransport == inbox.DeferredTransport)
+                .Select(item => Guard.AgainstNull(item.WorkTransport)));
+        }
 
         AddStage("Process")
             .WithEvent<ReceiveMessage>()
