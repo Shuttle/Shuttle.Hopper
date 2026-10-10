@@ -229,7 +229,7 @@ public class HandleMessageObserverFixture
 
         messageHandlerInvoker.Setup(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), It.IsAny<CancellationToken>())).Returns(ValueTask.FromResult(false));
 
-        Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
+        await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
         messageHandlerInvoker.Verify(m => m.InvokeAsync(It.IsAny<IPipelineContext<HandleMessage>>(), It.IsAny<CancellationToken>()), Times.Once);
 

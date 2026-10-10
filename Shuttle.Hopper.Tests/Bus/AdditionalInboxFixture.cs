@@ -136,37 +136,37 @@ public class AdditionalInboxFixture
     }
 
     [Test]
-    public void Should_fail_to_start_when_an_additional_inbox_is_configured_but_not_registered()
+    public async Task Should_fail_to_start_when_an_additional_inbox_is_configured_but_not_registered()
     {
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["unregistered"] = new() { WorkTransportUri = new("resilience://resilience/work-unregistered") };
         }, "unregistered");
     }
 
     [Test]
-    public void Should_fail_to_start_when_an_additional_inbox_has_no_work_transport_uri()
+    public async Task Should_fail_to_start_when_an_additional_inbox_has_no_work_transport_uri()
     {
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["priority"].WorkTransportUri = null;
         }, "'WorkTransportUri'");
     }
 
     [Test]
-    public void Should_fail_to_start_when_an_additional_inbox_uses_a_duplicate_work_transport_uri()
+    public async Task Should_fail_to_start_when_an_additional_inbox_uses_a_duplicate_work_transport_uri()
     {
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["priority"].WorkTransportUri = new(WorkUri);
         }, WorkUri);
 
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["priority"].WorkTransportUri = new(DeferredUri);
         }, DeferredUri);
 
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["priority"].WorkTransportUri = new(ErrorUri);
         }, ErrorUri);
@@ -228,23 +228,23 @@ public class AdditionalInboxFixture
     }
 
     [Test]
-    public void Should_fail_to_start_when_an_additional_inbox_uses_a_duplicate_deferred_transport_uri()
+    public async Task Should_fail_to_start_when_an_additional_inbox_uses_a_duplicate_deferred_transport_uri()
     {
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["priority"].DeferredTransportUri = new(DeferredUri);
         }, DeferredUri);
 
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.AdditionalInboxes["priority"].DeferredTransportUri = new(PriorityWorkUri);
         }, PriorityWorkUri);
     }
 
     [Test]
-    public void Should_fail_to_start_when_an_additional_inbox_with_its_own_deferred_transport_has_no_error_transport()
+    public async Task Should_fail_to_start_when_an_additional_inbox_with_its_own_deferred_transport_has_no_error_transport()
     {
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.Inbox.ErrorTransportUri = null;
             options.AdditionalInboxes["priority"].DeferredTransportUri = new(PriorityDeferredUri);
@@ -273,15 +273,15 @@ public class AdditionalInboxFixture
             Assert.That(handled.GetValueOrDefault(id), Is.EqualTo(PriorityWorkUri));
         });
 
-        var exception = Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () => await context.SendAsync(new(), builder => builder.ToInbox("unknown")));
+        var exception = await Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () => await context.SendAsync(new(), builder => builder.ToInbox("unknown")));
 
         Assert.That(exception!.AllMessages(), Does.Contain("'unknown'"));
     }
 
     [Test]
-    public void Should_fail_to_start_when_additional_inboxes_exist_without_a_primary_inbox()
+    public async Task Should_fail_to_start_when_additional_inboxes_exist_without_a_primary_inbox()
     {
-        AssertStartFails(options =>
+        await AssertStartFailsAsync(options =>
         {
             options.Inbox.WorkTransportUri = null;
             options.Inbox.DeferredTransportUri = null;
@@ -289,9 +289,9 @@ public class AdditionalInboxFixture
         }, "'Inbox.WorkTransportUri'");
     }
 
-    private static void AssertStartFails(Action<HopperOptions> configureOptions, string expectedMessage)
+    private static async Task AssertStartFailsAsync(Action<HopperOptions> configureOptions, string expectedMessage)
     {
-        var exception = Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () =>
+        var exception = await Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () =>
         {
             await using var context = await AdditionalInboxContext.StartAsync(configureOptions, async _ => await Task.CompletedTask);
         });

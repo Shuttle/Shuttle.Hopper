@@ -68,7 +68,7 @@ public class BusControlFixture
 
         var busControl = serviceProvider.GetRequiredService<IBusControl>();
 
-        Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () => await busControl.StartAsync());
+        await Assert.ThrowsAsync(Is.InstanceOf<Exception>(), async () => await busControl.StartAsync());
 
         Assert.Multiple(() =>
         {

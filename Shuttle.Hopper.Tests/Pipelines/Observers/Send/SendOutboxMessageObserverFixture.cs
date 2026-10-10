@@ -8,7 +8,7 @@ namespace Shuttle.Hopper.Tests;
 public class SendOutboxMessageObserverFixture
 {
     [Test]
-    public void Should_throw_exception_on_invariant_failure_async()
+    public async Task Should_throw_exception_on_invariant_failure_async()
     {
         var transportService = new Mock<ITransportService>();
 
@@ -21,21 +21,21 @@ public class SendOutboxMessageObserverFixture
             .AddStage(".")
             .WithEvent<DispatchTransportMessage>();
 
-        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(async () => await pipeline.ExecuteAsync())!;
+        var exception = (await Assert.ThrowsAsync<Pipelines.PipelineException>(async () => await pipeline.ExecuteAsync()))!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.TransportMessage));
 
         pipeline.State.SetTransportMessage(new());
 
-        exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        exception = (await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync()))!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.ReceivedMessage));
 
         pipeline.State.SetReceivedMessage(new(Stream.Null, Guid.NewGuid()));
 
-        exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        exception = (await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync()))!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(nameof(TransportMessage.RecipientInboxWorkTransportUri)));

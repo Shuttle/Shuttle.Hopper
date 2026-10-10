@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -43,7 +43,7 @@
 
   <PropertyGroup>
     <Description>Hopper is a flexible enterprise service bus which works with Azure Storage Queues, Amazon SQS, RabbitMQ, Kafka, and Event Hubs through a provider plugin API.</Description>
-    <Version>22.1.0</Version>
+    <Version>22.1.1</Version>
     <PackageProjectUrl>https://github.com/shuttle/Shuttle.Hopper</PackageProjectUrl>
     <RepositoryUrl>https://github.com/shuttle/Shuttle.Hopper.git</RepositoryUrl>
     <PackageTags>shuttle</PackageTags>

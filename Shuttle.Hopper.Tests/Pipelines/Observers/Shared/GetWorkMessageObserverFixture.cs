@@ -8,7 +8,7 @@ namespace Shuttle.Hopper.Tests;
 public class GetWorkMessageObserverFixture
 {
     [Test]
-    public void Should_throw_exception_when_required_state_is_missing_async()
+    public async Task Should_throw_exception_when_required_state_is_missing_async()
     {
         var observer = new ReceiveWorkMessageObserver();
 
@@ -19,7 +19,7 @@ public class GetWorkMessageObserverFixture
             .AddStage(".")
             .WithEvent<ReceiveMessage>();
 
-        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        var exception = (await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync()))!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.WorkTransport));

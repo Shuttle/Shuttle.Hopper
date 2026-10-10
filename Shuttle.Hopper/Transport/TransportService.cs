@@ -46,18 +46,33 @@ public class TransportService(IOptions<HopperOptions> hopperOptions, ITransportF
             return;
         }
 
+        var exceptions = new List<Exception>();
+
+        // a failure in one transport should not prevent the remaining transports from being disposed
         foreach (var transport in _transports.Values.Distinct())
         {
-            await _hopperOptions.TransportDisposing.InvokeAsync(new(transport)).ConfigureAwait(false);
+            try
+            {
+                await _hopperOptions.TransportDisposing.InvokeAsync(new(transport)).ConfigureAwait(false);
 
-            await transport.TryDisposeAsync();
+                await transport.TryDisposeAsync();
 
-            await _hopperOptions.TransportDisposed.InvokeAsync(new(transport)).ConfigureAwait(false);
+                await _hopperOptions.TransportDisposed.InvokeAsync(new(transport)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
         }
 
         _transports.Clear();
 
         _disposed = true;
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException(exceptions);
+        }
     }
 
     public async Task<ITransport> GetAsync(Uri uri, CancellationToken cancellationToken = default)

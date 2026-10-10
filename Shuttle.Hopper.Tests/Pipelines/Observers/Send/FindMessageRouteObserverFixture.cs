@@ -29,7 +29,7 @@ public class FindMessageRouteObserverFixture
     }
 
     [Test]
-    public void Should_throw_exception_when_no_route_found_async()
+    public async Task Should_throw_exception_when_no_route_found_async()
     {
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
@@ -49,7 +49,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        var exception = (await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync()))!;
 
         messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, It.IsAny<CancellationToken>()), Times.Once);
 
@@ -60,7 +60,7 @@ public class FindMessageRouteObserverFixture
     }
 
     [Test]
-    public void Should_throw_exception_when_multiple_routes_found_async()
+    public async Task Should_throw_exception_when_multiple_routes_found_async()
     {
         var messageRouteProvider = new Mock<IMessageRouteProvider>();
         const string messageType = "message-type";
@@ -81,7 +81,7 @@ public class FindMessageRouteObserverFixture
 
         pipeline.State.SetTransportMessage(transportMessage);
 
-        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
+        var exception = await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync());
 
         messageRouteProvider.Verify(m => m.GetRouteUrisAsync(messageType, It.IsAny<CancellationToken>()), Times.Once);
 

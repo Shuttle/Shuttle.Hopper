@@ -10,7 +10,7 @@ namespace Shuttle.Hopper.Tests;
 public class DeserializeMessageObserverFixture
 {
     [Test]
-    public void Should_throw_exception_on_invariant_failure_async()
+    public async Task Should_throw_exception_on_invariant_failure_async()
     {
         var serializer = new Mock<ISerializer>();
 
@@ -23,7 +23,7 @@ public class DeserializeMessageObserverFixture
             .AddStage(".")
             .WithEvent<DeserializeMessage>();
 
-        var exception = Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync())!;
+        var exception = (await Assert.ThrowsAsync<Pipelines.PipelineException>(() => pipeline.ExecuteAsync()))!;
 
         Assert.That(exception, Is.Not.Null);
         Assert.That(exception.InnerException?.Message, Contains.Substring(StateKeys.TransportMessage));
